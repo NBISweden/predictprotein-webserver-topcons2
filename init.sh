@@ -15,6 +15,7 @@ $rundir/proj/pred/static/tmp
 $rundir/proj/pred/static/result
 $rundir/proj/pred/static/md5
 $rundir/proj/pred/static/log
+$rundir/proj/pred/static/log/stat
 $rundir/proj/pred/static/log/divided
 "
 
