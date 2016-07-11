@@ -21,6 +21,8 @@
 # ChangeLog 2016-06-28
 #   move the storage location of results to cache
 #   the results located for each job is a link to cache
+# ChangeLog 2016-07-11
+#   1. do not add deleted jobfolder to finishedjoblogfile
 
 import os
 import sys
@@ -101,6 +103,7 @@ path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
 computenodefile = "%s/static/computenode.txt"%(basedir)
 MAX_SUBMIT_JOB_PER_NODE = 400
+MAX_KEEP_DAYS = 30
 blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
 os.environ['SCAMPI_DIR'] = "/server/scampi"
 os.environ['MODHMM_BIN'] = "/server/modhmm/bin"
@@ -255,10 +258,9 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 pass
 
             if jobid in finished_job_dict:
-                #if os.path.exists(rstdir): ## do not check if the folder
-                                            ## exists, since the result folder might be cleaned
-                li = [jobid] + finished_job_dict[jobid]
-                new_finished_list.append(li)
+                if os.path.exists(rstdir):
+                    li = [jobid] + finished_job_dict[jobid]
+                    new_finished_list.append(li)
                 continue
 
 
@@ -1249,6 +1251,36 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
 #}}}
 #}}}
+def DeleteOldResult(path_result, path_log):#{{{
+    """
+    Delete jobdirs that are finished > MAX_KEEP_DAYS
+    """
+    finishedjoblogfile = "%s/finished_job.log"%(path_log)
+    finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
+    for jobid in finished_job_dict:
+        li = finished_job_dict[jobid]
+        try:
+            finish_date_str = li[8]
+        except IndexError:
+            finish_date_str = ""
+            pass
+        if finish_date_str != "":
+            isValidFinishDate = True
+            try:
+                finish_date = datetime.datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                isValidFinishDate = False
+
+            if isValidFinishDate:
+                current_time = datetime.datetime.now()
+                timeDiff = current_time - finish_date
+                if timeDiff.days > MAX_KEEP_DAYS:
+                    rstdir = "%s/%s"%(path_result, jobid)
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timdiff.days, MAX_KEEP_DAYS)
+                    myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
+                    shutil.rmtree(rstdir)
+#}}}
 def RunStatistics(path_result, path_log):#{{{
 # 1. calculate average running time, only for those sequences with time.txt
 # show also runtime of type and runtime -vs- seqlength
@@ -1945,6 +1977,7 @@ def main(g_params):#{{{
 
         if loop % 10 == 1:
             RunStatistics(path_result, path_log)
+            DeleteOldResult(path_result, path_log)
 
         if os.path.exists(gen_logfile):
             myfunc.ArchiveFile(gen_logfile, threshold_logfilesize)
