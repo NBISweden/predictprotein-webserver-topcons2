@@ -62,7 +62,7 @@ DEBUG_CACHE = False
 # make sure that only one instance of the script is running
 # this code is working 
 progname = os.path.basename(__file__)
-lockname = progname.replace(" ", "").replace("/", "-")
+lockname = os.path.realpath(__file__).replace(" ", "").replace("/", "-")
 import fcntl
 lock_file = "/tmp/%s.lock"%(lockname)
 fp = open(lock_file, 'w')
