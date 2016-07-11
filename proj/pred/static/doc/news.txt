@@ -1,0 +1,54 @@
+# Format of this news file
+# <DATE>
+# <TITLE>
+# <CONTENT>
+# one line after 
+# all time is output in Europe/Stockholm timezone
+
+# <DATE>  2015-04-20 16:02:24 CEST
+# <TITLE>  Statistics of jobs added
+# <CONTENT>  Now you can browse statistics of jobs
+# 
+# 
+# <DATE>  2015-05-06 16:02:24 CEST
+# <TITLE>  Tab news added
+# <CONTENT>  Now you can browse statistics of jobs
+
+<DATE>  2016-01-28
+<TITLE>  TOPCONS is back to normal
+<CONTENT> The transferring of virtual machines at FedCloud has been done. Now
+topcons.net should be back to normal. All pending jobs in the queue will be
+run soon..
+
+<DATE>  2016-01-17
+<TITLE>  The computational node is under maintenance
+<CONTENT> Due to the system maintenance of the computaional node for TOPCONS
+at FedCloud, multiple-sequence jobs and jobs submitted via WSDL will not be
+run. This problem will be solved in a few days. At the moment, please submit
+your jobs at the web page with one sequence a time.
+
+
+
+
+<DATE>  2015-08-24
+<TITLE>  Jobs stuck in the queue get running now
+<CONTENT> Many jobs, especially jobs with multiple query sequences, have stuck
+in the queue due to failure of our computational node. All these jobs are
+revived and will get running soon.
+
+We have also implemented a better queueing system so that dead jobs due to,
+e.g. system rebooting, will be re-activated automatically when the system is
+back.
+
+
+
+<DATE>  2015-06-11
+<TITLE>  Frequent job submission failure problem is solved
+<CONTENT>  The TOPCONS web-server has experienced a problem recently that single-sequence
+jobs submitted from the web-page fail frequently. The problem was caused by
+randomly wrongly loaded virtual environment and it has been solved. However, you may
+still experience occasional job submission failure when the server is
+overloaded.  If this happens, please try again in a few moments. 
+
+
+

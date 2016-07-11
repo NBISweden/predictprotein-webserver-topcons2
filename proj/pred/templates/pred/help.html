@@ -1,0 +1,239 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+  <h2>Help</h2>
+  <table cellspacing=0 cellpadding=0 border=0>
+    <tr>
+      <td class="Greylink"><a href="#1">1.&nbsp;Summary<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#2">2.&nbsp;Usage<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#3">3.&nbsp;Output<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#4">4.&nbsp;References<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      <td class="Greylink"><a href="#5">5.&nbsp;Contact<img src="{{STATIC_URL}}/images/0.gif" height=1 width=5 border=0><img src="{{STATIC_URL}}/images/arrow.png" border=0><img src="{{STATIC_URL}}/images/0.gif" height=1 width=40 border=0></a><td>
+      </tr>
+  </table>
+
+  <table>
+    <tr>
+      <td valign="top" colspan="2">
+      <br><br>
+      <a name="1"></a>
+      <h3>1. Summary</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+        </tr>
+        <tr> <td>
+            <p>
+            Given the amino acid sequence of a putative alpha-helical transmembrane (TM)
+            protein, TOPCONS predicts the topology of the protein, i.e. a specification of
+            the membrane spanning segments and their IN/OUT orientation relative to the
+            membrane. The prediction is a consensus from five different topology prediction
+            algorithms: OCTOPUS, Philius, PolyPhobius, SCAMPI (multiple sequence mode) and
+            SPOCTOPUS . These five predictions are used as input to the TOPCONS Hidden
+            Markov Model (HMM), which gives a consensus prediction for the protein,
+            together with a reliability score based on the agreement of the included
+            methods across the sequence. In addition, the &Delta;G-scale is used to predict the
+            free energy of membrane insertion for a window of 19 amino acids centered
+            around each position in the sequence. For an explanation of the methods
+            included in the server, see the corresponding links. 
+            </p>
+
+            <p>
+            The main improvement from the first version of the TOPCONS webserver is that
+            now the server can distinguish between TM and non-TM proteins more efficiently,
+            making it ideal for batch submission of proteins and whole-genome analyses.
+            Further, the server also predicts the presence of potential cleavable signal
+            peptides in the input sequence(s), thus prior scanning with an separate signal
+            peptide predictor is no longer required.
+            </p>
+            <P>TOPCONS is supported by the <a href=\"https://www.egi.eu/infrastructure/cloud/\">EGI FedCloud
+            </a>with the VO VO.NBIS.SE for computational resource.
+            </P>
+          </td>
+        </tr>
+      </table>
+
+      <br><br>
+
+      <a name="2"></a>
+      <h3>2. Usage</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+        </tr>
+        <tr><td>
+            <p>
+            Input to the server is an amino acid sequence in <a
+              href='http://blast.ncbi.nlm.nih.gov/blastcgihelp.shtml'
+              target=\'_blank\'>FASTA</a> format. The user can either submit paste
+            one or more sequences in the text-area provided, or, alternatively,
+            upload a file for batch submission of sequences. A sequence profile is
+            created for the input sequence using BLAST, and this profile is used
+            as input to all the different methods (except Philius, where only the
+            query sequence is used).
+            </p>
+
+            <i>Example input:</i> <br>
+            <span style="font-family: courier">
+              &gt;sp|O93740|BACR_HALS4 Bacteriorhodopsin Halobacterium sp.<br>
+              MCCAALAPPMAATVGPESIWLWIGTIGMTLGTLYFVGRGRGVRDRKMQEFYIITIFITTI<br>
+              AAAMYFAMATGFGVTEVMVGDEALTIYWARYADWLFTTPLLLLDLSLLAGANRNTIATLI<br>
+              GLDVFMIGTGAIAALSSTPGTRIAWWAISTGALLALLYVLVGTLSENARNRAPEVASLFG<br>
+              RLRNLVIALWFLYPVVWILGTEGTFGILPLYWETAAFMVLDLSAKVGFGVILLQSRSVLE<br>
+              RVATPTAAPT<br>
+            </span>
+            <br>
+
+            <!--
+            Optionally, parts of the sequence can be constrained to a known
+            Inside/Outside/Membrane-location, by clicking the <i>Restrainment
+            options</i>. Apart from N- and C-terminal constraints, any type of
+          constraint can be entered in the <i>Other</i> textbox using the
+          format: [first]-[last]-[label]; where [first] is first residue and
+          [last] is last residue in restrained range, and [label] is i (Inside),
+          o (Outside) or M (Membrane).<br><br>
+            <i>Example:</i><br> 
+            1-1-o;20-25-M;<br>
+            -->
+      </td></tr>
+    </table>
+
+    <br><br>
+
+      <a name="3"></a>
+
+      <h3>3. Output</h3><br>
+      <table cellspacing=0 cellpadding=0 border=0>
+        <tr>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+          <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td></tr>
+        <tr><td>
+            The server outputs the topology predictions using all the individual
+            methods, as well as the consensus prediction (TOPCONS 2.0). In
+            addition, predicted &Delta;G-values and reliability scores are given for
+            each position in the sequence. The results are both displayed
+            graphically and are available for download in text format in the
+            TOPCONS result file. In the case of batch submission, the results
+            are only presented in raw text format. High-resolution versions of
+            the images are also available for download (single-sequence
+            submission).
+            <br><br>
+      </td></tr>
+    </table>
+    <br><br>
+
+    <a name="4"></a>
+
+    <h3>4. References</h3><br>
+    <table cellspacing=0 cellpadding=5 border=0>
+      <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+      </tr>
+      <tr><td>
+          <b>TOPCONS 2.0:</b><br>
+          The TOPCONS web server for combined membrane protein topology and
+          signal peptide prediction.<br>
+          Tsirigos KD*, Peters C*, Shu N*, K&auml;ll L and Elofsson A (2015) Nucleic
+          Acids Research 43 (Webserver issue), W401-W407. [<a
+            href="http://www.ncbi.nlm.nih.gov/pubmed/25969446">PubMed</a>]
+      </td></tr>
+
+
+      <tr><td>
+          <b>TOPCONS:</b><br>
+          TOPCONS: consensus prediction of membrane protein topology.<br>
+          Bernsel A*, Viklund H*, Hennerdal A and Elofsson A (2009) Nucleic
+          Acids Research 37 (Webserver issue), W465-8. [<a
+            href="http://www.ncbi.nlm.nih.gov/pubmed/19429891">PubMed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>OCTOPUS:</b>
+          A method that improves topology prediction for transmembrane proteins
+          by using two-track ANN-based preference scores and an improved
+          topological grammar. <br>
+          Viklund H and Elofsson A (2008) Bioinformatics. 24, 1662-1668. 
+          [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18474507">Pubmed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>PHILIUS:</b>
+          Transmembrane topology and signal peptide prediction using dynamic
+          bayesian networks. <br>
+          Reynolds SM, K&auml;ll L, Riffle ME, Bilmes JA and Noble WS (2008) PLoS
+          Comput Biol. 11. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18989393">Pubmed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>POLYPHOBIUS</b>
+          An HMM posterior decoder for sequence feature prediction that includes
+          homology information. <br>
+          K&auml;ll L,  Krogh A and Sonnhammer EL (2005) Bioinformatics. 21,
+          i251-i257. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/15961464">Pubmed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>SCAMPI:</b>
+          Prediction of membrane-protein topology from first principles. <br>
+          Bernsel A, Viklund H, Falk J, Lindahl E, von Heijne G and Elofsson A
+          (2008) Proc. Natl. Acad. Sci. USA. 105, 7177-7181. [<a
+            href="http://www.ncbi.nlm.nih.gov/pubmed/18477697">Pubmed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>SPOCTOPUS:</b>
+          SPOCTOPUS: a combined predictor of signal peptides and membrane
+          protein topology. <br>
+          Viklund H, Bernsel A, Skwark M and Elofsson A. (2008) Bioinformatics.
+          24, 2928-2929. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18945683">Pubmed</a>]
+      </td></tr>
+
+      <tr><td>
+          <b>&Delta;G-scale:</b>
+          Molecular code for transmembrane-helix recognition by the Sec61
+          translocon. <br>
+          Hessa T, Meindl-Beinker NM, Bernsel A, Kim H, Sato Y, Lerch-Bader M,
+          Nilsson I, White SH and von Heijne G. (2007) Nature 450, 1026-1030.
+          [<a
+          href="http://www.ncbi.nlm.nih.gov/sites/entrez?Db=pubmed&Cmd=ShowDetailView&TermToSearch=18075582">PubMed</a>] 
+      </td></tr>
+  </table>
+
+  <br><br>
+  <a name="5"></a>
+
+    <h3>5. Contact</h3><br
+    <table cellspacing=0 cellpadding=0 border=0>
+      <tr>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+        <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+      </tr>
+      <tr><td>
+          <b>Arne Elofsson group</b><br><br>
+          <!--<a href="http://www.cbr.su.se/">Center for Biomembrane Research</a><br><br>-->
+          <a href="http://www.dbb.su.se/">Department for Biochemistry and Biophysics</a><br>
+          The Arrhenius Laboratories for Natural Sciences<br>
+          <a href="http://www.su.se/">Stockholm University</a><br>
+          SE-106 91 Stockholm, Sweden<br><br>
+
+          <a href="http://www.scilifelab.se">Science for Life Laboratory</a><br>
+            Box 1031, 17121 Solna, Sweden
+            <br><br>
+          <table cellspacing=0 cellpadding=0 border=0>
+            <tr><td>E-mail:</td><td>&nbsp;&nbsp;&nbsp;</td><td><a href="mailto:arne@bioinfo.se">arne@bioinfo.se</a></td></tr>
+            <tr><td>Phone:</td><td>&nbsp;&nbsp;&nbsp;</td><td>(+46)-8-16&nbsp;4672</td></tr>
+            <tr><td>Fax:</td><td>&nbsp;&nbsp;&nbsp;</td><td>(+46)-8-15 3679</td></tr>
+          </table>
+          <br><br><br>
+    </td></tr>
+  </table>
+
+  </table>
+
+{% endblock %}
+

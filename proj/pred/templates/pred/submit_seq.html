@@ -1,0 +1,82 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+
+{#<h2>The new consensus membrane topology predictor: faster and more accurate</h2>#}
+{#<h2>TOPCONS 2.0: A combined membrane protein topology and signal peptide prediction consensus server</h2>#}
+{#<h2>The updated TOPCONS web server for combined membrane protein topology and signal peptide prediction </h2>#}
+<h2>Consensus prediction of membrane protein topology and signal peptides</h2>
+<p>Please paste your amino acid sequences in <a href='http://blast.ncbi.nlm.nih.gov/blastcgihelp.shtml' target=\'_blank\'>FASTA</a> format (max 100000 chars)<br>Allowed characters: "ABCDEFGHIKLMNPQRSTUVWYZX*", of which "BUZ*" will be converted to 'X'
+<br>
+(Sequences should be no shorter than 10 amino acids)
+</p>
+
+<form name="seq_form" action="/pred/" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    Force run (do not use cached results): <input type="checkbox" name="forcerun">
+
+    <!--
+    <br><br>
+    <a href="#" onClick="javascript:hideShow('options');return false;" style="text-decoration:none; color:#333333"><b>Restrainment options</b><img id="arrow" src='{{STATIC_URL}}images/arrow90.png' border=0>
+    </a>
+
+    <br>
+    <table cellspacing=0 cellpadding=0 border=0 id="options">
+        <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=10></td></tr>
+        <tr><td colspan=2>Restrain parts of the sequence to a known Inside/Outside/Membrane location</td></tr>
+        <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+        <tr><td>N-term&nbsp;</td><td>
+                <select name="Nfix">
+                    <option value=""></option>
+                    <option value="i">inside (cytoplasmic)</option>
+                    <option value="o">outside (non-cytoplasmic)</option>
+                </select> (optional)
+        </td></tr>
+
+        <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+        <tr><td>C-term&nbsp;</td><td>
+                <select name="Cfix">
+                    <option value=""></option>
+                    <option value="i">Inside (cytoplasmic)</OPTION>
+                    <option value="o">Outside (non-cytoplasmic)</OPTION>
+                </select> (Optional)
+        </td></tr>
+        <tr><td colspan=2><img src='{{STATIC_URL}}images/0.gif' width=1 height=5></td></tr>
+        <tr><td>Other&nbsp;</td><td><input type="text" name="fix_str" size=41 maxlength=2048 title="fix_str"></input> (Optional)</td></tr>
+        <tr><td>&nbsp;</td><td><small>String of one or more entries with format [first]-[last]-[label]; where [first] is first residue and [last] is last residue in restrained range, and [label] is i (Inside), o (Outside) or M (Membrane). Example: 1-1-o;20-25-M;
+            </td></tr>
+        </table>
+
+-->
+        <script language="javascript">
+document.getElementById('options').style.display = 'none';
+        </script>
+        <br><br>
+        <p> <input type="submit" name=do value="Submit" /> <INPUT type="reset" value="Clear" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="Generate example input" onclick="example_fill();"></p>
+
+</form>
+    <br><br><br>
+    <hr>
+   <table cellspacing=0 cellpadding=5 border=0>
+     <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+       <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+     </tr>
+     <tr><td>
+         <h3>Reference</h3>
+         <b>TOPCONS:</b> [<u>Please cite this paper if you find TOPCONS useful in your research</u>]
+         <br>
+          The TOPCONS web server for combined membrane protein topology and
+          signal peptide prediction.<br>
+          Tsirigos KD*, Peters C*, Shu N*, K&auml;ll L and Elofsson A (2015) Nucleic
+          Acids Research 43 (Webserver issue), W401-W407. [<a
+            href="http://www.ncbi.nlm.nih.gov/pubmed/25969446">PubMed</a>]
+     </td></tr>
+ </table>
+
+{% endblock %}

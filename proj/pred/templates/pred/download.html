@@ -1,0 +1,58 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+  <h2>Download</h2>
+  <br><br>
+  <table cellspacing=0 cellpadding=0 border=0>
+    <tr>
+      <td>
+      <h3>1. TOPCONS2.0 dataset</h3>
+        <p style="margin-left:15px;">
+        Zip file for the dataset used in the paper: <a
+            href="{{STATIC_URL}}download/TOPCONS2.0_datasets.zip">TOPCONS2.0_datasets.zip</a>
+        <br><br>
+        <i>Format:</i><br>
+        <pre>
+  Each target contains three lines
+  line 1: Sequence description
+  line 2: Amino acid sequence in one letter code
+  line 3: Topology and signal peptide of the protein in one letter code
+          S - Signal peptide
+          I - Inside of the membrane
+          O - Outside of the membrane
+          M - Transmembrane region
+        </pre>
+        <p>
+      </td>
+    </tr>
+
+    <tr>
+        <td>
+            <h3>2. Software of TOPCONS2.0 on the github:</h3>
+            <p style="margin-left:15px;">
+            <a href="https://github.com/ElofssonLab/TOPCONS2">https://github.com/ElofssonLab/TOPCONS2</a>
+            <br><br>
+            </p>
+        </td>
+    </tr>
+    {%if zipfile_database %}
+        <tr>
+            <td>
+                <h3>3. The database for TOPCONS2.0 in one zip file. </h3>
+                <p style="margin-left:15px;">
+                <font color="red">
+                    Please note that the zip file is very large.<br><br>
+                </font>
+                <a href="{{STATIC_URL}}download/{{zipfile_database}}">{{zipfile_database}} </a>({{size_database}})<br><br>
+                    <a href="{{STATIC_URL}}download/README.txt">README for the TOPCONS2.0 package</a>
+                    <br><br>
+                </p>
+            </td>
+        </tr>
+    {%endif%}
+  </table>
+{% endblock %}
+

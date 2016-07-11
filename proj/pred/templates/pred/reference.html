@@ -1,0 +1,87 @@
+{% extends "pred/base_layout.html" %}
+
+{%block content_right_panel %}
+    {% if username %}
+      {% include "pred/user_header.html" %}
+    {% endif %}
+   <h2>References</h2>
+   <table cellspacing=0 cellpadding=5 border=0>
+     <tr><td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=400></td>
+       <td><img src="{{STATIC_URL}}/images/0.gif" border=0 height=1 width=50></td>
+     </tr>
+     <tr><td>
+         <b>TOPCONS:</b> [<u>Please cite this paper if you find TOPCONS useful in your research</u>]
+         <br>
+          The TOPCONS web server for combined membrane protein topology and
+          signal peptide prediction.<br>
+          Tsirigos KD*, Peters C*, Shu N*, K&auml;ll L and Elofsson A (2015) Nucleic
+          Acids Research 43 (Webserver issue), W401-W407. [<a
+            href="http://www.ncbi.nlm.nih.gov/pubmed/25969446">PubMed</a>]
+        <hr>
+     </td></tr>
+
+
+     <tr><td>
+         <b>Old TOPCONS:</b><br>
+         TOPCONS: consensus prediction of membrane protein topology.<br>
+         Bernsel A*, Viklund H*, Hennerdal A and Elofsson A (2009) Nucleic
+         Acids Research 37 (Webserver issue), W465-8. [<a
+           href="http://www.ncbi.nlm.nih.gov/pubmed/19429891">PubMed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>OCTOPUS:</b>
+         A method that improves topology prediction for transmembrane proteins
+         by using two-track ANN-based preference scores and an improved
+         topological grammar. <br>
+         Viklund H and Elofsson A (2008) Bioinformatics. 24, 1662-1668. 
+         [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18474507">Pubmed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>PHILIUS:</b>
+         Transmembrane topology and signal peptide prediction using dynamic
+         bayesian networks. <br>
+         Reynolds SM, K&auml;ll L, Riffle ME, Bilmes JA and Noble WS (2008) PLoS
+         Comput Biol. 11. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18989393">Pubmed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>POLYPHOBIUS</b>
+         An HMM posterior decoder for sequence feature prediction that includes
+         homology information. <br>
+         K&auml;ll L,  Krogh A and Sonnhammer EL (2005) Bioinformatics. 21,
+         i251-i257. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/15961464">Pubmed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>SCAMPI:</b>
+         Prediction of membrane-protein topology from first principles. <br>
+         Bernsel A, Viklund H, Falk J, Lindahl E, von Heijne G and Elofsson A
+         (2008) Proc. Natl. Acad. Sci. USA. 105, 7177-7181. [<a
+           href="http://www.ncbi.nlm.nih.gov/pubmed/18477697">Pubmed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>SPOCTOPUS:</b>
+         SPOCTOPUS: a combined predictor of signal peptides and membrane
+         protein topology. <br>
+         Viklund H, Bernsel A, Skwark M and Elofsson A. (2008) Bioinformatics.
+         24, 2928-2929. [<a href="http://www.ncbi.nlm.nih.gov/pubmed/18945683">Pubmed</a>]
+     </td></tr>
+
+     <tr><td>
+         <b>&Delta;G-scale:</b>
+         Molecular code for transmembrane-helix recognition by the Sec61
+         translocon. <br>
+         Hessa T, Meindl-Beinker NM, Bernsel A, Kim H, Sato Y, Lerch-Bader M,
+         Nilsson I, White SH and von Heijne G. (2007) Nature 450, 1026-1030.
+         [<a
+         href="http://www.ncbi.nlm.nih.gov/sites/entrez?Db=pubmed&Cmd=ShowDetailView&TermToSearch=18075582">PubMed</a>] 
+     </td></tr>
+ </table>
+
+
+
+{% endblock %}
+
