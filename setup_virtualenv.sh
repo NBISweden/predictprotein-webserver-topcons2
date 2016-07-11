@@ -22,6 +22,7 @@ pip install suds
 pip install misc/spyne.github.tar.gz
 pip install --upgrade requests
 pip install biopython
+pip install django-eztables
 #pip install matplotlib
 
 # install python packages for dealing with IP and country names
