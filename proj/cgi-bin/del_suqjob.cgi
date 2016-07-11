@@ -8,6 +8,7 @@ use CGI qw(:upload);
 use Cwd 'abs_path';
 use File::Basename;
 my $rundir = dirname(abs_path(__FILE__));
+my $suq = "/usr/bin/suq";
 # at proj
 my $basedir = "$rundir/../";
 my $auth_ip_file = "$basedir/auth_iplist.txt";#ip address which allows to run cgi script
@@ -44,16 +45,16 @@ if(param())
 
     if (grep { $_ eq $remote_host } @auth_iplist) {
         if ($jobid=~/rst_/){
-            $jobid =`suq -b $suqbase ls | grep $jobid | awk '{print \$1}'`;
+            $jobid =`$suq -b $suqbase ls | grep $jobid | awk '{print \$1}'`;
             chomp($jobid);
         }
         print "<pre>";
         print "Host IP: $remote_host\n\n";
 # set ntask
         if ($jobid ne "" ){
-            print "suq -b $suqbase del $jobid\n";
-            `suq -b $suqbase del $jobid`;
-            $suqlist = `suq -b $suqbase ls`;
+            print "$suq -b $suqbase del $jobid\n";
+            `$suq -b $suqbase del $jobid`;
+            $suqlist = `$suq -b $suqbase ls`;
             print "Suq list after deletion:\n\n";
             print "$suqlist\n";
         }else{
