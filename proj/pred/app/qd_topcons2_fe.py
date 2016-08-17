@@ -950,8 +950,12 @@ def GetResult(jobid):#{{{
                                     date_str, cmdline, str(e)), gen_errfile, "a", True)
                             pass
                         rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
-                        if os.path.exists(outpath_this_seq):
+
+                        if os.path.islink(outpath_this_seq):
+                            os.unlink(outpath_this_seq)
+                        elif os.path.exists(outpath_this_seq):
                             shutil.rmtree(outpath_this_seq)
+
                         if os.path.exists(rst_this_seq) and not os.path.exists(outpath_this_seq):
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
                             cmdline = " ".join(cmd)
@@ -1277,7 +1281,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                 if timeDiff.days > MAX_KEEP_DAYS:
                     rstdir = "%s/%s"%(path_result, jobid)
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timdiff.days, MAX_KEEP_DAYS)
+                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
                     myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}

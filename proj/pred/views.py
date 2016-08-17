@@ -1618,6 +1618,7 @@ def get_serverstatus(request):#{{{
 
     logfile_finished =  "%s/%s/%s"%(SITE_ROOT, "static/log", "finished_job.log")
     logfile_runjob =  "%s/%s/%s"%(SITE_ROOT, "static/log", "runjob_log.log")
+    logfile_country_job = "%s/%s/%s"%(path_log, "stat", "country_job_numseq.txt")
 
 # finished sequences submitted by wsdl
 # finished sequences submitted by web
@@ -1671,6 +1672,7 @@ def get_serverstatus(request):#{{{
     startdate = ""
     submitdatelist = []
     iplist = []
+    countrylist = []
     for jobid in finished_job_dict:
         li = finished_job_dict[jobid]
         try:
@@ -1695,6 +1697,14 @@ def get_serverstatus(request):#{{{
         except:
             pass
 
+#         country = "N/A"           # this is slow
+#         try:
+#             match = geolite2.lookup(ip)
+#             country = pycountry.countries.get(alpha2=match.country).name
+#             countrylist.append(country)
+#         except:
+#             pass
+
         if method_submission == "web":
             numjob_wed += 1
         elif method_submission == "wsdl":
@@ -1714,6 +1724,7 @@ def get_serverstatus(request):#{{{
         startdate = submitdatelist[0].split()[0]
 
     uniq_iplist = list(set(iplist))
+    uniq_countrylist = list(set(countrylist))
 
     MAX_ACTIVE_USER = 10
     # get most active users by num_job
@@ -1816,11 +1827,13 @@ def get_serverstatus(request):#{{{
     info['total_num_finished_seq'] = total_num_finished_seq
     info['total_num_finished_job'] = len(finished_job_dict)
     info['num_unique_ip'] = len(uniq_iplist)
+    info['num_unique_country'] = len(uniq_countrylist)
     info['num_finished_seqs_str'] = str(info['total_num_finished_seq'])
     info['num_finished_jobs_str'] = str(info['total_num_finished_job'])
     info['num_finished_jobs_web_str'] = str(numjob_wed)
     info['num_finished_jobs_wsdl_str'] = str(numjob_wsdl)
     info['num_unique_ip_str'] = str(info['num_unique_ip'])
+    info['num_unique_country_str'] = str(info['num_unique_country'])
     info['num_seq_in_local_queue'] = num_seq_in_local_queue
     info['num_seq_in_remote_queue'] = cntseq_in_remote_queue
     info['activeuserli_nseq_header'] = activeuserli_nseq_header
