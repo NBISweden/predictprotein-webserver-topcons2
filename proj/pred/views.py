@@ -1661,11 +1661,11 @@ def get_serverstatus(request):#{{{
 
 
 # get number of finished seqs
-    finishedjoblogfile = "%s/finished_job.log"%(path_log)
-    finished_job_dict = {}
+    allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
+    allfinished_job_dict = {}
     user_dict = {} # by IP
-    if os.path.exists(finishedjoblogfile):
-        finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
+    if os.path.exists(allfinishedjoblogfile):
+        allfinished_job_dict = myfunc.ReadFinishedJobLog(allfinishedjoblogfile)
     total_num_finished_seq = 0
     numjob_wed = 0
     numjob_wsdl = 0
@@ -1673,8 +1673,8 @@ def get_serverstatus(request):#{{{
     submitdatelist = []
     iplist = []
     countrylist = []
-    for jobid in finished_job_dict:
-        li = finished_job_dict[jobid]
+    for jobid in allfinished_job_dict:
+        li = allfinished_job_dict[jobid]
         try:
             numseq = int(li[4])
         except:
@@ -1697,13 +1697,13 @@ def get_serverstatus(request):#{{{
         except:
             pass
 
-#         country = "N/A"           # this is slow
-#         try:
-#             match = geolite2.lookup(ip)
-#             country = pycountry.countries.get(alpha2=match.country).name
-#             countrylist.append(country)
-#         except:
-#             pass
+        country = "N/A"           # this is slow
+        try:
+            match = geolite2.lookup(ip)
+            country = pycountry.countries.get(alpha2=match.country).name
+            countrylist.append(country)
+        except:
+            pass
 
         if method_submission == "web":
             numjob_wed += 1
@@ -1825,7 +1825,7 @@ def get_serverstatus(request):#{{{
     info['mostTM_str'] = str(mostTM)
     info['longestlength_str'] = str(longestlength)
     info['total_num_finished_seq'] = total_num_finished_seq
-    info['total_num_finished_job'] = len(finished_job_dict)
+    info['total_num_finished_job'] = len(allfinished_job_dict)
     info['num_unique_ip'] = len(uniq_iplist)
     info['num_unique_country'] = len(uniq_countrylist)
     info['num_finished_seqs_str'] = str(info['total_num_finished_seq'])
