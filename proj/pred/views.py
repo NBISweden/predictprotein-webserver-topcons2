@@ -82,6 +82,7 @@ progname =  os.path.basename(__file__)
 path_app = "%s/app"%(SITE_ROOT)
 sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
+path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
 path_tmp = "%s/static/tmp"%(SITE_ROOT)
 path_md5 = "%s/static/md5"%(SITE_ROOT)
@@ -1533,6 +1534,59 @@ def get_help(request):#{{{
 
     return render(request, 'pred/help.html', info)
 #}}}
+def get_countjob_country(request):#{{{
+    info = {}
+
+    username = request.user.username
+    client_ip = request.META['REMOTE_ADDR']
+    if username in settings.SUPER_USER_LIST:
+        isSuperUser = True
+        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log", "submitted_seq.log")
+        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log", "finished_job.log")
+    else:
+        isSuperUser = False
+        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log/divided", "%s_submitted_seq.log"%(client_ip))
+        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log/divided", "%s_finished_job.log"%(client_ip))
+
+    countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
+    lines = myfunc.ReadFile(countjob_by_country).split("\n")
+    li_countjob_country = []
+    for line in lines: 
+        if not line or line[0]=="#":
+            continue
+        strs = line.split("\t")
+        if len(strs) >= 4:
+            country = strs[0]
+            try:
+                numseq = int(strs[1])
+            except:
+                numseq = 0
+            try:
+                numjob = int(strs[2])
+            except:
+                numjob = 0
+            try:
+                numip = int(strs[3])
+            except:
+                numip = 0
+            li_countjob_country.append([country, numseq, numjob, numip])
+    li_countjob_country_header = ["Country", "Numseq", "Numjob", "NumIP"]
+
+    info['li_countjob_country'] = li_countjob_country
+    info['li_countjob_country_header'] = li_countjob_country_header
+    info['username'] = username
+    info['isSuperUser'] = isSuperUser
+    info['client_ip'] = client_ip
+
+    info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
+            divided_logfile_query, divided_logfile_finished_jobid)
+
+    return render(request, 'pred/countjob_country.html', info)
+#}}}
 def get_news(request):#{{{
     info = {}
 
@@ -1697,13 +1751,13 @@ def get_serverstatus(request):#{{{
         except:
             pass
 
-        country = "N/A"           # this is slow
-        try:
-            match = geolite2.lookup(ip)
-            country = pycountry.countries.get(alpha2=match.country).name
-            countrylist.append(country)
-        except:
-            pass
+#         country = "N/A"           # this is slow
+#         try:
+#             match = geolite2.lookup(ip)
+#             country = pycountry.countries.get(alpha2=match.country).name
+#             countrylist.append(country)
+#         except:
+#             pass
 
         if method_submission == "web":
             numjob_wed += 1
@@ -1724,7 +1778,35 @@ def get_serverstatus(request):#{{{
         startdate = submitdatelist[0].split()[0]
 
     uniq_iplist = list(set(iplist))
+
+    countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
+    lines = myfunc.ReadFile(countjob_by_country).split("\n")
+    li_countjob_country = []
+    countrylist = []
+    for line in lines: 
+        if not line or line[0]=="#":
+            continue
+        strs = line.split("\t")
+        if len(strs) >= 4:
+            country = strs[0]
+            try:
+                numseq = int(strs[1])
+            except:
+                numseq = 0
+            try:
+                numjob = int(strs[2])
+            except:
+                numjob = 0
+            try:
+                numip = int(strs[3])
+            except:
+                numip = 0
+            li_countjob_country.append([country, numseq, numjob, numip])
+            countrylist.append(country)
     uniq_countrylist = list(set(countrylist))
+
+    li_countjob_country_header = ["Country", "Numseq", "Numjob", "NumIP"]
+
 
     MAX_ACTIVE_USER = 10
     # get most active users by num_job
@@ -1837,6 +1919,9 @@ def get_serverstatus(request):#{{{
     info['num_seq_in_local_queue'] = num_seq_in_local_queue
     info['num_seq_in_remote_queue'] = cntseq_in_remote_queue
     info['activeuserli_nseq_header'] = activeuserli_nseq_header
+    info['activeuserli_njob_header'] = activeuserli_njob_header
+    info['li_countjob_country_header'] = li_countjob_country_header
+    info['li_countjob_country'] = li_countjob_country
     info['activeuserli_njob_header'] = activeuserli_njob_header
     info['activeuserli_nseq'] = activeuserli_nseq
     info['activeuserli_njob'] = activeuserli_njob

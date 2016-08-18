@@ -50,6 +50,9 @@ import subprocess
 from suds.client import Client
 import numpy
 
+from geoip import geolite2
+import pycountry
+
 os.environ['TZ'] = 'Europe/Stockholm'
 time.tzset()
 
@@ -1352,6 +1355,7 @@ def RunStatistics(path_result, path_log):#{{{
 #   get numseq_in_job vs finish time  (time_finish - time_submit)
 
     allfinished_job_dict = myfunc.ReadFinishedJobLog(allfinishedjoblogfile)
+    countjob_country = {} # countjob_country['country'] = [numseq, numjob, ip_set]
     outfile_numseqjob = "%s/numseq_of_job.stat.txt"%(path_stat)
     outfile_numseqjob_web = "%s/numseq_of_job.web.stat.txt"%(path_stat)
     outfile_numseqjob_wsdl = "%s/numseq_of_job.wsdl.stat.txt"%(path_stat)
@@ -1378,6 +1382,27 @@ def RunStatistics(path_result, path_log):#{{{
             method_submission = li[5]
         except:
             method_submission = ""
+
+        ip = ""
+        try:
+            ip = li[2]
+        except:
+            pass
+
+        country = "N/A"           # this is slow
+        try:
+            match = geolite2.lookup(ip)
+            country = pycountry.countries.get(alpha2=match.country).name
+        except:
+            pass
+        if country != "N/A":
+            if not country in countjob_country:
+                countjob_country[country] = [0,0,set([])] #[numseq, numjob, ip_set] 
+            if numseq != -1:
+                countjob_country[country][0] += numseq
+            countjob_country[country][1] += 1
+            countjob_country[country][2].add(ip)
+
 
         submit_date_str = li[6]
         start_date_str = li[7]
@@ -1441,7 +1466,15 @@ def RunStatistics(path_result, path_log):#{{{
                     finishtime_numseq_dict_wsdl[numseq].append(finishtime_sec)
 
 
-
+    # output countjob by country
+    outfile_countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
+    # sort by numseq in descending order
+    li_countjob = sorted(countjob_country.items(), key=lambda x:x[1][0], reverse=True) 
+    li_str = []
+    li_str.append("#Country\tNumSeq\tNumJob\tNumIP")
+    for li in li_countjob:
+        li_str.append("%s\t%d\t%d\t%d"%(li[0], li[1][0], li[1][1], len(li[1][2])))
+    myfunc.WriteFile("\n".join(li_str)+"\n", outfile_countjob_by_country, "w", True)
 
     flist = [outfile_numseqjob, outfile_numseqjob_web, outfile_numseqjob_wsdl  ]
     dictlist = [countjob_numseq_dict, countjob_numseq_dict_web, countjob_numseq_dict_wsdl]
