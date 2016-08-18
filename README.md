@@ -2,7 +2,7 @@
 
 ##Description:
     This is the web-server implementation of the TOPCONS2 workflow.
-    The web-server is developed with Django 1.6.4
+    The web-server is developed with Django (>=1.6.4)
 
     TOPCONS2 is an updated version of the widely used TOPCONS for predicting
     membrane protein topologies using consensus prediction.
@@ -11,6 +11,19 @@
     but also the location of signal peptide
 
     This software is open source and licensed under the GPL license
+
+    This implementation employs two queuing schemes for small jobs and large
+    jobs respectively. For single-sequence jobs submitted via web-page, they
+    will be run directly (and usually immediately after submission) at the
+    front-end server. For multiple-sequence jobs or jobs submitted via the API
+    (a Python script for the command-line use of the API is included in the
+    package), they will be forwarded to the remote servers via the WSDL (Web
+    Service Definition Language) service. Consequently, the web-server can
+    handle jobs of all proteins from a proteome. 
+
+    This implementation is suitable as as a base platform for bioinformatic
+    prediction tools that need to be run for one or many sequences but the
+    computational time for each sequence is short.
 
 ##Author
 Nanjiang Shu
