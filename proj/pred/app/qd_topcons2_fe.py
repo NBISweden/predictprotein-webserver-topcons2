@@ -1038,7 +1038,7 @@ def GetResult(jobid):#{{{
                                         subprocess.check_output(cmd)
                                         if DEBUG_CACHE:
                                             myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(cmdline), gen_logfile, "a", True)
-                                    except CalledProcessError,e:
+                                    except subprocess.CalledProcessError,e:
                                         print e
                                         if DEBUG_CACHE:
                                             myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(str(e)), gen_logfile, "a", True)
