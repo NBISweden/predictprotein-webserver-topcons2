@@ -82,7 +82,12 @@ function readfile() {
                 <p>List of finished sequences. Please click the link of each sequence below to see the
                 result of individual sequence</p>
                 {% if num_finished > MAX_ROWS_TO_SHOW_IN_TABLE %}
-                <p><font color="#ffa31a">Note also that only the results of the first {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in the table below.</font></p>
+                <p>
+                    <font color="#ffa31a">
+                        Note also that only the results of the first
+                        {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in
+                        the table below.
+                    </font></p>
                 {% endif %}
                 <table class="sortable" id="jobtable" align="left">
                   <thead>
@@ -205,7 +210,18 @@ function readfile() {
                         </td>
                     </tr>
                     {% if num_finished > MAX_ROWS_TO_SHOW_IN_TABLE %}
-                    <p><font color="#ffa31a">Note also that only the results of the first {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in the table below.</font></p>
+                    <tr height=30px>
+                        <td colspan="2">
+                            <font color="#ffa31a">
+                            Note also that only the results of the first
+                            {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in the
+                            table below.
+                            Please download 
+                            <a href="{{STATIC_URL}}result/{{jobid}}/{{zipfile}}">{{zipfile}}</a> 
+                            to view all your results.
+                            </font>
+                        </td>
+                    </tr>
                     {% endif %}
                 </table>
                 <br>
@@ -286,7 +302,16 @@ function readfile() {
                 result of individual sequence</p>
 
                 {% if num_finished > MAX_ROWS_TO_SHOW_IN_TABLE %}
-                <p><font color="#ffa31a">Note also that only the results of the first {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in the table below.</font></p>
+                <p>
+                    <font color="#ffa31a">
+                        Note also that only the results of the first
+                        {{MAX_ROWS_TO_SHOW_IN_TABLE}} sequences are shown in
+                        the table below. 
+
+                        Please download 
+                        the zipped folder (when it is ready) 
+                        to view all your results.
+                    </font></p>
                 {% endif %}
 
                 <table class="sortable" align="left" id="jobtable" cellpadding="2">
