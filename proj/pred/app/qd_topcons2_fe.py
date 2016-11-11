@@ -1187,7 +1187,6 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         date_str_epoch = time.time()
-        myfunc.WriteFile(date_str, finishtagfile, "w", True)
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
@@ -1201,6 +1200,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
+        myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
         myfunc.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, base_www_url, statfile=statfile)
 
@@ -1209,15 +1209,23 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         zipfile = "%s.zip"%(jobid)
         zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
         os.chdir(rstdir)
+        is_zip_success = True
         cmd = ["zip", "-rq", zipfile, jobid]
+        cmdline = " ".join(cmd)
         try:
+            myfunc.WriteFile("\t%s\n"%(cmdline), gen_logfile, "a", True)
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError, e:
             myfunc.WriteFile(str(e)+"\n", errfile, "a", True)
+            is_zip_success = False
             pass
 
         if len(failed_idx_list)>0:
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
+
+        if is_zip_success:
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            myfunc.WriteFile(date_str, finishtagfile, "w", True)
 
         if finish_status == "success":
             shutil.rmtree(tmpdir)
