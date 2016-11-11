@@ -86,6 +86,7 @@ path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
 path_tmp = "%s/static/tmp"%(SITE_ROOT)
 path_md5 = "%s/static/md5"%(SITE_ROOT)
+MAX_ROWS_TO_SHOW_IN_TABLE = 4000
 
 
 python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
@@ -2272,8 +2273,9 @@ def get_results(request, jobid="1"):#{{{
                     runtime_in_sec_str = ""
                 desp = strs[6]
                 rank = "%d"%(cnt+1)
-                index_table_content_list.append([rank, length_str, numTM_str,
-                    isHasSP, runtime_in_sec_str, desp[:30], subfolder, source])
+                if cnt <= MAX_ROWS_TO_SHOW_IN_TABLE:
+                    index_table_content_list.append([rank, length_str, numTM_str,
+                        isHasSP, runtime_in_sec_str, desp[:30], subfolder, source])
                 if source == "newrun":
                     newrun_table_list.append([rank, subfolder])
                 cnt += 1
@@ -2437,6 +2439,7 @@ def get_results(request, jobid="1"):#{{{
 
     resultdict['topolist'] = topolist
     resultdict['TMlist'] = TMlist
+    resultdict['MAX_ROWS_TO_SHOW_IN_TABLE'] = MAX_ROWS_TO_SHOW_IN_TABLE
 
 
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
