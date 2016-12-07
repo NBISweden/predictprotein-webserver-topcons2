@@ -23,8 +23,8 @@ my @to_email_list = (
 
 my $date = localtime();
 print "Date: $date\n";
-my $url = "http://v2.topcons.net";
-my @urllist = ("http://v2.topcons.net");
+my $url = "";
+my @urllist = ("http://topcons.net");
 my $target_qd_script_name = "qd_topcons2_fe.py";
 my $computenodelistfile = "$basedir/static/computenode.txt";
 my $from_email = "nanjiang.shu\@scilifelab.se";
@@ -42,11 +42,11 @@ foreach $url (@urllist){
     }
 
 # second: check if qd_topcons2_fe.pl running at pcons1.scilifelab.se frontend
-    my $num_running=`curl $url/cgi-bin/check_qd_topcons2_fe.cgi 2> /dev/null | html2text | grep  "$target_qd_script_name" | wc -l`;
+    my $num_running=`curl $url/cgi-bin/check_qd_fe.cgi 2> /dev/null | html2text | grep  "$target_qd_script_name" | wc -l`;
     chomp($num_running);
 
     if ($num_running < 1){
-        $output=`curl $url/cgi-bin/restart_qd_topcons2_fe.cgi 2>&1 | html2text`;
+        $output=`curl $url/cgi-bin/restart_qd_fe.cgi 2>&1 | html2text`;
         $title = "$target_qd_script_name restarted for $url";
         foreach my $to_email(@to_email_list) {
             sendmail($to_email, $from_email, $title, $output);
