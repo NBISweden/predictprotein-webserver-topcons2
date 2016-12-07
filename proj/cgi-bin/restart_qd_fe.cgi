@@ -22,7 +22,6 @@ print start_html(-title => "restart $name_targetprog",
     -author => "nanjiang.shu\@scilifelab.se",
     -meta   => {'keywords'=>''});
 
-my $username=`whoami`;
 if(!param())
 {
     my $remote_host = $ENV{'REMOTE_ADDR'};
@@ -38,13 +37,13 @@ if(!param())
         print "<pre>";
         print "Host IP: $remote_host\n\n";
         print "Already running daemons:\n";
-        my $already_running=`ps ux --user "$username" | grep  "$path_targetprog" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
+        my $already_running=`ps aux | grep  "$path_targetprog" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
         my $num_already_running = `echo "$already_running" | grep "$path_targetprog" | wc -l`;
         chomp($num_already_running);
         print $already_running;
         print "num_already_running=$num_already_running\n";
         if ($num_already_running > 0){
-            my $ps_info = `ps ux --user "$username" | grep "$path_targetprog" | grep -v grep | grep -v vim | grep -v archive_logfile`;
+            my $ps_info = `ps aux  | grep "$path_targetprog" | grep -v grep | grep -v vim | grep -v archive_logfile`;
             my @lines = split('\n', $ps_info);
             my @pidlist = ();
             foreach my $line  (@lines){
@@ -64,7 +63,7 @@ if(!param())
         my $logfile = "$basedir/static/log/$progname.log";
         system("$python $path_targetprog >> $logfile 2>&1 &");
 
-        $already_running=`ps ux --user "$username" | grep  "$path_targetprog" | grep -v vim | grep -v grep | grep -v archive_logfile `;
+        $already_running=`ps aux | grep  "$path_targetprog" | grep -v vim | grep -v grep | grep -v archive_logfile `;
         print "\n\nupdated running daemons:\n";
         print $already_running;
         print "\n$path_targetprog restarted\n";

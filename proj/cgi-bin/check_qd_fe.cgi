@@ -15,7 +15,6 @@ my $name_targetprog = "qd_topcons2_fe.py";
 my $path_targetprog = "$basedir/app/$name_targetprog";
 $path_targetprog = abs_path($path_targetprog);
 my $progname = basename(__FILE__);
-my $username=`whoami`;
 
 print header();
 print start_html(-title => "check if qd_fe.py is running",
@@ -35,7 +34,7 @@ if(!param())
 
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
-        my $already_running=`ps ux --user "$username" | grep  "$path_targetprog" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
+        my $already_running=`ps aux  | grep  "$path_targetprog" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
         print $already_running;
         print "</pre>";
     }else{
