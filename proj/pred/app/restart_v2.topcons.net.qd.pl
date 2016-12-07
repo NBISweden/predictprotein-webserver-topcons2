@@ -16,13 +16,12 @@ my @to_email_list = (
 
 my $date = localtime();
 print "Date: $date\n";
-my $url = "http://v2.topcons.net";
-my @urllist = ("http://v2.topcons.net");
+my @urllist = ("http://topcons.net");
 my $target_qd_script_name = "qd_topcons2_fe.py";
 
-foreach $url (@urllist){ 
+foreach my $url (@urllist){ 
 # first: check if $url is accessable
-    $output=`curl $url/cgi-bin/restart_qd_topcons2_fe.cgi 2>&1 | html2text`;
+    $output=`curl $url/cgi-bin/restart_qd_fe.cgi 2>&1 | html2text`;
     my $title = "$target_qd_script_name restarted for $url";
     (my $tmpfh, my $tmpmessagefile) = File::Temp::tempfile("/tmp/message.XXXXXXX", SUFFIX=>".txt");
     print $tmpfh  "$output"."\n";
