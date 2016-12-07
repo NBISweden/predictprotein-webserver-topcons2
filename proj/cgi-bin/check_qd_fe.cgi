@@ -11,12 +11,14 @@ my $rundir = dirname(abs_path(__FILE__));
 # at proj
 my $basedir = abs_path("$rundir/../pred");
 my $auth_ip_file = "$basedir/auth_iplist.txt";#ip address which allows to run cgi script
-my $target_progname = "$basedir/app/qd_topcons2_fe.py";
-$target_progname = abs_path($target_progname);
+my $name_targetprog = "qd_topcons2_fe.py";
+my $path_targetprog = "$basedir/app/$name_targetprog";
+$path_targetprog = abs_path($path_targetprog);
 my $progname = basename(__FILE__);
+my $username=`whoami`;
 
 print header();
-print start_html(-title => "restart qd_topcons2_fe.py",
+print start_html(-title => "check if qd_fe.py is running",
     -author => "nanjiang.shu\@scilifelab.se",
     -meta   => {'keywords'=>''});
 
@@ -33,7 +35,7 @@ if(!param())
 
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
-        my $already_running=`ps aux | grep  "$target_progname" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
+        my $already_running=`ps ux --user "$username" | grep  "$path_targetprog" | grep -v grep | grep -v archive_logfile | grep -v vim ` ;
         print $already_running;
         print "</pre>";
     }else{
