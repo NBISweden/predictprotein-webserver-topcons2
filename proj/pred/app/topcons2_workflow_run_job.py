@@ -423,7 +423,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
     if (os.path.exists(finishtagfile) and os.path.exists(zipfile_fullpath)):
         isSuccess = True
         # delete the tmpdir if succeeded
-        if g_params['runjob_err'] == "":
+        if g_params['runjob_err'] == []:
             shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
