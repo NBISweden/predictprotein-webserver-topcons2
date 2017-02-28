@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-# check the running process for the qd_topcons2_fe.py
-# Created 2015-04-10, updated 2015-04-10, Nanjiang Shu
+# check the running process for the qd_fe.py
+# Created 2015-04-10, updated 2017-02-28, Nanjiang Shu
 use CGI qw(:standard);
 use CGI qw(:cgi-lib);
 use CGI qw(:upload);
@@ -11,7 +11,7 @@ my $rundir = dirname(abs_path(__FILE__));
 # at proj
 my $basedir = abs_path("$rundir/../pred");
 my $auth_ip_file = "$basedir/auth_iplist.txt";#ip address which allows to run cgi script
-my $name_targetprog = "qd_topcons2_fe.py";
+my $name_targetprog = "qd_fe.py";
 my $path_targetprog = "$basedir/app/$name_targetprog";
 $path_targetprog = abs_path($path_targetprog);
 my $progname = basename(__FILE__);
