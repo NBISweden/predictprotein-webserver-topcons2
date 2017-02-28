@@ -2001,7 +2001,7 @@ def main(g_params):#{{{
     loop = 0
     while 1:
         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        avail_computenode_list = myfunc.ReadIDList(computenodefile)
+        avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
