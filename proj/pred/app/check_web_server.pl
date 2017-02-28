@@ -24,7 +24,7 @@ print "Date: $date\n";
 my $url = "";
 my $servername = "TOPCONS2";
 my @urllist = ("http://topcons.net");
-my $target_qd_script_name = "qd_topcons2_fe.py";
+my $target_qd_script_name = "qd_fe.py";
 my $computenodelistfile = "$basedir/static/computenode.txt";
 my $alert_emaillist_file = "$basedir/static/alert_email.txt";
 my $from_email = "nanjiang.shu\@scilifelab.se";
