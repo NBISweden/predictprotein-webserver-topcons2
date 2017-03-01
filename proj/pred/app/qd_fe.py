@@ -56,9 +56,6 @@ import pycountry
 os.environ['TZ'] = 'Europe/Stockholm'
 time.tzset()
 
-vip_user_list = [
-        "nanjiang.shu@scilifelab.se"
-        ]
 
 DEBUG = False
 DEBUG_NO_SUBMIT = False
@@ -94,7 +91,7 @@ Description:
 OPTIONS:
   -h, --help    Print this help message and exit
 
-Created 2015-03-25, updated 2015-03-25, Nanjiang Shu
+Created 2015-03-25, updated 2017-03-01, Nanjiang Shu
 """
 usage_exp="""
 """
@@ -105,6 +102,7 @@ path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
 computenodefile = "%s/static/computenode.txt"%(basedir)
+vip_email_file = "%s/static/vip_email.txt"%(basedir) 
 MAX_SUBMIT_JOB_PER_NODE = 400
 MAX_KEEP_DAYS = 30
 blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
@@ -444,7 +442,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
 
-            if email in vip_user_list:
+            if email in g_params['vip_user_list']:
                 numseq_this_user = 1
                 priority = 999999999.0
                 myfunc.WriteFile("email %s in vip_user_list\n"%(email), gen_logfile, "a", True)
@@ -733,7 +731,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 if len(seq) > 0:
                     fixtop = ""
                     jobname = ""
-                    if not email in vip_user_list:
+                    if not email in g_params['vip_user_list']:
                         useemail = ""
                     else:
                         useemail = email
@@ -2002,6 +2000,7 @@ def main(g_params):#{{{
     while 1:
         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
+        g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
@@ -2099,6 +2098,7 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
+    g_params['vip_user_list'] = []
     return g_params
 #}}}
 if __name__ == '__main__' :
