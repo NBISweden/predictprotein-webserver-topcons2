@@ -416,7 +416,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 except:
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                     myfunc.WriteFile("[Date: %s] Failed to os.listdir(%s)\n"%(date_str, outpath_result), gen_errfile, "a", True)
-                    pass
+                    raise
                 if len(finished_info_list)>0:
                     myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
                 if len(finished_idx_set) > 0:
@@ -437,7 +437,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             except:
                 numseq_this_user = numseq
                 pass
-            priority = myfunc.GetSuqPriority(numseq_this_user)
+            priority = myfunc.GetSuqPriority(numseq_this_user) + numseq
 
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
