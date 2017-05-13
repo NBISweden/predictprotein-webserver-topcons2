@@ -75,7 +75,7 @@ MAXSIZE_UPLOAD_FILE_IN_MB = 100
 MAXSIZE_UPLOAD_FILE_IN_BYTE = MAXSIZE_UPLOAD_FILE_IN_MB * 1024*1024
 MAX_DAYS_TO_SHOW = 30
 BIG_NUMBER = 100000
-MAX_NUMSEQ_FOR_FORCE_RUN = 100
+MAX_NUMSEQ_FOR_FORCE_RUN = 2
 AVERAGE_RUNTIME_PER_SEQ_IN_SEC = 44
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
@@ -546,8 +546,24 @@ def ValidateQuery(request, query):#{{{
             return False
         query['rawseq'] = content
 
+    query['filtered_seq'] = ValidateSeq(query['rawseq'], query)
+    is_valid = query['isValidSeq']
+    return is_valid
+#}}}
+def ValidateSeq(rawseq, seqinfo):#{{{
+# seq is the chunk of fasta file
+# seqinfo is a dictionary
+# return (filtered_seq)
+    filtered_seq = ""
+    # initialization
+    for item in ['errinfo_br', 'errinfo', 'errinfo_content', 'warninfo']:
+        if item not in seqinfo:
+            seqinfo[item] = ""
+
+    seqinfo['isValidSeq'] = True
+
     seqRecordList = []
-    myfunc.ReadFastaFromBuffer(query['rawseq'], seqRecordList, True, 0, 0)
+    myfunc.ReadFastaFromBuffer(rawseq, seqRecordList, True, 0, 0)
 # filter empty sequences and any sequeces shorter than MIN_LEN_SEQ or longer
 # than MAX_LEN_SEQ
     newSeqRecordList = []
@@ -556,120 +572,6 @@ def ValidateQuery(request, query):#{{{
     isHasShortSeq = False
     isHasLongSeq = False
     isHasDNASeq = False
-    cnt = 0
-    for rd in seqRecordList:
-        seq = rd[2].strip()
-        seqid = rd[0].strip()
-        if len(seq) == 0:
-            isHasEmptySeq = True
-            msg = "Empty sequence %s (SeqNo. %d) is removed."%(seqid, cnt+1)
-            li_warn_info.append(msg)
-        elif len(seq) < MIN_LEN_SEQ:
-            isHasShortSeq = True
-            msg = "Sequence %s (SeqNo. %d) is removed since its length is < %d."%(seqid, cnt+1, MIN_LEN_SEQ)
-            li_warn_info.append(msg)
-        elif len(seq) > MAX_LEN_SEQ:
-            isHasLongSeq = True
-            msg = "Sequence %s (SeqNo. %d) is removed since its length is > %d."%(seqid, cnt+1, MAX_LEN_SEQ)
-            li_warn_info.append(msg)
-        elif myfunc.IsDNASeq(seq):
-            isHasDNASeq = True
-            msg = "Sequence %s (SeqNo. %d) is removed since it looks like a DNA sequence."%(seqid, cnt+1)
-            li_warn_info.append(msg)
-        else:
-            newSeqRecordList.append(rd)
-        cnt += 1
-    seqRecordList = newSeqRecordList
-
-    numseq = len(seqRecordList)
-    query['numseq'] = numseq
-
-    if numseq < 1:
-        query['errinfo_br'] += "Number of input sequences is 0!"
-
-        t_rawseq = query['rawseq'].lstrip()
-        if t_rawseq and t_rawseq[0] != '>':
-            query['errinfo_content'] += "Bad input format. The FASTA format should have an annotation line start wit '>'. "
-#         if isHasEmptySeq:
-#             query['errinfo_content'] += "Empty sequence(s) found. "
-#         if isHasShortSeq:
-#             query['errinfo_content'] += "Too short sequence(s) < %d aa found. "%(MIN_LEN_SEQ)
-#         if isHasLongSeq:
-#             query['errinfo_content'] += "Too long sequence(s) > %d aa found. "%(MAX_LEN_SEQ)
-#         if isHasDNASeq:
-#             query['errinfo_content'] += "DNA sequence(s) found."
-        if len(li_warn_info)>0:
-            query['errinfo_content'] += "\n".join(li_warn_info)
-        if not isHasShortSeq and not isHasEmptySeq and not isHasLongSeq and not isHasDNASeq:
-            query['errinfo_content'] += "Please input your sequence in FASTA format"
-        return False
-    else:
-        li_badseq_info = []
-        if query['isForceRun'] and numseq > MAX_NUMSEQ_FOR_FORCE_RUN:
-            query['errinfo_br'] += "Invalid input!"
-            query['errinfo_content'] += "You have chosen the \"Force Run\" mode. "\
-                    "The maximum allowable number of sequences of a job is %d. "\
-                    "However, you input has %d sequences."%(MAX_NUMSEQ_FOR_FORCE_RUN, numseq)
-            return False
-
-        for i in xrange(numseq):
-            seq = seqRecordList[i][2].strip()
-            anno = seqRecordList[i][1].strip()
-            seqid = seqRecordList[i][0].strip()
-            seq = seq.upper()
-            seq = re.sub("[\s\n\r\t]", '', seq)
-#           match_bad_letter = re.search("[^ABCDEFGHIKLMNPQRSTUVWYZX*]", seq)
-            li1 = [m.start() for m in re.finditer("[^ABCDEFGHIKLMNPQRSTUVWYZX*]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Bad letter for amino acid in sequence %s (SeqNo. %d) "\
-                            "at position %d (letter: '%s')"%(seqid, i+1,
-                                    li1[j]+1, seq[li1[j]])
-                    li_badseq_info.append(msg)
-
-        if len(li_badseq_info) > 0:
-            query['errinfo_br'] += "Bad letters for amino acids in your query!"
-            query['errinfo_content'] = "\n".join(li_badseq_info)
-            return False
-
-        li_newseq = []
-        for i in xrange(numseq):
-            seq = seqRecordList[i][2].strip()
-            anno = seqRecordList[i][1].strip().replace('\t', ' ')
-            seqid = seqRecordList[i][0].strip()
-            seq = seq.upper()
-            seq = re.sub("[\s\n\r\t]", '', seq)
-            li1 = [m.start() for m in re.finditer("[BUZ*]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Amino acid in sequence %s (SeqNo. %d) at position %d "\
-                            "(letter: '%s') has been replaced by 'X'"%(seqid,
-                                    i+1, li1[j]+1, seq[li1[j]])
-                    li_warn_info.append(msg)
-                seq = re.sub("[BUZ*]", "X", seq)
-            li_newseq.append(">%s\n%s"%(anno, seq))
-
-        query['filtered_seq'] = "\n".join(li_newseq) # seq content after validation
-        query['warninfo'] = "\n".join(li_warn_info)
-    return True
-#}}}
-def ValidateSeq(rawseq):#{{{
-# seq is the chunk of fasta file
-# return (filtered_seq, seqinfo)
-    filtered_seq = ""
-    seqinfo = {}
-    seqRecordList = []
-    myfunc.ReadFastaFromBuffer(rawseq, seqRecordList, True, 0, 0)
-    seqinfo['errinfo'] = ""
-    seqinfo['warninfo'] = ""
-
-# filter empty sequences and any sequeces shorter than 10 amino acids
-    newSeqRecordList = []
-
-    li_warn_info = []
-    isHasEmptySeq = False
-    isHasShortSeq = False
-    isHasLongSeq = False
     cnt = 0
     for rd in seqRecordList:
         seq = rd[2].strip()
@@ -695,39 +597,35 @@ def ValidateSeq(rawseq):#{{{
         cnt += 1
     seqRecordList = newSeqRecordList
 
-
     numseq = len(seqRecordList)
     seqinfo['numseq'] = numseq
-    seqinfo['isValidSeq'] = True
-    errinfoList = []
 
     if numseq < 1:
-        errinfoList.append("Number of input sequences is 0!")
+        seqinfo['errinfo_br'] += "Number of input sequences is 0!\n"
         t_rawseq = rawseq.lstrip()
         if t_rawseq and t_rawseq[0] != '>':
-            errinfoList.append("Bad input format. The FASTA format should have an annotation line start wit '>'")
-#         if isHasEmptySeq:
-#             errinfoList.append("Empty sequence(s) found.")
-#         if isHasShortSeq:
-#             errinfoList.append("Too short sequence(s) < %d aa found."%(MIN_LEN_SEQ))
-#         if isHasLongSeq:
-#             errinfoList.append("Too long sequence(s) > %d aa found."%(MAX_LEN_SEQ))
-#         if isHasDNASeq:
-#             errinfoList.append("DNA sequence(s) found.")
-        errinfoList + li_warn_info
+            seqinfo['errinfo_content'] += "Bad input format. The FASTA format should have an annotation line start with '>'.\n"
+        if len(li_warn_info) >0:
+            seqinfo['errinfo_content'] += "\n".join(li_warn_info) + "\n"
         if not isHasShortSeq and not isHasEmptySeq and not isHasLongSeq and not isHasDNASeq:
-            errinfoList.append("Please input your sequence in FASTA format.")
+            seqinfo['errinfo_content'] += "Please input your sequence in FASTA format.\n"
 
         seqinfo['isValidSeq'] = False
     else:
         li_badseq_info = []
+        if 'isForceRun' in seqinfo and seqinfo['isForceRun'] and numseq > MAX_NUMSEQ_FOR_FORCE_RUN:
+            seqinfo['errinfo_br'] += "Invalid input!"
+            seqinfo['errinfo_content'] += "You have chosen the \"Force Run\" mode. "\
+                    "The maximum allowable number of sequences of a job is %d. "\
+                    "However, your input has %d sequences."%(MAX_NUMSEQ_FOR_FORCE_RUN, numseq)
+            seqinfo['isValidSeq'] = False
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
             anno = seqRecordList[i][1].strip().replace('\t', ' ')
             seqid = seqRecordList[i][0].strip()
             seq = seq.upper()
             seq = re.sub("[\s\n\r\t]", '', seq)
-            li1 = [m.start() for m in re.finditer("[^ABCDEFGHIKLMNPQRSTUVWYZX*]", seq)]
+            li1 = [m.start() for m in re.finditer("[^ABCDEFGHIKLMNPQRSTUVWYZX*-]", seq)]
             if len(li1) > 0:
                 for j in xrange(len(li1)):
                     msg = "Bad letter for amino acid in sequence %s (SeqNo. %d) "\
@@ -736,10 +634,15 @@ def ValidateSeq(rawseq):#{{{
                     li_badseq_info.append(msg)
 
         if len(li_badseq_info) > 0:
-            errinfoList.append("There are bad letters for amino acids in your query!")
-            errinfiList += li_badseq_info
+            seqinfo['errinfo_br'] += "There are bad letters for amino acids in your query!\n"
+            seqinfo['errinfo_content'] = "\n".join(li_badseq_info) + "\n"
             seqinfo['isValidSeq'] = False
 
+# out of these 26 letters in the alphabet, 
+# B, Z -> X
+# U -> C
+# *, - will be deleted
+# 
         li_newseq = []
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
@@ -747,22 +650,51 @@ def ValidateSeq(rawseq):#{{{
             seqid = seqRecordList[i][0].strip()
             seq = seq.upper()
             seq = re.sub("[\s\n\r\t]", '', seq)
-            li1 = [m.start() for m in re.finditer("[BUZ*]", seq)]
+
+
+            li1 = [m.start() for m in re.finditer("[BZ]", seq)]
             if len(li1) > 0:
                 for j in xrange(len(li1)):
                     msg = "Amino acid in sequence %s (SeqNo. %d) at position %d "\
                             "(letter: '%s') has been replaced by 'X'"%(seqid,
                                     i+1, li1[j]+1, seq[li1[j]])
                     li_warn_info.append(msg)
-                seq = re.sub("[BUZ*]", "X", seq)
+                seq = re.sub("[BZ]", "X", seq)
+
+            li1 = [m.start() for m in re.finditer("[U]", seq)]
+            if len(li1) > 0:
+                for j in xrange(len(li1)):
+                    msg = "Amino acid in sequence %s (SeqNo. %d) at position %d "\
+                            "(letter: '%s') has been replaced by 'C'"%(seqid,
+                                    i+1, li1[j]+1, seq[li1[j]])
+                    li_warn_info.append(msg)
+                seq = re.sub("[U]", "C", seq)
+
+            li1 = [m.start() for m in re.finditer("[*]", seq)]
+            if len(li1) > 0:
+                for j in xrange(len(li1)):
+                    msg = "Translational stop in sequence %s (SeqNo. %d) at position %d "\
+                            "(letter: '%s') has been deleted"%(seqid,
+                                    i+1, li1[j]+1, seq[li1[j]])
+                    li_warn_info.append(msg)
+                seq = re.sub("[*]", "", seq)
+
+            li1 = [m.start() for m in re.finditer("[-]", seq)]
+            if len(li1) > 0:
+                for j in xrange(len(li1)):
+                    msg = "Gap in sequence %s (SeqNo. %d) at position %d "\
+                            "(letter: '%s') has been deleted"%(seqid,
+                                    i+1, li1[j]+1, seq[li1[j]])
+                    li_warn_info.append(msg)
+                seq = re.sub("[-]", "", seq)
+
             li_newseq.append(">%s\n%s"%(anno, seq))
 
         filtered_seq = "\n".join(li_newseq) # seq content after validation
-        seqinfo['isValidSeq'] = True
-        seqinfo['warinfo'] = "\n".join(li_warn_info)
+        seqinfo['warninfo'] = "\n".join(li_warn_info) + "\n"
 
-    seqinfo['errinfo'] = "\n".join(errinfoList)
-    return (filtered_seq, seqinfo)
+    seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
+    return filtered_seq
 #}}}
 def RunQuery(request, query):#{{{
     errmsg = []
