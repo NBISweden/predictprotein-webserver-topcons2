@@ -2530,7 +2530,8 @@ class Service_submitseq(ServiceBase):
 # submit job to the front-end
     def submitjob(ctx, seq="", fixtop="", jobname="", email=""):#{{{
         seq = seq + "\n" #force add a new line for correct parsing the fasta file
-        (filtered_seq, seqinfo) = ValidateSeq(seq)
+        seqinfo = {}
+        filtered_seq = ValidateSeq(seq, seqinfo)
         # ValidateFixtop(fixtop) #to be implemented
         jobid = "None"
         url = "None"
@@ -2540,7 +2541,7 @@ class Service_submitseq(ServiceBase):
 #         print "\n\nreq\n", dir(ctx.transport.req) #debug
 #         print "\n\n", ctx.transport.req.META['REMOTE_ADDR'] #debug
 #         print "\n\n", ctx.transport.req.META['HTTP_HOST']   #debug
-        if filtered_seq == "":
+        if not seqinfo['isValidSeq'] or filtered_seq == "":
             errinfo = seqinfo['errinfo']
         else:
             soap_req = ctx.transport.req
@@ -2598,7 +2599,8 @@ class Service_submitseq(ServiceBase):
     def submitjob_remote(ctx, seq="", fixtop="", jobname="", email="",#{{{
             numseq_this_user="", isforcerun=""):
         seq = seq + "\n" #force add a new line for correct parsing the fasta file
-        (filtered_seq, seqinfo) = ValidateSeq(seq)
+        seqinfo = {}
+        filtered_seq = ValidateSeq(seq, seqinfo)
         # ValidateFixtop(fixtop) #to be implemented
         if numseq_this_user != "" and numseq_this_user.isdigit():
             seqinfo['numseq_this_user'] = int(numseq_this_user)
@@ -2612,7 +2614,7 @@ class Service_submitseq(ServiceBase):
 #         print "\n\n", ctx.transport.req.META['HTTP_HOST']   #debug
         jobid = "None"
         url = "None"
-        if filtered_seq == "":
+        if not seqinfo['isValidSeq'] or filtered_seq == "":
             errinfo = seqinfo['errinfo']
         else:
             soap_req = ctx.transport.req
