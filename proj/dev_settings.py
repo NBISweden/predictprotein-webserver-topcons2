@@ -30,5 +30,5 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-STATIC_ROOT = "/var/www/dev.topcons2/proj/pred/static"
+STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
 
