@@ -1206,7 +1206,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
                 all_runtime_in_sec, base_www_url, statfile=statfile)
 
         myfunc.WriteFile("\Write HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
-        webserver_common.WriteHTMLResultTable(resultfile_html, finished_seq_file)
+        webserver_common.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links

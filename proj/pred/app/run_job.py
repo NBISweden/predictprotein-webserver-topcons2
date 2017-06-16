@@ -396,7 +396,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         statfile = "%s/%s"%(outpath_result, "stat.txt")
         webserver_common.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, g_params['base_www_url'], statfile=statfile)
-        webserver_common.WriteHTMLResultTable(resultfile_html, finished_seq_file)
+        webserver_common.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
