@@ -50,5 +50,10 @@ randomly wrongly loaded virtual environment and it has been solved. However, you
 still experience occasional job submission failure when the server is
 overloaded.  If this happens, please try again in a few moments. 
 
-
+<DATE>  2017-06-16
+<TITLE>  An HTML file is output the result folder for a complete list of the
+predictions
+<CONTENT>  We have added a new feature for the web-server so that a complete
+list of predictions of one job is output as an html file and included in the
+downloadable zip file.
 
