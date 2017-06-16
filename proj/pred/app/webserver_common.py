@@ -128,7 +128,7 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
                 else:
                     topfile = "%s/%s/%s/query.top"%(outpath_result, subfoldername, method)
                 if os.path.exists(topfile):
-                    (seqid, seqanno, top) = ReadSingleFasta(topfile)
+                    (seqid, seqanno, top) = myfunc.ReadSingleFasta(topfile)
                 else:
                     top = ""
                 if top == "":
@@ -181,7 +181,7 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
             reliability_file = "%s/%s/Topcons/reliability.txt"%(outpath_result, subfoldername)
             reliability = ""
             if os.path.exists(reliability_file):
-                reliability = ReadFile(reliability_file)
+                reliability = myfunc.ReadFile(reliability_file)
             if reliability != "":
                 print >> fpout, "\nPredicted TOPCONS reliability (left "\
                         "column=sequence position; right column=reliability)\n"
