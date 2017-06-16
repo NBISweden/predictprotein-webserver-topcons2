@@ -167,7 +167,7 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
             dgfile = "%s/%s/dg.txt"%(outpath_result, subfoldername)
             dg_content = ""
             if os.path.exists(dgfile):
-                dg_content = ReadFile(dgfile)
+                dg_content = myfunc.ReadFile(dgfile)
             lines = dg_content.split("\n")
             dglines = []
             for line in lines:
