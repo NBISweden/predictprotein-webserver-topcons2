@@ -39,6 +39,7 @@ sys.path.append("%s/env/lib/python2.7/site-packages/"%(webserver_root))
 sys.path.append("/usr/local/lib/python2.7/dist-packages")
 
 import myfunc
+import webserver_common
 import time
 import datetime
 import requests
@@ -1188,7 +1189,9 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
+        finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
         resultfile_text = "%s/%s"%(outpath_result, "query.result.txt")
+        resultfile_html = "%s/%s"%(outpath_result, "query.result.html")
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
         maplist = []
         for i in xrange(len(seqIDList)):
@@ -1199,8 +1202,11 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
         myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
-        myfunc.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
+        webserver_common.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, base_www_url, statfile=statfile)
+
+        myfunc.WriteFile("\Write HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
+        webserver_common.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
