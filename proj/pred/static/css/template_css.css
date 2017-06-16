@@ -41,7 +41,7 @@ body {
   /*background-color: #646464;*/
   /*background-image: url(../images/background.jpg);*/
   /*background-repeat: repeat-x;*/
-  background: linear-gradient(#CCCCCC, #555555);
+  background: linear-gradient(#FFFFFF, #CCCCCC);
 }
 td, tr, p, div {
   font-family : Verdana, Arial, Helvetica, sans-serif;
