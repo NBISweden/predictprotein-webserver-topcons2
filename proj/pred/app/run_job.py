@@ -29,6 +29,7 @@ import sys
 import subprocess
 import time
 import myfunc
+import webserver_common
 import glob
 import hashlib
 import shutil
@@ -89,21 +90,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_ext
     print >> fpout, usage_exp#}}}
 
-def IsFrontEndNode(base_www_url):#{{{
-    """
-    check if the base_www_url is front-end node
-    if base_www_url is ip address, then not the front-end
-    otherwise yes
-    """
-    if base_www_url == "":
-        return False
-    else:
-        arr =  [x.isdigit() for x in base_www_url.split('.')]
-        if all(arr):
-            return False
-        else:
-            return True
-#}}}
 def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
     all_begin_time = time.time()
 
@@ -124,6 +110,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
     zipfile_fullpath = "%s.zip"%(outpath_result)
     outfile = "%s/%s/Topcons/topcons.top"%(outpath_result, "seq_%d"%(0))
     resultfile_text = "%s/%s"%(outpath_result, "query.result.txt")
+    resultfile_html = "%s/%s"%(outpath_result, "query.result.html")
     mapfile = "%s/seqid_index_map.txt"%(outpath_result)
     finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
 
@@ -310,6 +297,9 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             runtime_in_sec = end_time - begin_time
 
             if os.path.exists(tmp_outpath_this_seq):
+                singleseqfile = "%s/seq.fa"%(tmp_outpath_this_seq)
+                if os.path.exists(singleseqfile):
+                    webserver_common.ReplaceDescriptionSingleFastaFile(singleseqfile, description)
                 cmd = ["mv","-f", tmp_outpath_this_seq, outpath_this_seq]
                 isCmdSuccess = False
                 try:
@@ -348,11 +338,11 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
 
                     info_this_seq = "%s\t%d\t%s\t%s"%("seq_%d"%origIndex, len(seq), description, seq)
                     resultfile_text_this_seq = "%s/%s"%(outpath_this_seq, "query.result.txt")
-                    myfunc.WriteTOPCONSTextResultFile(resultfile_text_this_seq,
+                    webserver_common.WriteTOPCONSTextResultFile(resultfile_text_this_seq,
                             outpath_result, [info_this_seq], runtime_in_sec, g_params['base_www_url'])
                     # create or update the md5 cache
                     # create cache only on the front-end
-                    if IsFrontEndNode(g_params['base_www_url']):
+                    if webserver_common.IsFrontEndNode(g_params['base_www_url']):
                         md5_key = hashlib.md5(seq).hexdigest()
                         subfoldername = md5_key[:2]
                         md5_subfolder = "%s/%s"%(path_cache, subfoldername)
@@ -404,8 +394,9 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
 
 # now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
-        myfunc.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
+        webserver_common.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, g_params['base_www_url'], statfile=statfile)
+        webserver_common.WriteHTMLResultTable(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links

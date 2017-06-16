@@ -1,9 +1,24 @@
+#!/usr/bin/env python
 import os
 import sys
 import myfunc
+import webserver_common
 
 rundir = os.path.dirname(__file__)
 basedir = os.path.realpath("%s/../"%(rundir))
+
+progname=os.path.basename(sys.argv[0])
+general_usage = """
+usage: %s TESTMODE options
+"""%(sys.argv[0])
+
+numArgv = len(sys.argv)
+if numArgv <= 1:
+    print general_usage
+    sys.exit(1)
+TESTMODE=sys.argv[1]
+
+
 
 if 0:#{{{
     infile = sys.argv[1]
@@ -26,8 +41,24 @@ if 0:#{{{
     print "size=",size
     print "humansize=", myfunc.Size_byte2human(size)#}}}
 
-if 1:
+if 0:#{{{
     newsfile = "%s/static/doc/news.txt"%(basedir)
     newsList = myfunc.ReadNews(newsfile)
-    print newsList
+    print newsList#}}}
 
+if 0:#{{{
+    seqfile="/data3/tmp/t3.seq"
+    desp = "new description"
+    webserver_common.ReplaceDescriptionSingleFastaFile(seqfile, desp)#}}}
+
+
+if TESTMODE in ['writehtmltopcons']:#{{{
+    try: 
+        infile = sys.argv[2]
+        outfile = sys.argv[3]
+    except IndexError:
+        print "usage: %s %s finished_seq outfile"%(sys.argv[0], TESTMODE)
+        sys.exit(1)
+
+    webserver_common.WriteHTMLResultTable_TOPCONS(outfile, infile)
+    
