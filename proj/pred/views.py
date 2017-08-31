@@ -284,7 +284,7 @@ def submit_seq(request):#{{{
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 query['file_seq_warning'] = os.path.basename(file_seq_warning)
-                if query['warninfo'] != "":
+                if query['warninfo'] != "" and not query['warninfo'].isspace():
                     myfunc.WriteFile(query['warninfo'], file_seq_warning, "a")
 
                 query['jobid'] = jobid
@@ -2142,6 +2142,7 @@ def get_results(request, jobid="1"):#{{{
     seqwarninfo = ""
     if os.path.exists(file_seq_warning):
         seqwarninfo = myfunc.ReadFile(file_seq_warning)
+        seqwarninfo = seqwarninfo.strip()
 
     resultdict['file_seq_warning'] = os.path.basename(file_seq_warning)
     resultdict['seqwarninfo'] = seqwarninfo
