@@ -831,7 +831,7 @@ def GetResult(jobid):#{{{
     # is still not finished, force re-creating torun_idx_file
     if g_params['DEBUG']:
         try:
-            myfunc.WriteFile("%s: remotequeue_idx_file=%s, size(remotequeue_idx_file)=%d\n" %(jobid, remotequeue_idx_file, os.path.getsize(remotequeue_idx_file)), gen_logfile, "a", True)
+            myfunc.WriteFile("%s: remotequeue_idx_file=%s, size(remotequeue_idx_file)=%d, content=\"%s\"\n" %(jobid, remotequeue_idx_file, os.path.getsize(remotequeue_idx_file), myfunc.ReadFile(remotequeue_idx_file)), gen_logfile, "a", True)
         except:
             pass
     if ((not os.path.exists(remotequeue_idx_file) or
