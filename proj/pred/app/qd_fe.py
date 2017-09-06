@@ -846,6 +846,10 @@ def GetResult(jobid):#{{{
         if len(jobinfolist) >= 8:
             numseq = int(jobinfolist[3])
 
+        if g_params['DEBUG']:
+            myfunc.WriteFile("len(completed_idx_set)=%d+%d=%d, numseq=%d\n"(len(completed_idx_set), len(idlist1), len(idlist2), numseq), gen_logfile, "a", True)
+
+
         if len(completed_idx_set) < numseq:
             all_idx_list = [str(x) for x in xrange(numseq)]
             torun_idx_str_list = list(set(all_idx_list)-completed_idx_set)
