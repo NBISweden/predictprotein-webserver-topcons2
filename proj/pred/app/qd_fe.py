@@ -540,7 +540,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         toRunDict = {}
         if os.path.exists(forceruntagfile):
             for i in xrange(len(seqIDList)):
-                toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ']
+                toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
         else:
             for i in xrange(len(seqIDList)):
                 isSkip = False
