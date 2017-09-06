@@ -779,7 +779,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
     # finally, append submitted_loginfo_list to remotequeue_idx_file 
     if g_params['DEBUG']:
-        myfunc.WriteFile("len(submitted_loginfo_list)=%d\n"%(len(submitted_loginfo_list)), remotequeue_idx_file, "a", True)
+        myfunc.WriteFile("len(submitted_loginfo_list)=%d\n"%(len(submitted_loginfo_list)), gen_logfile, "a", True)
     if len(submitted_loginfo_list)>0:
         myfunc.WriteFile("\n".join(submitted_loginfo_list)+"\n", remotequeue_idx_file, "a", True)
     # update torun_idx_file
