@@ -852,7 +852,7 @@ def GetResult(jobid):#{{{
             numseq = int(jobinfolist[3])
 
         if g_params['DEBUG']:
-            myfunc.WriteFile("len(completed_idx_set)=%d+%d=%d, numseq=%d\n"(len(completed_idx_set), len(idlist1), len(idlist2), numseq), gen_logfile, "a", True)
+            myfunc.WriteFile("len(completed_idx_set)=%d+%d=%d, numseq=%d\n"%(len(completed_idx_set), len(idlist1), len(idlist2), numseq), gen_logfile, "a", True)
 
 
         if len(completed_idx_set) < numseq:
