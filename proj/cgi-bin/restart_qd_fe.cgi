@@ -11,7 +11,7 @@ my $rundir = dirname(abs_path(__FILE__));
 my $python = abs_path("$rundir/../../env/bin/python");
 # at proj
 my $basedir = abs_path("$rundir/../pred");
-my $auth_ip_file = "$basedir/auth_iplist.txt";#ip address which allows to run cgi script
+my $auth_ip_file = "$basedir/config/auth_iplist.txt";#ip address which allows to run cgi script
 my $name_targetprog = "qd_fe.py";
 my $path_targetprog = "$basedir/app/$name_targetprog";
 $path_targetprog = abs_path($path_targetprog);

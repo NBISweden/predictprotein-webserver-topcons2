@@ -58,13 +58,11 @@ os.environ['TZ'] = 'Europe/Stockholm'
 time.tzset()
 
 
-DEBUG = False
-DEBUG_NO_SUBMIT = False
-DEBUG_CACHE = False
 
 # make sure that only one instance of the script is running
 # this code is working 
 progname = os.path.basename(__file__)
+rootname_progname = os.path.splitext(progname)[0]
 lockname = os.path.realpath(__file__).replace(" ", "").replace("/", "-")
 import fcntl
 lock_file = "/tmp/%s.lock"%(lockname)
@@ -102,10 +100,8 @@ path_log = "%s/static/log"%(basedir)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
-computenodefile = "%s/static/computenode.txt"%(basedir)
-vip_email_file = "%s/static/vip_email.txt"%(basedir) 
-MAX_SUBMIT_JOB_PER_NODE = 400
-MAX_KEEP_DAYS = 30
+computenodefile = "%s/config/computenode.txt"%(basedir)
+vip_email_file = "%s/config/vip_email.txt"%(basedir) 
 blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
 os.environ['SCAMPI_DIR'] = "/server/scampi"
 os.environ['MODHMM_BIN'] = "/server/modhmm/bin"
@@ -115,8 +111,7 @@ os.environ['BLASTDB'] = "%s/%s"%(rundir, "soft/topcons2_webserver/database/blast
 script_scampi = "%s/%s"%(rundir, "mySCAMPI_run.pl")
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
-black_iplist_file = "%s/black_iplist.txt"%(basedir)
-SLEEP_INTERVAL = 20 # sleep interval in seconds
+black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
 
 def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_short
@@ -706,8 +701,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                     continue
 
 
-                if DEBUG:
-                    myfunc.WriteFile("DEBUG: cnt (%d) < maxnum (%d) "\
+                if g_params['DEBUG']:
+                    myfunc.WriteFile("g_params['DEBUG']: cnt (%d) < maxnum (%d) "\
                             "and iToRun(%d) < numToRun(%d)"%(cnt, maxnum, iToRun, numToRun), gen_logfile, "a", True)
                 fastaseq = ""
                 seqid = ""
@@ -777,12 +772,14 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 if isSubmitSuccess or cnttry >= MAX_SUBMIT_TRY:
                     iToRun += 1
                     processedIndexSet.add(str(origIndex))
-                    if DEBUG:
-                        myfunc.WriteFile("DEBUG: jobid %s processedIndexSet.add(str(%d))\n"%(jobid, origIndex), gen_logfile, "a", True)
+                    if g_params['DEBUG']:
+                        myfunc.WriteFile("g_params['DEBUG']: jobid %s processedIndexSet.add(str(%d))\n"%(jobid, origIndex), gen_logfile, "a", True)
             # update cntSubmitJobDict for this node
             cntSubmitJobDict[node] = [cnt, maxnum]
 
     # finally, append submitted_loginfo_list to remotequeue_idx_file 
+    if g_params['DEBUG']:
+        myfunc.WriteFile("len(submitted_loginfo_list)=%d\n"%(len(submitted_loginfo_list)), remotequeue_idx_file, "a", True)
     if len(submitted_loginfo_list)>0:
         myfunc.WriteFile("\n".join(submitted_loginfo_list)+"\n", remotequeue_idx_file, "a", True)
     # update torun_idx_file
@@ -790,8 +787,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     for idx in toRunIndexList:
         if not idx in processedIndexSet:
             newToRunIndexList.append(idx)
-    if DEBUG:
-        myfunc.WriteFile("DEBUG: jobid %s, newToRunIndexList="%(jobid) + " ".join( newToRunIndexList)+"\n", gen_logfile, "a", True)
+    if g_params['DEBUG']:
+        myfunc.WriteFile("g_params['DEBUG']: jobid %s, newToRunIndexList="%(jobid) + " ".join( newToRunIndexList)+"\n", gen_logfile, "a", True)
 
     if len(newToRunIndexList)>0:
         myfunc.WriteFile("\n".join(newToRunIndexList)+"\n", torun_idx_file, "w", True)
@@ -803,7 +800,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 def GetResult(jobid):#{{{
     # retrieving result from the remote server for this job
     myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
-    MAX_RESUBMIT = 2
+    g_params['MAX_RESUBMIT'] = 2
     rstdir = "%s/%s"%(path_result, jobid)
     outpath_result = "%s/%s"%(rstdir, jobid)
     if not os.path.exists(outpath_result):
@@ -861,7 +858,7 @@ def GetResult(jobid):#{{{
                     pass
             myfunc.WriteFile("\n".join(torun_idx_str_list)+"\n", torun_idx_file, "w", True)
 
-            if DEBUG:
+            if g_params['DEBUG']:
                 myfunc.WriteFile("recreate torun_idx_file: jobid = %s, numseq=%d, len(completed_idx_set)=%d, len(torun_idx_str_list)=%d\n"%(jobid, numseq, len(completed_idx_set), len(torun_idx_str_list)), gen_logfile, "a", True)
         else:
             myfunc.WriteFile("", torun_idx_file, "w", True)
@@ -899,7 +896,7 @@ def GetResult(jobid):#{{{
     for i in xrange(len(lines)):#{{{
         line = lines[i]
 
-        if DEBUG:
+        if g_params['DEBUG']:
             myfunc.WriteFile("Process %s\n"%(line), gen_logfile, "a", True)
         if not line or line[0] == "#":
             continue
@@ -1035,18 +1032,18 @@ def GetResult(jobid):#{{{
                                     cmdline = " ".join(cmd)
                                     try:
                                         subprocess.check_output(cmd)
-                                        if DEBUG_CACHE:
+                                        if g_params['DEBUG_CACHE']:
                                             myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(cmdline), gen_logfile, "a", True)
                                     except subprocess.CalledProcessError,e:
                                         print e
-                                        if DEBUG_CACHE:
+                                        if g_params['DEBUG_CACHE']:
                                             myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(str(e)), gen_logfile, "a", True)
                                         pass
 
                                 if not os.path.exists(outpath_this_seq) and os.path.exists(cachedir):
                                     rela_path = os.path.relpath(cachedir, outpath_result) #relative path
                                     try:
-                                        if DEBUG_CACHE:
+                                        if g_params['DEBUG_CACHE']:
                                             myfunc.WriteFile("\tDEBUG_CACHE: chdir(%s)\n"%(outpath_result), 
                                                     gen_logfile, "a", True)
                                             myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s)\n"%(rela_path, 
@@ -1054,7 +1051,7 @@ def GetResult(jobid):#{{{
                                         os.chdir(outpath_result)
                                         os.symlink(rela_path,  subfoldername_this_seq)
                                     except:
-                                        if DEBUG_CACHE:
+                                        if g_params['DEBUG_CACHE']:
                                             myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s) failed\n"%(rela_path, subfoldername_this_seq), gen_errfile, "a", True)
                                         pass
 
@@ -1068,7 +1065,7 @@ def GetResult(jobid):#{{{
                     except KeyError:
                         cnttry = 1
                         pass
-                    if cnttry < MAX_RESUBMIT:
+                    if cnttry < g_params['MAX_RESUBMIT']:
                         resubmit_idx_list.append(str(origIndex))
                         cntTryDict[int(origIndex)] = cnttry+1
                     else:
@@ -1077,7 +1074,7 @@ def GetResult(jobid):#{{{
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                     myfunc.WriteFile(date_str, starttagfile, "w", True)
 
-                if DEBUG_CACHE:
+                if g_params['DEBUG_CACHE']:
                     myfunc.WriteFile("\n", gen_logfile, "a", True)
 
         if isSuccess:#{{{
@@ -1283,7 +1280,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 #}}}
 def DeleteOldResult(path_result, path_log):#{{{
     """
-    Delete jobdirs that are finished > MAX_KEEP_DAYS
+    Delete jobdirs that are finished > g_params['MAX_KEEP_DAYS']
     """
     finishedjoblogfile = "%s/finished_job.log"%(path_log)
     finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
@@ -1304,10 +1301,10 @@ def DeleteOldResult(path_result, path_log):#{{{
             if isValidFinishDate:
                 current_time = datetime.datetime.now()
                 timeDiff = current_time - finish_date
-                if timeDiff.days > MAX_KEEP_DAYS:
+                if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
+                    msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
                     myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
@@ -2004,6 +2001,19 @@ def main(g_params):#{{{
 
     loop = 0
     while 1:
+        # load the config file if exists
+        configfile = "%s/config/config.json"%(basedir)
+        config = {}
+        if os.path.exists(configfile):
+            text = myfunc.ReadFile(configfile)
+            config = json.loads(text)
+
+        if rootname_progname in config:
+            g_params.update(config[rootname_progname])
+
+        if os.path.exists(black_iplist_file):
+            g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
+
         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
@@ -2053,10 +2063,10 @@ def main(g_params):#{{{
             num_queue_job = len(remotequeueDict[node])
             if num_queue_job >= 0:
                 cntSubmitJobDict[node] = [num_queue_job,
-                        MAX_SUBMIT_JOB_PER_NODE] #[num_queue_job, max_allowed_job]
+                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
             else:
-                cntSubmitJobDict[node] = [MAX_SUBMIT_JOB_PER_NODE,
-                        MAX_SUBMIT_JOB_PER_NODE] #[num_queue_job, max_allowed_job]
+                cntSubmitJobDict[node] = [g_params['MAX_SUBMIT_JOB_PER_NODE'],
+                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
 
 # entries in runjoblogfile includes jobs in queue or running
         hdl = myfunc.ReadLineByBlock(runjoblogfile)
@@ -2083,7 +2093,7 @@ def main(g_params):#{{{
                         status = strs[1]
 
                         if IsHaveAvailNode(cntSubmitJobDict):
-                            if not DEBUG_NO_SUBMIT:
+                            if not g_params['DEBUG_NO_SUBMIT']:
                                 SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
                         GetResult(jobid) # the start tagfile is written when got the first result
                         CheckIfJobFinished(jobid, numseq, email)
@@ -2091,8 +2101,8 @@ def main(g_params):#{{{
                 lines = hdl.readlines()
             hdl.close()
 
-        myfunc.WriteFile("sleep for %d seconds\n"%(SLEEP_INTERVAL), gen_logfile, "a", True)
-        time.sleep(SLEEP_INTERVAL)
+        myfunc.WriteFile("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile, "a", True)
+        time.sleep(g_params['SLEEP_INTERVAL'])
         loop += 1
 
 
@@ -2105,6 +2115,13 @@ def InitGlobalParameter():#{{{
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
     g_params['vip_user_list'] = []
+    g_params['DEBUG'] = False
+    g_params['DEBUG_NO_SUBMIT'] = False
+    g_params['DEBUG_CACHE'] = False
+    g_params['SLEEP_INTERVAL'] = 20    # sleep interval in seconds
+    g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
+    g_params['MAX_KEEP_DAYS'] = 30
+    g_params['MAX_RESUBMIT'] = 2
     return g_params
 #}}}
 if __name__ == '__main__' :

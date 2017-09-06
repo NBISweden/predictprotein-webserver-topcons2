@@ -15,7 +15,7 @@ use LWP::Simple qw($ua head);
 $ua->timeout(10);
 
 my $rundir = dirname(abs_path(__FILE__));
-my $basedir = "$rundir/../";
+my $basedir = abs_path("$rundir/../)";
 require "$rundir/nanjianglib.pl";
 
 
@@ -25,8 +25,8 @@ my $url = "";
 my $servername = "TOPCONS2";
 my @urllist = ("http://topcons.net");
 my $target_qd_script_name = "qd_fe.py";
-my $computenodelistfile = "$basedir/static/computenode.txt";
-my $alert_emaillist_file = "$basedir/static/alert_email.txt";
+my $computenodelistfile = "$basedir/config/computenode.txt";
+my $alert_emaillist_file = "$basedir/config/alert_email.txt";
 my $from_email = "nanjiang.shu\@scilifelab.se";
 my $title = "";
 my $output = "";
