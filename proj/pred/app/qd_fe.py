@@ -834,7 +834,7 @@ def GetResult(jobid):#{{{
             myfunc.WriteFile("%s: remotequeue_idx_file=%s, size(remotequeue_idx_file)=%d, content=\"%s\"\n" %(jobid, remotequeue_idx_file, os.path.getsize(remotequeue_idx_file), myfunc.ReadFile(remotequeue_idx_file)), gen_logfile, "a", True)
         except:
             pass
-    if ((not os.path.exists(remotequeue_idx_file) or
+    if ((not os.path.exists(remotequeue_idx_file) or#{{{
         os.path.getsize(remotequeue_idx_file)<1)):
         idlist1 = []
         idlist2 = []
@@ -873,7 +873,7 @@ def GetResult(jobid):#{{{
     else:
         if g_params['DEBUG']:
             myfunc.WriteFile("%s: remotequeue_idx_file %s is not empty\n" %(jobid, remotequeue_idx_file), gen_logfile, "a", True)
-
+#}}}
 
     text = ""
     if os.path.exists(remotequeue_idx_file):
@@ -911,9 +911,13 @@ def GetResult(jobid):#{{{
         if g_params['DEBUG']:
             myfunc.WriteFile("Process %s\n"%(line), gen_logfile, "a", True)
         if not line or line[0] == "#":
+            if g_params['DEBUG']:
+                myfunc.WriteFile("line empty or line[0] = '#', ignore\n", gen_logfile, "a", True)
             continue
         strs = line.split("\t")
         if len(strs) != 6:
+            if g_params['DEBUG']:
+                myfunc.WriteFile("len(strs)=%d (!=6), ignore\n"%(len(strs)), gen_logfile, "a", True)
             continue
         origIndex = int(strs[0])
         node = strs[1]
@@ -927,12 +931,14 @@ def GetResult(jobid):#{{{
         try:
             myclient = myclientDict[node]
         except KeyError:
+            if g_params['DEBUG']:
+                myfunc.WriteFile("node (%s) not found in myclientDict, ignore\n"%(node), gen_logfile, "a", True)
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except:
             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_logfile, "a", True)
             rtValue = []
             pass
         isSuccess = False
@@ -973,7 +979,7 @@ def GetResult(jobid):#{{{
                         except subprocess.CalledProcessError, e:
                             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                             myfunc.WriteFile("[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                    date_str, cmdline, str(e)), gen_errfile, "a", True)
+                                    date_str, cmdline, str(e)), gen_logfile, "a", True)
                             pass
                         rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
 
@@ -990,7 +996,7 @@ def GetResult(jobid):#{{{
                             except subprocess.CalledProcessError, e:
                                 date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                                 myfunc.WriteFile( "[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                        date_str, cmdline, str(e)), gen_errfile, "a", True)
+                                        date_str, cmdline, str(e)), gen_logfile, "a", True)
                                 pass
                             if os.path.exists(outpath_this_seq):
                                 isSuccess = True
@@ -1001,7 +1007,7 @@ def GetResult(jobid):#{{{
                                     rtValue2 = myclient.service.deletejob(remote_jobid)
                                 except:
                                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_logfile, "a", True)
                                     rtValue2 = []
                                     pass
 
@@ -1033,7 +1039,7 @@ def GetResult(jobid):#{{{
                                     try:
                                         shutil.rmtree(cachedir)
                                     except:
-                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s)\n"%(cachedir), gen_errfile, "a", True)
+                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s)\n"%(cachedir), gen_logfile, "a", True)
                                         pass
 
                                 if not os.path.exists(md5_subfolder):
