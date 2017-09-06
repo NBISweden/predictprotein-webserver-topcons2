@@ -396,7 +396,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                                     outpath_this_seq, "Topcons")
 # get origIndex and then read description the description list
                             try:
-                                description = seqannolist[origIndex]
+                                description = seqannolist[origIndex].replace('\t', ' ')
                             except:
                                 description = "seq_%d"%(origIndex)
                             top = myfunc.ReadFile(topfile).strip()
@@ -540,7 +540,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         toRunDict = {}
         if os.path.exists(forceruntagfile):
             for i in xrange(len(seqIDList)):
-                toRunDict[i] = [seqList[i], 0, seqAnnoList[i]]
+                toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ']
         else:
             for i in xrange(len(seqIDList)):
                 isSkip = False
@@ -574,7 +574,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         info_finish = [ "seq_%d"%i,
                                 str(len(seqList[i])), str(numTM),
                                 str(isHasSP), "cached", str(runtime),
-                                seqAnnoList[i]]
+                                seqAnnoList[i].replace('\t', ' ']
                         myfunc.WriteFile("\t".join(info_finish)+"\n",
                                 finished_seq_file, "a", isFlush=True)
                         init_finished_idx_list.append(str(i))
@@ -587,7 +587,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             shutil.rmtree(outpath_this_seq)
                         except OSError:
                             pass
-                    toRunDict[i] = [seqList[i], 0, seqAnnoList[i]] #init value for numTM is 0
+                    toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')] #init value for numTM is 0
 
         #Write finished_idx_file
         if len(init_finished_idx_list)>0:
@@ -1221,7 +1221,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         maplist = []
         for i in xrange(len(seqIDList)):
             maplist.append("%s\t%d\t%s\t%s"%("seq_%d"%i, len(seqList[i]),
-                seqAnnoList[i], seqList[i]))
+                seqAnnoList[i].replace('\t', ' '), seqList[i]))
         start_date_str = myfunc.ReadFile(starttagfile).strip()
         start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
