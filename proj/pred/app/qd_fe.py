@@ -574,7 +574,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         info_finish = [ "seq_%d"%i,
                                 str(len(seqList[i])), str(numTM),
                                 str(isHasSP), "cached", str(runtime),
-                                seqAnnoList[i].replace('\t', ' ']
+                                seqAnnoList[i].replace('\t', ' ')]
                         myfunc.WriteFile("\t".join(info_finish)+"\n",
                                 finished_seq_file, "a", isFlush=True)
                         init_finished_idx_list.append(str(i))
