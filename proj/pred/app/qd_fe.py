@@ -829,6 +829,8 @@ def GetResult(jobid):#{{{
 
     # in case of missing queries, if remotequeue_idx_file is empty  but the job
     # is still not finished, force re-creating torun_idx_file
+    if g_params['DEBUG']:
+        myfunc.WriteFile("%s: remotequeue_idx_file=%s\n" %(jobid, remotequeue_idx_file), gen_logfile, "a", True)
     if ((not os.path.exists(remotequeue_idx_file) or
         os.path.getsize(remotequeue_idx_file)<1)):
         idlist1 = []
@@ -865,6 +867,10 @@ def GetResult(jobid):#{{{
                 myfunc.WriteFile("recreate torun_idx_file: jobid = %s, numseq=%d, len(completed_idx_set)=%d, len(torun_idx_str_list)=%d\n"%(jobid, numseq, len(completed_idx_set), len(torun_idx_str_list)), gen_logfile, "a", True)
         else:
             myfunc.WriteFile("", torun_idx_file, "w", True)
+    else:
+        if g_params['DEBUG']:
+            myfunc.WriteFile("%s: remotequeue_idx_file %s is not empty\n" %(jobid, remotequeue_idx_file), gen_logfile, "a", True)
+
 
     text = ""
     if os.path.exists(remotequeue_idx_file):
