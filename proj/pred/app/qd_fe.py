@@ -756,7 +756,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 epochtime = time.time()
                                 # 6 fields in the file remotequeue_idx_file
                                 txt =  "%d\t%s\t%s\t%s\t%s\t%f"%( origIndex,
-                                        node, remote_jobid, seqanno, seq,
+                                        node, remote_jobid, seqanno.replace('\t', ' '), seq,
                                         epochtime)
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
