@@ -650,6 +650,7 @@ def ValidateSeq(rawseq, seqinfo):#{{{
             seqid = seqRecordList[i][0].strip()
             seq = seq.upper()
             seq = re.sub("[\s\n\r\t]", '', seq)
+            anno = anno.replace('\t', ' ') #replace tab by whitespace
 
 
             li1 = [m.start() for m in re.finditer("[BZ]", seq)]
