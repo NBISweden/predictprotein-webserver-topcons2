@@ -830,7 +830,10 @@ def GetResult(jobid):#{{{
     # in case of missing queries, if remotequeue_idx_file is empty  but the job
     # is still not finished, force re-creating torun_idx_file
     if g_params['DEBUG']:
-        myfunc.WriteFile("%s: remotequeue_idx_file=%s\n" %(jobid, remotequeue_idx_file), gen_logfile, "a", True)
+        try:
+            myfunc.WriteFile("%s: remotequeue_idx_file=%s, size(remotequeue_idx_file)=%d\n" %(jobid, remotequeue_idx_file, os.path.getsize(remotequeue_idx_file)), gen_logfile, "a", True)
+        except:
+            pass
     if ((not os.path.exists(remotequeue_idx_file) or
         os.path.getsize(remotequeue_idx_file)<1)):
         idlist1 = []
