@@ -800,7 +800,6 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 def GetResult(jobid):#{{{
     # retrieving result from the remote server for this job
     myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
-    g_params['MAX_RESUBMIT'] = 2
     rstdir = "%s/%s"%(path_result, jobid)
     outpath_result = "%s/%s"%(rstdir, jobid)
     if not os.path.exists(outpath_result):
@@ -933,6 +932,10 @@ def GetResult(jobid):#{{{
                 errinfo = ss2[2]
 
                 if errinfo and errinfo.find("does not exist")!=-1:
+                    if g_params['DEBUG']:
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                        myfunc.WriteFile("[Date: %s] %s: %s\n"%(date_str, remote_jobid, errinfo), gen_logfile, "a", True)
+
                     isFinish_remote = True
 
                 if status == "Finished":#{{{
@@ -1059,6 +1062,9 @@ def GetResult(jobid):#{{{
                 elif status in ["Failed", "None"]:
                     # the job is failed for this sequence, try to re-submit
                     isFinish_remote = True
+                    if g_params['DEBUG']:
+                        myfunc.WriteFile("\tDEBUG: %s, status = %s\n"%(remote_jobid, status), gen_logfile, "a", True)
+
                     cnttry = 1
                     try:
                         cnttry = cntTryDict[int(origIndex)]
@@ -1124,6 +1130,9 @@ def GetResult(jobid):#{{{
         myfunc.WriteFile("\n".join(failed_idx_list)+"\n", failed_idx_file, "a", True)
     if len(resubmit_idx_list)>0:
         myfunc.WriteFile("\n".join(resubmit_idx_list)+"\n", torun_idx_file, "a", True)
+
+    if g_params['DEBUG']:
+        myfunc.WriteFile("len(keep_queueline_list)=%d\n"%(len(keep_queueline_list)), gen_logfile, "a", True)
 
     if len(keep_queueline_list)>0:
         myfunc.WriteFile("\n".join(keep_queueline_list)+"\n", remotequeue_idx_file, "w", True);
