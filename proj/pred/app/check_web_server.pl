@@ -15,7 +15,7 @@ use LWP::Simple qw($ua head);
 $ua->timeout(10);
 
 my $rundir = dirname(abs_path(__FILE__));
-my $basedir = abs_path("$rundir/../)";
+my $basedir = abs_path("$rundir/../");
 require "$rundir/nanjianglib.pl";
 
 
