@@ -554,6 +554,7 @@ def ValidateSeq(rawseq, seqinfo):#{{{
 # seq is the chunk of fasta file
 # seqinfo is a dictionary
 # return (filtered_seq)
+    rawseq = re.sub(r'[^\x00-\x7f]',r' ',rawseq) # remove non-ASCII characters
     filtered_seq = ""
     # initialization
     for item in ['errinfo_br', 'errinfo', 'errinfo_content', 'warninfo']:
