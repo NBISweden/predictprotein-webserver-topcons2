@@ -76,7 +76,7 @@ LOGGING = {
         },
     },
 }
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 #logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
 
 # Internationalization
