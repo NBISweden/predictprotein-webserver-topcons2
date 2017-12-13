@@ -97,8 +97,8 @@ Examples:
             help='Specify the directory where the cached results are (default: %s)'%(g_params['path_cache']))
     parser.add_argument('-o', '--outfile', metavar='FILE', dest='outfile', 
             help='Specify the output file')
-    parser.add_argument('-outdg','--outdg', action='store', dest='isOutputDG', default='yes',
-            choices=['yes', 'no'], help='Whether output the DeltaG (default = yes)' )
+    parser.add_argument('-outdg','--outdg', action='store', dest='isOutputDG', default='no',
+            choices=['yes', 'no'], help='Whether output the DeltaG (default = no)' )
     parser.add_argument('-debug', '--debug', action='store_true', default=False,  dest='isDEBUG', 
             help='Output debug info')
 
