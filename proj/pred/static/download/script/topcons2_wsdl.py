@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Description: access v2.topcons.net via WSDL service
+# Description: access topcons.net via WSDL service
 # Copyright Nanjiang Shu (nanjiang.shu@scilifelab.se)
 
+from __future__ import print_function
 import os
 import sys
+import argparse
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
 
@@ -12,13 +14,14 @@ no_suds_message="""\
 suds is not installed!
 Please install suds by
 
-$ pip install suds
+$ pip install suds  (for Python2)
+$ pip install suds-jurko (for Python3)
 """
 
 try:
     from suds.client import Client
 except ImportError:
-    print >> sys.stderr, no_suds_message
+    print(no_suds_message, file=sys.stderr)
     sys.exit(1)
 
 import urllib
@@ -68,28 +71,6 @@ Examples:
 
 """%(progname, progname)
 
-def my_getopt_str(argv, i):#{{{
-    """
-    Get a string from the argument list, return the string and the updated
-    index to the argument list
-    """
-    try:
-        opt = argv[i+1]
-        if opt[0] == "-":
-            msg = "Error! option '%s' must be followed by a string"\
-                    ", not an option arg."
-            print >> sys.stderr, msg%(argv[i])
-            sys.exit(1)
-        return (opt, i+2)
-    except IndexError:
-        msg = "Error! option '%s' must be followed by a string"
-        print >> sys.stderr, msg%(argv[i])
-        sys.exit(1)
-#}}}
-def PrintHelp(fpout=sys.stdout):#{{{
-    print >> fpout, usage_short
-    print >> fpout, usage_ext
-    print >> fpout, usage_exp#}}}
 def ReadFile(infile, mode="r"):#{{{
     try: 
         fpin = open(infile, mode)
@@ -97,91 +78,81 @@ def ReadFile(infile, mode="r"):#{{{
         fpin.close()
         return content
     except IOError:
-        print >> sys.stderr, "Failed to read file %s with mode '%s'"%(infile,
-                mode)
+        print("Failed to read file %s with mode '%s'"%(infile, mode), file=sys.stderr)
         return ""
 #}}}
 
 def main(g_params):#{{{
-    argv = sys.argv
-    numArgv = len(argv)
-    if numArgv < 2:
-        PrintHelp()
-        return 1
+    wsdl_url = "http://topcons.net/pred/api_submitseq/?wsdl"
+    parser = argparse.ArgumentParser(
+            description='Access topcons2 web-server (http://topcons.net) through WSDL service ',
+            #formatter_class=argparse.RawDescriptionHelpFormatter,
+            formatter_class=argparse.RawTextHelpFormatter,
+            epilog='''\
+Created 2015-02-04, updated 2018-01-12, Nanjiang Shu
 
-    wsdl_url = "http://v2.topcons.net/pred/api_submitseq/?wsdl"
-    mode = ""
+Examples:
+    # submit test.fa with jobname 'test' to the server 
+    %s -m submit -seq test.fa -jobname test
+
+    # try to retrieve the result for jobid 'rst_TTT' and save it to the current directory
+    %s -m get -jobid rst_TTT
+'''%(progname, progname))
+    parser.add_argument('-m',  action='store',
+        dest='mode', default='submit', choices=['submit','get'], required=True,
+        help='Set the mode of API\nsubmit - submit a job to WSDL\nget    - retrieve the result from the server')
+    parser.add_argument('-seq', metavar='FILE', dest='seqfile',
+            help='Supply input sequence in FASTA format')
+    parser.add_argument('-jobname', metavar='STR', dest='jobname',
+            help='Give the job a name')
+    parser.add_argument('-jobid', metavar='STR', dest='jobid',
+            help='Retrieve the result by supplying a valid jobid')
+    parser.add_argument('-email', metavar='STR', dest='email',
+            help='Send a notification to the email when the result is ready')
+    parser.add_argument('-outpath', metavar='DIR', dest='outpath',
+            help='Save the retrieved data to outpath, (default: ./)')
+
+
+    args = parser.parse_args()
+
+    mode = args.mode
+
     jobid = ""
     email = ""
     jobname = ""
     fixtopfile = ""
     seqfile = ""
-    outpath = "./"
+    outpath = "."
 
-    i = 1
-    isNonOptionArg=False
-    while i < numArgv:
-        if isNonOptionArg == True:
-            print >> sys.stderr, "Error! Wrong argument:", argv[i]
-            return 1
-            isNonOptionArg = False
-            i += 1
-        elif argv[i] == "--":
-            isNonOptionArg = True
-            i += 1
-        elif argv[i][0] == "-":
-            if argv[i] in ["-h", "--help"]:
-                PrintHelp()
-                return 0
-            elif argv[i] in ["-m", "--m"]:
-                (mode, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-seq", "--seq"]:
-                (seqfile, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-jobname", "--jobname"]:
-                (jobname, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-email", "--email"]:
-                (email, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-fix", "--fix"]:
-                (fixtopfile, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-jobid", "--jobid"]:
-                (jobid, i) = my_getopt_str(argv, i)
-            elif argv[i] in ["-outpath", "--outpath"]:
-                (outpath, i) = my_getopt_str(argv, i)
-            else:
-                print >> sys.stderr, "Error! Wrong argument:", argv[i]
-                return 1
-        else:
-            print >> sys.stderr, "Error! Wrong argument:", argv[i]
-            return 1
-
-    if mode == "":
-        print >> sys.stderr, "mode not set. exit!"
-        print usage_short
-        return 1
-    elif not mode in ["submit", "get"]:
-        print >> sys.stderr, "unrecognized mode. exit!"
-        print usage_short
-        return 1
+    if args.jobid != None:
+        jobid = args.jobid
+    if args.email != None:
+        email = args.email
+    if args.jobname != None:
+        jobname = args.jobname
+    if args.seqfile != None:
+        seqfile = args.seqfile
+    if args.outpath != None:
+        outpath = args.outpath
 
     if mode == "submit":
         if seqfile == "":
-            print >> sys.stderr, "You want to submit a job but seqfile not set. exit!"
-            print usage_short
+            print("You want to submit a job but seqfile is not set. Exit!", file=sys.stderr)
             return 1
         elif not os.path.exists(seqfile):
-            print >> sys.stderr, "seqfile %s does not exist. exit!"%(seqfile)
+            print("seqfile %s does not exist. Exit!"%(seqfile),file=sys.stderr)
             return 1
 
         try:
             filesize = os.path.getsize(seqfile)
         except OSError:
-            print >> sys.stderr, "failed to get the size of seqfile %s. exit"%(seqfile)
+            print("failed to get the size of seqfile %s. Exit"%(seqfile), file=sys.stderr)
             return 1
 
         if filesize >= MAX_FILESIZE:
-            print >> sys.stderr, "You input seqfile %s exceeds the "\
-                    "upper limit %d Mb."%(seqfile, MAX_FILESIZE_IN_MB)
-            print >> sys.stderr, "Please split your seqfile and submit again."
+            print("You input seqfile %s exceeds the upper limit %d Mb."%(
+                seqfile, MAX_FILESIZE_IN_MB), file=sys.stderr)
+            print("Please split your seqfile and submit again.",  file=sys.stderr)
             return 1
         seq = ReadFile(seqfile)
 
@@ -198,22 +169,22 @@ def main(g_params):#{{{
             errinfo = strs[3]
             warninfo = strs[4]
             if jobid != "None" and jobid != "":
-                print "You have successfully submitted your job "\
-                        "with %s sequences. jobid = %s"%(numseq_str, jobid)
+                print("You have successfully submitted your job "\
+                        "with %s sequences. jobid = %s\n"%(numseq_str, jobid))
                 if warninfo != "" and warninfo != "None":
-                    print "Warning message:\n", warninfo
+                    print("Warning message: %s\n"%str(warninfo))
             else:
-                print "Failed to submit job!"
+                print("Failed to submit job!\n")
                 if errinfo != "" and errinfo != "None":
-                    print "Error message:\n", errinfo
+                    print("Error message:%s\n"% str(errinfo))
                 if warninfo != "" and warninfo != "None":
-                    print "Warning message:\n", warninfo
+                    print("Warning message:%s\n"% str(warninfo))
         else:
-            print "Failed to submit job!"
+            print("Failed to submit job!")
             return 1
     else:
         if jobid == "":
-            print >> sys.stderr, "You want to get the result of a job but jobid not set. exit!"
+            print("You want to get the result of a job but jobid is not set. Exit!", file=sys.stderr )
             return 1
         myclient = Client(wsdl_url, cache=None)
         retValue = myclient.service.checkjob(jobid)
@@ -223,29 +194,29 @@ def main(g_params):#{{{
             result_url = strs[1]
             errinfo = strs[2]
             if status == "Failed":
-                print "Your job with jobid %s is failed!"%(jobid)
+                print("Your job with jobid %s is failed!"%(jobid))
                 if errinfo != "" and errinfo != "None":
-                    print "Error message:\n", errinfo
+                    print("Error message:\n"%str(errinfo))
             elif status == "Finished":
-                print "Your job with jobid %s is finished!"%(jobid)
+                print("Your job with jobid %s is finished!"%(jobid))
                 if not os.path.exists(outpath):
                     try:
                         os.makedirs(outpath)
                     except OSError:
-                        print "Failed to create the outpath %s"%(outpath)
+                        print("Failed to create the outpath %s"%(outpath))
                         return 1
                 outfile = "%s/%s.zip"%(outpath, jobid)
                 urllib.urlretrieve (result_url, outfile)
                 if os.path.exists(outfile):
-                    print "The result file %s has been retrieved for jobid %s"%(outfile, jobid)
+                    print("The result file %s has been retrieved for jobid %s"%(outfile, jobid))
                 else:
-                    print "Failed to retrieve result for jobid %s"%(jobid)
+                    print("Failed to retrieve result for jobid %s"%(jobid))
             elif status == "None":
-                print "Your job with jobid %s does not exist! Please check you typing!"%(jobid)
+                print("Your job with jobid %s does not exist! Please check you typing!"%(jobid))
             else:
-                print "Your job with jobid %s is not ready, status = %s"%(jobid, status)
+                print("Your job with jobid %s is not ready, status = %s"%(jobid, status))
         else:
-            print "Failed to get job!"
+            print("Failed to get job!")
             return 1
 
     return 0
