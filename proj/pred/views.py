@@ -690,7 +690,14 @@ def ValidateSeq(rawseq, seqinfo):#{{{
                     li_warn_info.append(msg)
                 seq = re.sub("[-]", "", seq)
 
-            li_newseq.append(">%s\n%s"%(anno, seq))
+            # check the sequence length again after potential removal of
+            # translation stop
+            if len(seq) < MIN_LEN_SEQ:
+                isHasShortSeq = 1
+                msg = "Sequence %s (SeqNo. %d) is removed since its length is < %d (after removal of translation stop)."%(seqid, i+1, MIN_LEN_SEQ)
+                li_warn_info.append(msg)
+            else:
+                li_newseq.append(">%s\n%s"%(anno, seq))
 
         filtered_seq = "\n".join(li_newseq) # seq content after validation
         seqinfo['warninfo'] = "\n".join(li_warn_info) + "\n"
