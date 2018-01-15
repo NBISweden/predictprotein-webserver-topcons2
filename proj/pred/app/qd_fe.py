@@ -765,6 +765,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                         epochtime)
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
+                            else:
+                                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                                myfunc.WriteFile("[Date: %s] bad remote jobid = %s\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+
                         else:
                             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                             myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
