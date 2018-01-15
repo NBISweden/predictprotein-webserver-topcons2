@@ -29,48 +29,6 @@ import urllib
 MAX_FILESIZE_IN_MB = 9
 MAX_FILESIZE = MAX_FILESIZE_IN_MB*1024*1024
 
-usage_short="""
-Usage: %s -m submit|get [-seq SEQFILE] [-jobname NAME] [-email EMAIL]
-       %s               [-fix FIXFILE]
-       %s               [-jobid JOBID] [-outpath DIR]
-"""%(progname, wspace, wspace)
-
-usage_ext="""
-Description:
-    Access topcons2 web-server (http://v2.topcons.net) through WSDL service
-
-OPTIONS:
-  -m submit|get  Set the mode
-                 submit - submit a job to WSDL
-                 get    - retrieve the result from the server
-
-  -seq    FILE   Supply input sequence in FASTA format
-
-  -jobname STR   Give the job a name
-
-  -email   STR   Send a notification to the email when the result is ready
-
-  -jobid   STR   Retrieve the result by supplying a valid jobid
-
-  -outpath DIR   Save the retrieved data to outpath, (default: ./)
-
-  -fix    FILE   Supply a file with topology constraints (TO BE IMPLEMENTED)
-
-  -h, --help     Print this help message and exit
-
-Created 2015-02-04, updated 2015-02-06, Nanjiang Shu
-"""
-usage_exp="""
-Examples:
-    # submit test.fa with jobname 'test' to the server 
-    %s -m submit -seq test.fa -jobname test
-
-    # try to retrieve the result for jobid 'rst_TTT' and save it to the current
-    # directory
-    %s -m get -jobid rst_TTT
-
-"""%(progname, progname)
-
 def ReadFile(infile, mode="r"):#{{{
     try: 
         fpin = open(infile, mode)
@@ -231,4 +189,3 @@ def InitGlobalParameter():#{{{
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
     sys.exit(main(g_params))
-

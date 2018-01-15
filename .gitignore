@@ -16,3 +16,8 @@ log/
 md5/
 env/
 bak.env/
+
+proj/pred/static/css/my_sortable.css
+proj/settings.py
+
+
