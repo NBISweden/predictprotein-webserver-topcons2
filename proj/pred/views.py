@@ -599,7 +599,6 @@ def ValidateSeq(rawseq, seqinfo):#{{{
     seqRecordList = newSeqRecordList
 
     numseq = len(seqRecordList)
-    seqinfo['numseq'] = numseq
 
     if numseq < 1:
         seqinfo['errinfo_br'] += "Number of input sequences is 0!\n"
@@ -700,6 +699,7 @@ def ValidateSeq(rawseq, seqinfo):#{{{
                 li_newseq.append(">%s\n%s"%(anno, seq))
 
         filtered_seq = "\n".join(li_newseq) # seq content after validation
+        seqinfo['numseq'] = len(li_newseq)
         seqinfo['warninfo'] = "\n".join(li_warn_info) + "\n"
 
     seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
