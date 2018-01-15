@@ -767,7 +767,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 cnttry = 0  #reset cnttry to zero
                             else:
                                 date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                myfunc.WriteFile("[Date: %s] bad remote jobid = %s, rtValue=%s\n"%(date_str, remote_jobid, str(rtValue), gen_errfile, "a", True)
+                                myfunc.WriteFile("[Date: %s] bad remote jobid = %s, rtValue=%s\n"%(date_str, remote_jobid, str(rtValue)), gen_errfile, "a", True)
 
                         else:
                             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
