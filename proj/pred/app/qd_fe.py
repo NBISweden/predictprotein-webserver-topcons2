@@ -741,9 +741,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 gen_logfile, "a", True)
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
                                 jobname, useemail, str(numseq_this_user), isforcerun)
-                    except:
+                    except Exception as e:
                         date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                        myfunc.WriteFile("[Date: %s] Failed to run myclient.service.submitjob_remote\n"%(date_str), gen_errfile, "a", True)
+                        myfunc.WriteFile("[Date: %s] Failed to run myclient.service.submitjob_remote on node %s with error msg %s\n"%(date_str, node, str(e)), gen_errfile, "a", True)
                         rtValue = []
                         pass
 
@@ -770,9 +770,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
-                    myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
+                    myfunc.WriteFile(" succeeded on node %s\n"%(node), gen_logfile, "a", True)
                 else:
-                    myfunc.WriteFile(" failed\n", gen_logfile, "a", True)
+                    myfunc.WriteFile(" failed on node %s\n"%(node), gen_logfile, "a", True)
 
                 if isSubmitSuccess or cnttry >= MAX_SUBMIT_TRY:
                     iToRun += 1
@@ -941,9 +941,9 @@ def GetResult(jobid):#{{{
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
-        except:
+        except Exception as e:
             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_logfile, "a", True)
+            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s) on node %s with error msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
             rtValue = []
             pass
         isSuccess = False
@@ -972,9 +972,9 @@ def GetResult(jobid):#{{{
                         try:
                             urllib.urlretrieve (result_url, outfile_zip)
                             isRetrieveSuccess = True
-                            myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
+                            myfunc.WriteFile(" succeeded on node %s\n"%(node), gen_logfile, "a", True)
                         except:
-                            myfunc.WriteFile(" failed\n", gen_logfile, "a", True)
+                            myfunc.WriteFile(" failed on node %s\n"%(node), gen_logfile, "a", True)
                             pass
                     if os.path.exists(outfile_zip) and isRetrieveSuccess:
                         cmd = ["unzip", outfile_zip, "-d", tmpdir]
@@ -1010,9 +1010,9 @@ def GetResult(jobid):#{{{
                                 # delete the data on the remote server
                                 try:
                                     rtValue2 = myclient.service.deletejob(remote_jobid)
-                                except:
+                                except Exception as e:
                                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_logfile, "a", True)
+                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
                                     rtValue2 = []
                                     pass
 
@@ -1043,8 +1043,8 @@ def GetResult(jobid):#{{{
                                 if os.path.exists(cachedir):
                                     try:
                                         shutil.rmtree(cachedir)
-                                    except:
-                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s)\n"%(cachedir), gen_logfile, "a", True)
+                                    except Exception as e:
+                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s) with msg %s\n"%(cachedir, str(e)), gen_logfile, "a", True)
                                         pass
 
                                 if not os.path.exists(md5_subfolder):
