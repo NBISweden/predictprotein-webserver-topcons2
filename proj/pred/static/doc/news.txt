@@ -14,6 +14,19 @@
 # <TITLE>  Tab news added
 # <CONTENT>  Now you can browse statistics of jobs
 
+<DATE>  2018-01-24
+<TITLE>  TOPCONS2.0_datasets.zip is updated
+<CONTENT>  The dataset used in the paper TOPCONS2.0_datesets.zip has been
+updated
+
+<DATE>  2017-06-16
+<TITLE>  An HTML file is output the result folder for a complete list of the
+predictions
+<CONTENT>  We have added a new feature for the web-server so that a complete
+list of predictions of one job is output as an html file and included in the
+downloadable zip file.
+
+
 <DATE>  2016-01-28
 <TITLE>  TOPCONS is back to normal
 <CONTENT> The transferring of virtual machines at FedCloud has been done. Now
@@ -50,14 +63,3 @@ randomly wrongly loaded virtual environment and it has been solved. However, you
 still experience occasional job submission failure when the server is
 overloaded.  If this happens, please try again in a few moments. 
 
-<DATE>  2017-06-16
-<TITLE>  An HTML file is output the result folder for a complete list of the
-predictions
-<CONTENT>  We have added a new feature for the web-server so that a complete
-list of predictions of one job is output as an html file and included in the
-downloadable zip file.
-
-<DATE>  2018-01-24
-<TITLE>  TOPCONS2.0_datasets.zip is updated
-<CONTENT>  The dataset used in the paper TOPCONS2.0_datesets.zip has been
-updated
