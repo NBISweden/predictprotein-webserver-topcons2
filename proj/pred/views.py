@@ -2260,7 +2260,7 @@ def get_results(request, jobid="1"):#{{{
         if isValidStartDate:
             time_now = time.time()
             cnt_torun = numseq - cntcached #
-            win_size = 100
+            win_size = 10
             avg_newrun_time = -1
             if cntnewrun > 0:
                 if cntnewrun-1-win_size > 0:
