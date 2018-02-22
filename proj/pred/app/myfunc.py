@@ -2063,10 +2063,26 @@ def ArchiveFile(filename, maxsize):#{{{
             os.remove(filename)
         return 0
 #}}}
+# def GetSuqPriority(numseq_this_user):#{{{
+#     prio = int(( (1/time.time()*1e10) * 1e8 ) ) - int(numseq_this_user**1.5)
+#     return prio
+# #}}}
+
 def GetSuqPriority(numseq_this_user):#{{{
-    prio = int(( (1/time.time()*1e10) * 1e8 ) ) - int(numseq_this_user**1.5)
+### the jobs queued for more than one day should have higher priority no matter how many sequences it is
+    year = datetime.datetime.today().year
+    lastyear = year-1
+    epoch_time_lastyear = datetime.datetime.strptime(str(lastyear), '%Y').strftime('%s')
+    seconds_since_lastyear = time.time() - float(epoch_time_lastyear) 
+    if numseq_this_user > 20000:
+        numseq_this_user = 20000
+    prio = int(( (1/seconds_since_lastyear*1e10) * 1e6 ) ) - int(numseq_this_user**1.35)
+    if prio < 0:
+        prio = 0
+
     return prio
 #}}}
+
 def Sendmail(from_email, to_email, subject, bodytext):#{{{
     sendmail_location = "/usr/sbin/sendmail" # sendmail location
     p = os.popen("%s -t" % sendmail_location, "w")

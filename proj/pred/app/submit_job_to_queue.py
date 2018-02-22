@@ -76,8 +76,10 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
     if numseq_this_user == -1:
         numseq_this_user = numseq
 
+    name_software = "topcons2"
+
     runjob = "%s %s/run_job.py"%(python_exec, rundir)
-    scriptfile = "%s/runjobSPLIT%sSPLIT%sSPLIT%sSPLIT%d.sh"%(datapath, jobid, host_ip, email, numseq)
+    scriptfile = "%s/runjob;%s;%s;%s;%s;%d.sh"%(outpath, name_software, jobid, host_ip, email, numseq)
     code_str_list = []
     code_str_list.append("#!/bin/bash")
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, fafile, outpath, datapath, jobid)
@@ -106,15 +108,15 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
     myfunc.WriteFile("priority=%d\n"%(priority), g_params['debugfile'], "a",
             True)
 
-    st1 = SubmitSuqJob(suq_basedir, datapath, priority, scriptfile)
+    st1 = SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile)
 
     return st1
 #}}}
-def SubmitSuqJob(suq_basedir, datapath, priority, scriptfile):#{{{
+def SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile):#{{{
     myfunc.WriteFile("Entering SubmitSuqJob()\n", g_params['debugfile'], "a",
             True)
     rmsg = ""
-    cmd = [suq_exec,"-b", suq_basedir, "run", "-d", datapath, "-p", "%d"%(priority), scriptfile]
+    cmd = [suq_exec,"-b", suq_basedir, "run", "-d", outpath, "-p", "%d"%(priority), scriptfile]
     cmdline = " ".join(cmd)
     myfunc.WriteFile("cmdline: %s\n\n"%(cmdline), g_params['debugfile'], "a",
             True)
