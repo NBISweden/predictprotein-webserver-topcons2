@@ -28,7 +28,7 @@ platform=
 case $platform_info in 
     *centos*)platform=centos;;
     *redhat*) platform=redhat;;
-    *ubuntu*)platform=ubuntu;;
+    *ubuntu*|*debian*)platform=ubuntu;;
     *)platform=other;;
 esac
 
@@ -67,6 +67,6 @@ exec_cmd "sudo chmod 644 $logfile_submit"
 exec_cmd "sudo chown $user:$group $logfile_submit"
 
 # fix the settings.py
-if [ ! -f $rundir/settings.py -a ! -L $rundir/settting.py ];then
+if [ ! -f $rundir/proj/settings.py -a ! -L $rundir/proj/settting.py ];then
     pushd $rundir/proj; ln -s pro_settings.py settings.py; popd;
 fi

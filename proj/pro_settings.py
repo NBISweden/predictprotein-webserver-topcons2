@@ -28,7 +28,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['localhost', 'topcons.net', 'www.topcons.net', 'topcons.cbr.su.se',  'v2.topcons.net', 'beta.topcons.net', '90.147.102.171']
+ALLOWED_HOSTS = ['localhost', 'topcons.net', 'www.topcons.net', 'topcons.cbr.su.se',  'dev.topcons.net', 'v2.topcons.net', 'beta.topcons.net', '90.147.102.171']
 
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
 if os.path.exists(computenodefile):
