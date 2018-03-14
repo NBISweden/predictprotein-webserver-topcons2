@@ -1521,7 +1521,7 @@ def RunStatistics(path_result, path_log):#{{{
     li_str.append("#Country\tNumSeq\tNumJob\tNumIP")
     for li in li_countjob:
         li_str.append("%s\t%d\t%d\t%d"%(li[0], li[1][0], li[1][1], len(li[1][2])))
-    myfunc.WriteFile("\n".join(li_str)+"\n", outfile_countjob_by_country, "w", True)
+    myfunc.WriteFile(("\n".join(li_str)+"\n").encode('utf-8'), outfile_countjob_by_country, "w", True)
 
     flist = [outfile_numseqjob, outfile_numseqjob_web, outfile_numseqjob_wsdl  ]
     dictlist = [countjob_numseq_dict, countjob_numseq_dict_web, countjob_numseq_dict_wsdl]
