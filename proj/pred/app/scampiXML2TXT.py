@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # convert the modhmm xml file to text file, output probabilities as well
 
 import sys,re,os

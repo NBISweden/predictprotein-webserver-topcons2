@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Description: moving cache data from within each job folder to a common place
 #              located under static/result/cache

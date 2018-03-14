@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # convert modhmm xml output file into txt file
 import sys,re,os;
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # split the given fasta sequence file in pieces
 # ChangeLog 2012-05-23
 #   options added

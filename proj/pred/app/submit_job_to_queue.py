@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Description: submit job to queue
 # ChangeLog 2015-03-26 
 #   1. suq ntask is set universally for each node by the qd_topcons2_fe.py

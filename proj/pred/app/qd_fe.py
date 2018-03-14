@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Description: daemon to submit jobs and retrieve results to/from remote
 #              servers
 # 
@@ -2039,6 +2040,10 @@ def main(g_params):#{{{
     loop = 0
     while 1:
         # load the config file if exists
+
+        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):#pause when cache cleaning is in progress
+            continue
+
         configfile = "%s/config/config.json"%(basedir)
         config = {}
         if os.path.exists(configfile):

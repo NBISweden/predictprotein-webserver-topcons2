@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Description: calculate queues for topcons2 web-server
 # Calculate the queue of jobs in the result folder
 import os

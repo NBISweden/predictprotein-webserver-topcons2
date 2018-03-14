@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # convert modhmm xml output file into res file
 # output the same result as the modhmm code modhmmxml2res
 # however, the original modhmmxml2res code uses xslt language which can not

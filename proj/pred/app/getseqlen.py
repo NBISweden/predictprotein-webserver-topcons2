@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # get the length of the sequences in the fasta file
 # Note: this python code is about 7 times faster than the perl script getseqlen.pl
 import sys
