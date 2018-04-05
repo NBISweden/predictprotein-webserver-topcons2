@@ -689,7 +689,6 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 break
 
             [cnt, maxnum] = cntSubmitJobDict[node]
-            MAX_SUBMIT_TRY = 3
             cnttry = 0
             while cnt < maxnum and iToRun < numToRun:
                 origIndex = int(toRunIndexList[iToRun])
@@ -779,7 +778,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 else:
                     myfunc.WriteFile(" failed on node %s\n"%(node), gen_logfile, "a", True)
 
-                if isSubmitSuccess or cnttry >= MAX_SUBMIT_TRY:
+                if isSubmitSuccess or cnttry >= g_params['MAX_SUBMIT_TRY']:
                     iToRun += 1
                     processedIndexSet.add(str(origIndex))
                     if g_params['DEBUG']:
@@ -2164,6 +2163,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
     g_params['MAX_KEEP_DAYS'] = 30
     g_params['MAX_RESUBMIT'] = 2
+    g_params['MAX_SUBMIT_TRY'] = 3
     return g_params
 #}}}
 if __name__ == '__main__' :
