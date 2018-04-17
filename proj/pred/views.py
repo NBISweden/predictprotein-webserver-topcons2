@@ -95,6 +95,7 @@ MIN_LEN_SEQ = 10      # minimum length of the query sequence
 MAX_LEN_SEQ = 10000   # maximum length of the query sequence
 
 import myfunc
+import webserver_common
 
 suq_basedir = "/tmp"
 if os.path.exists("/scratch"):
@@ -2247,43 +2248,24 @@ def get_results(request, jobid="1"):#{{{
         resultdict['percent_finished'] = "%.1f"%(0.0)
 
     num_remain = numseq - num_finished
+    time_remain_in_sec = num_remain * average_run_time # set default value
 
-    time_remain_in_sec = numseq * 5 # set default value
+    # calculate the remaining time based on the average_runtime of the last x
+    # number of newrun sequences
+    avg_newrun_time = webserver_common.GetAverageNewRunTime(finished_seq_file, window=10)
 
-    if os.path.exists(starttagfile):
-        start_date_str = myfunc.ReadFile(starttagfile).strip()
-        isValidStartDate = False
-        try:
-            start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
-            isValidStartDate = True
-        except:
-            pass
-        if isValidStartDate:
-            time_now = time.time()
-            cnt_torun = numseq - cntcached #
-            win_size = 10
-            avg_newrun_time = -1
-            if cntnewrun > 0:
-                if cntnewrun-1-win_size > 0:
-                    idx_firstinwindow = cntnewrun - 1 -win_size
-                    numjob_in_window = win_size
-                else:
-                    idx_firstinwindow = 0
-                    numjob_in_window = cntnewrun
+    if cntnewrun > 0 and avg_newrun_time >= 0:
+        time_remain_in_sec = int(avg_newrun_time*num_remain+0.5)
 
-                jobid_firstinwindow = newrun_table_list[idx_firstinwindow][1]
-                seqfile_firstinwindow = "%s/%s/%s/%s"%(rstdir, jobid, jobid_firstinwindow, "seq.fa")
-                if os.path.exists(seqfile_firstinwindow):
-                    modtime_first = os.path.getmtime(seqfile_firstinwindow)
-                    avg_newrun_time = (time_now - modtime_first)/numjob_in_window
-
-            if cntnewrun <= 0 or avg_newrun_time < 0:
-                time_remain_in_sec = cnt_torun * AVERAGE_RUNTIME_PER_SEQ_IN_SEC
-            else:
-                time_remain_in_sec = int(avg_newrun_time*cnt_torun+0.5)
 
     time_remain = myfunc.second_to_human(time_remain_in_sec)
     resultdict['time_remain'] = time_remain
+    qdinittagfile = "%s/runjob.qdinit"%(rstdir)
+
+    if os.path.exists(rstdir):
+        resultdict['isResultFolderExist'] = True
+    else:
+        resultdict['isResultFolderExist'] = False
 
     if numseq <= 1:
         if method_submission == "web":
@@ -2291,9 +2273,11 @@ def get_results(request, jobid="1"):#{{{
         else:
             resultdict['refresh_interval'] = 5
     else:
-        #resultdict['refresh_interval'] = numseq * 2
-        addtime = int(math.sqrt(max(0,min(num_remain, num_finished))))+1
-        resultdict['refresh_interval'] = average_run_time + addtime
+        if os.path.exists(qdinittagfile):
+            addtime = int(math.sqrt(max(0,min(num_remain, num_finished))))+1
+            resultdict['refresh_interval'] = average_run_time + addtime
+        else:
+            resultdict['refresh_interval'] = 2
 
     # get stat info
     if os.path.exists(statfile):#{{{
