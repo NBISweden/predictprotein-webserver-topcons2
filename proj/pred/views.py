@@ -555,6 +555,7 @@ def ValidateSeq(rawseq, seqinfo):#{{{
 # seqinfo is a dictionary
 # return (filtered_seq)
     rawseq = re.sub(r'[^\x00-\x7f]',r' ',rawseq) # remove non-ASCII characters
+    rawseq = re.sub(r'[\x0b]',r' ',rawseq) # filter invalid characters for XML
     filtered_seq = ""
     # initialization
     for item in ['errinfo_br', 'errinfo', 'errinfo_content', 'warninfo']:
