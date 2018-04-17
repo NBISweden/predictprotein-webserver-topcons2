@@ -35,6 +35,7 @@ import datetime
 import time
 import math
 import shutil
+import json
 
 
 os.environ['TZ'] = 'Europe/Stockholm'
@@ -70,15 +71,23 @@ from django.template import add_to_builtins
 add_to_builtins('eztables.templatetags.eztables')
 
 # global parameters
-BASEURL = "/pred/";
-MAXSIZE_UPLOAD_FILE_IN_MB = 100
-MAXSIZE_UPLOAD_FILE_IN_BYTE = MAXSIZE_UPLOAD_FILE_IN_MB * 1024*1024
-MAX_DAYS_TO_SHOW = 30
-BIG_NUMBER = 100000
-MAX_NUMSEQ_FOR_FORCE_RUN = 2
-AVERAGE_RUNTIME_PER_SEQ_IN_SEC = 44
+g_params = {}
+g_params['BASEURL'] = "/pred/";
+g_params['MAXSIZE_UPLOAD_FILE_IN_MB']  = 100
+g_params['MAX_DAYS_TO_SHOW']  = 30
+g_params['BIG_NUMBER']  = 100000
+g_params['MAX_NUMSEQ_FOR_FORCE_RUN']  = 2
+g_params['AVERAGE_RUNTIME_PER_SEQ_IN_SEC']  = 44
+g_params['MAX_ROWS_TO_SHOW_IN_TABLE']  = 2000
+g_params['MIN_LEN_SEQ']  = 10      # minimum length of the query sequence
+g_params['MAX_LEN_SEQ']  = 10000   # maximum length of the query sequence
+g_params['MAXSIZE_UPLOAD_FILE_IN_BYTE']  = g_params['MAXSIZE_UPLOAD_FILE_IN_MB'] * 1024*1024
+
+
+
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
+rootname_progname = os.path.splitext(progname)[0]
 path_app = "%s/app"%(SITE_ROOT)
 sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
@@ -86,13 +95,9 @@ path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
 path_tmp = "%s/static/tmp"%(SITE_ROOT)
 path_md5 = "%s/static/md5"%(SITE_ROOT)
-MAX_ROWS_TO_SHOW_IN_TABLE = 2000
-
 
 python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
 
-MIN_LEN_SEQ = 10      # minimum length of the query sequence
-MAX_LEN_SEQ = 10000   # maximum length of the query sequence
 
 import myfunc
 import webserver_common
@@ -132,6 +137,18 @@ def index(request):#{{{
     if not os.path.exists(base_www_url_file):
         base_www_url = "http://" + request.META['HTTP_HOST']
         myfunc.WriteFile(base_www_url, base_www_url_file, "w", True)
+
+    # read the local config file if exists
+    configfile = "%s/config/config.json"%(SITE_ROOT)
+    config = {}
+    if os.path.exists(configfile):
+        text = myfunc.ReadFile(configfile)
+        config = json.loads(text)
+
+    if rootname_progname in config:
+        g_params.update(config[rootname_progname])
+        g_params['MAXSIZE_UPLOAD_FILE_IN_BYTE'] = g_params['MAXSIZE_UPLOAD_FILE_IN_MB'] * 1024*1024
+
     return submit_seq(request)
 #}}}
 def SetColorStatus(status):#{{{
@@ -261,7 +278,7 @@ def submit_seq(request):#{{{
             query['isForceRun'] = isForceRun
             query['username'] = username
 
-            is_valid = ValidateQuery(request, query)
+            is_valid = webserver_common.ValidateQuery(request, query, g_params)
 
             if is_valid:
                 jobid = RunQuery(request, query)
@@ -290,7 +307,7 @@ def submit_seq(request):#{{{
 
                 query['jobid'] = jobid
                 query['raw_query_seqfile'] = "query.raw.fa"
-                query['BASEURL'] = BASEURL
+                query['BASEURL'] = g_params['BASEURL']
 
                 # start the qd_fe if not, in the background
 #                 cmd = [qd_fe_scriptfile]
@@ -405,9 +422,9 @@ def GetJobCounter(client_ip, isSuperUser, logfile_query, #{{{
 
 
     if isSuperUser:
-        maxdaystoshow = BIG_NUMBER
+        maxdaystoshow = g_params['BIG_NUMBER']
     else:
-        maxdaystoshow = MAX_DAYS_TO_SHOW
+        maxdaystoshow = g_params['MAX_DAYS_TO_SHOW']
 
 
     hdl = myfunc.ReadLineByBlock(logfile_query)
@@ -503,210 +520,6 @@ def GetNumSameUserInQueue(rstdir, host_ip, email):#{{{
     return numseq_this_user
 #}}}
 
-def ValidateQuery(request, query):#{{{
-    query['errinfo_br'] = ""
-    query['errinfo_content'] = ""
-    query['warninfo'] = ""
-
-    has_pasted_seq = False
-    has_upload_file = False
-    if query['rawseq'].strip() != "":
-        has_pasted_seq = True
-    if query['seqfile'] != "":
-        has_upload_file = True
-
-    if has_pasted_seq and has_upload_file:
-        query['errinfo_br'] += "Confused input!"
-        query['errinfo_content'] = "You should input your query by either "\
-                "paste the sequence in the text area or upload a file."
-        return False
-    elif not has_pasted_seq and not has_upload_file:
-        query['errinfo_br'] += "No input!"
-        query['errinfo_content'] = "You should input your query by either "\
-                "paste the sequence in the text area or upload a file "
-        return False
-    elif query['seqfile'] != "":
-        try:
-            fp = request.FILES['seqfile']
-            fp.seek(0,2)
-            filesize = fp.tell()
-            if filesize > MAXSIZE_UPLOAD_FILE_IN_BYTE:
-                query['errinfo_br'] += "Size of uploaded file exceeds limit!"
-                query['errinfo_content'] += "The file you uploaded exceeds "\
-                        "the upper limit %g Mb. Please split your file and "\
-                        "upload again."%(MAXSIZE_UPLOAD_FILE_IN_MB)
-                return False
-
-            fp.seek(0,0)
-            content = fp.read()
-        except KeyError:
-            query['errinfo_br'] += ""
-            query['errinfo_content'] += """
-            Failed to read uploaded file \"%s\"
-            """%(query['seqfile'])
-            return False
-        query['rawseq'] = content
-
-    query['filtered_seq'] = ValidateSeq(query['rawseq'], query)
-    is_valid = query['isValidSeq']
-    return is_valid
-#}}}
-def ValidateSeq(rawseq, seqinfo):#{{{
-# seq is the chunk of fasta file
-# seqinfo is a dictionary
-# return (filtered_seq)
-    rawseq = re.sub(r'[^\x00-\x7f]',r' ',rawseq) # remove non-ASCII characters
-    rawseq = re.sub(r'[\x0b]',r' ',rawseq) # filter invalid characters for XML
-    filtered_seq = ""
-    # initialization
-    for item in ['errinfo_br', 'errinfo', 'errinfo_content', 'warninfo']:
-        if item not in seqinfo:
-            seqinfo[item] = ""
-
-    seqinfo['isValidSeq'] = True
-
-    seqRecordList = []
-    myfunc.ReadFastaFromBuffer(rawseq, seqRecordList, True, 0, 0)
-# filter empty sequences and any sequeces shorter than MIN_LEN_SEQ or longer
-# than MAX_LEN_SEQ
-    newSeqRecordList = []
-    li_warn_info = []
-    isHasEmptySeq = False
-    isHasShortSeq = False
-    isHasLongSeq = False
-    isHasDNASeq = False
-    cnt = 0
-    for rd in seqRecordList:
-        seq = rd[2].strip()
-        seqid = rd[0].strip()
-        if len(seq) == 0:
-            isHasEmptySeq = 1
-            msg = "Empty sequence %s (SeqNo. %d) is removed."%(seqid, cnt+1)
-            li_warn_info.append(msg)
-        elif len(seq) < MIN_LEN_SEQ:
-            isHasShortSeq = 1
-            msg = "Sequence %s (SeqNo. %d) is removed since its length is < %d."%(seqid, cnt+1, MIN_LEN_SEQ)
-            li_warn_info.append(msg)
-        elif len(seq) > MAX_LEN_SEQ:
-            isHasLongSeq = True
-            msg = "Sequence %s (SeqNo. %d) is removed since its length is > %d."%(seqid, cnt+1, MAX_LEN_SEQ)
-            li_warn_info.append(msg)
-        elif myfunc.IsDNASeq(seq):
-            isHasDNASeq = True
-            msg = "Sequence %s (SeqNo. %d) is removed since it looks like a DNA sequence."%(seqid, cnt+1)
-            li_warn_info.append(msg)
-        else:
-            newSeqRecordList.append(rd)
-        cnt += 1
-    seqRecordList = newSeqRecordList
-
-    numseq = len(seqRecordList)
-
-    if numseq < 1:
-        seqinfo['errinfo_br'] += "Number of input sequences is 0!\n"
-        t_rawseq = rawseq.lstrip()
-        if t_rawseq and t_rawseq[0] != '>':
-            seqinfo['errinfo_content'] += "Bad input format. The FASTA format should have an annotation line start with '>'.\n"
-        if len(li_warn_info) >0:
-            seqinfo['errinfo_content'] += "\n".join(li_warn_info) + "\n"
-        if not isHasShortSeq and not isHasEmptySeq and not isHasLongSeq and not isHasDNASeq:
-            seqinfo['errinfo_content'] += "Please input your sequence in FASTA format.\n"
-
-        seqinfo['isValidSeq'] = False
-    else:
-        li_badseq_info = []
-        if 'isForceRun' in seqinfo and seqinfo['isForceRun'] and numseq > MAX_NUMSEQ_FOR_FORCE_RUN:
-            seqinfo['errinfo_br'] += "Invalid input!"
-            seqinfo['errinfo_content'] += "You have chosen the \"Force Run\" mode. "\
-                    "The maximum allowable number of sequences of a job is %d. "\
-                    "However, your input has %d sequences."%(MAX_NUMSEQ_FOR_FORCE_RUN, numseq)
-            seqinfo['isValidSeq'] = False
-        for i in xrange(numseq):
-            seq = seqRecordList[i][2].strip()
-            anno = seqRecordList[i][1].strip().replace('\t', ' ')
-            seqid = seqRecordList[i][0].strip()
-            seq = seq.upper()
-            seq = re.sub("[\s\n\r\t]", '', seq)
-            li1 = [m.start() for m in re.finditer("[^ABCDEFGHIKLMNPQRSTUVWYZX*-]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Bad letter for amino acid in sequence %s (SeqNo. %d) "\
-                            "at position %d (letter: '%s')"%(seqid, i+1,
-                                    li1[j]+1, seq[li1[j]])
-                    li_badseq_info.append(msg)
-
-        if len(li_badseq_info) > 0:
-            seqinfo['errinfo_br'] += "There are bad letters for amino acids in your query!\n"
-            seqinfo['errinfo_content'] = "\n".join(li_badseq_info) + "\n"
-            seqinfo['isValidSeq'] = False
-
-# out of these 26 letters in the alphabet, 
-# B, Z -> X
-# U -> C
-# *, - will be deleted
-# 
-        li_newseq = []
-        for i in xrange(numseq):
-            seq = seqRecordList[i][2].strip()
-            anno = seqRecordList[i][1].strip()
-            seqid = seqRecordList[i][0].strip()
-            seq = seq.upper()
-            seq = re.sub("[\s\n\r\t]", '', seq)
-            anno = anno.replace('\t', ' ') #replace tab by whitespace
-
-
-            li1 = [m.start() for m in re.finditer("[BZ]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Amino acid in sequence %s (SeqNo. %d) at position %d "\
-                            "(letter: '%s') has been replaced by 'X'"%(seqid,
-                                    i+1, li1[j]+1, seq[li1[j]])
-                    li_warn_info.append(msg)
-                seq = re.sub("[BZ]", "X", seq)
-
-            li1 = [m.start() for m in re.finditer("[U]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Amino acid in sequence %s (SeqNo. %d) at position %d "\
-                            "(letter: '%s') has been replaced by 'C'"%(seqid,
-                                    i+1, li1[j]+1, seq[li1[j]])
-                    li_warn_info.append(msg)
-                seq = re.sub("[U]", "C", seq)
-
-            li1 = [m.start() for m in re.finditer("[*]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Translational stop in sequence %s (SeqNo. %d) at position %d "\
-                            "(letter: '%s') has been deleted"%(seqid,
-                                    i+1, li1[j]+1, seq[li1[j]])
-                    li_warn_info.append(msg)
-                seq = re.sub("[*]", "", seq)
-
-            li1 = [m.start() for m in re.finditer("[-]", seq)]
-            if len(li1) > 0:
-                for j in xrange(len(li1)):
-                    msg = "Gap in sequence %s (SeqNo. %d) at position %d "\
-                            "(letter: '%s') has been deleted"%(seqid,
-                                    i+1, li1[j]+1, seq[li1[j]])
-                    li_warn_info.append(msg)
-                seq = re.sub("[-]", "", seq)
-
-            # check the sequence length again after potential removal of
-            # translation stop
-            if len(seq) < MIN_LEN_SEQ:
-                isHasShortSeq = 1
-                msg = "Sequence %s (SeqNo. %d) is removed since its length is < %d (after removal of translation stop)."%(seqid, i+1, MIN_LEN_SEQ)
-                li_warn_info.append(msg)
-            else:
-                li_newseq.append(">%s\n%s"%(anno, seq))
-
-        filtered_seq = "\n".join(li_newseq) # seq content after validation
-        seqinfo['numseq'] = len(li_newseq)
-        seqinfo['warninfo'] = "\n".join(li_warn_info) + "\n"
-
-    seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
-    return filtered_seq
-#}}}
 def RunQuery(request, query):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
@@ -974,7 +787,7 @@ def get_queue(request):#{{{
                     submit_date_str, method_submission])
 
 
-        info['BASEURL'] = BASEURL
+        info['BASEURL'] = g_params['BASEURL']
         info['content'] = jobid_inqueue_list
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
@@ -1106,7 +919,7 @@ def get_running(request):#{{{
                     submit_date_str, method_submission])
 
 
-        info['BASEURL'] = BASEURL
+        info['BASEURL'] = g_params['BASEURL']
         if info['isSuperUser']:
             info['header'] = ["No.", "JobID","JobName", "NumSeq",
                 "NumFinished", "Email", "Host", "QueueTime","RunTime", "Date", "Source"]
@@ -1120,7 +933,7 @@ def get_running(request):#{{{
 #}}}
 def get_finished_job(request):#{{{
     info = {}
-    info['BASEURL'] = BASEURL
+    info['BASEURL'] = g_params['BASEURL']
 
 
     username = request.user.username
@@ -1143,11 +956,11 @@ def get_finished_job(request):#{{{
     info['client_ip'] = client_ip
 
     if isSuperUser:
-        maxdaystoshow = BIG_NUMBER
+        maxdaystoshow = g_params['BIG_NUMBER']
         info['header'] = ["No.", "JobID","JobName", "NumSeq",
                 "Email", "Host", "QueueTime","RunTime", "Date", "Source"]
     else:
-        maxdaystoshow = MAX_DAYS_TO_SHOW
+        maxdaystoshow = g_params['MAX_DAYS_TO_SHOW']
         info['header'] = ["No.", "JobID","JobName", "NumSeq",
                 "Email", "QueueTime","RunTime", "Date", "Source"]
 
@@ -1306,7 +1119,7 @@ def get_failed_job(request):#{{{
 
 
     if isSuperUser:
-        maxdaystoshow = BIG_NUMBER
+        maxdaystoshow = g_params['BIG_NUMBER']
         info['header'] = ["No.", "JobID","JobName", "NumSeq", "Email",
                 "Host", "QueueTime","RunTime", "Date", "Source"]
     else:
@@ -1316,7 +1129,7 @@ def get_failed_job(request):#{{{
 
 
     info['MAX_DAYS_TO_SHOW'] = maxdaystoshow
-    info['BASEURL'] = BASEURL
+    info['BASEURL'] = g_params['BASEURL']
 
     hdl = myfunc.ReadLineByBlock(divided_logfile_query)
     if hdl.failure:
@@ -1867,7 +1680,7 @@ def get_serverstatus(request):#{{{
     info['li_mostTM'] = li_mostTM
 
     info['startdate'] = startdate
-    info['BASEURL'] = BASEURL
+    info['BASEURL'] = g_params['BASEURL']
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
@@ -2166,7 +1979,7 @@ def get_results(request, jobid="1"):#{{{
     resultdict['submit_date'] = submit_date_str
     resultdict['queuetime'] = queuetime
     resultdict['runtime'] = runtime
-    resultdict['BASEURL'] = BASEURL
+    resultdict['BASEURL'] = g_params['BASEURL']
     resultdict['status'] = status
     resultdict['color_status'] = color_status
     resultdict['numseq'] = numseq
@@ -2210,7 +2023,7 @@ def get_results(request, jobid="1"):#{{{
                     runtime_in_sec_str = ""
                 desp = strs[6]
                 rank = "%d"%(cnt+1)
-                if cnt < MAX_ROWS_TO_SHOW_IN_TABLE:
+                if cnt < g_params['MAX_ROWS_TO_SHOW_IN_TABLE']:
                     index_table_content_list.append([rank, length_str, numTM_str,
                         isHasSP, runtime_in_sec_str, desp[:30], subfolder, source])
                 if source == "newrun":
@@ -2359,7 +2172,7 @@ def get_results(request, jobid="1"):#{{{
 
     resultdict['topolist'] = topolist
     resultdict['TMlist'] = TMlist
-    resultdict['MAX_ROWS_TO_SHOW_IN_TABLE'] = MAX_ROWS_TO_SHOW_IN_TABLE
+    resultdict['MAX_ROWS_TO_SHOW_IN_TABLE'] = g_params['MAX_ROWS_TO_SHOW_IN_TABLE']
 
 
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
@@ -2414,7 +2227,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['jobid'] = jobid
     resultdict['jobname'] = jobname
     resultdict['outpathname'] = os.path.basename(outpathname)
-    resultdict['BASEURL'] = BASEURL
+    resultdict['BASEURL'] = g_params['BASEURL']
     resultdict['status'] = status
     resultdict['numseq'] = numseq
     base_www_url = "http://" + request.META['HTTP_HOST']
@@ -2526,7 +2339,7 @@ class Service_submitseq(ServiceBase):
     def submitjob(ctx, seq="", fixtop="", jobname="", email=""):#{{{
         seq = seq + "\n" #force add a new line for correct parsing the fasta file
         seqinfo = {}
-        filtered_seq = ValidateSeq(seq, seqinfo)
+        filtered_seq = webserver_common.ValidateSeq(seq, seqinfo, g_params)
         # ValidateFixtop(fixtop) #to be implemented
         jobid = "None"
         url = "None"
@@ -2575,7 +2388,7 @@ class Service_submitseq(ServiceBase):
                 if seqinfo['client_ip'] != "":
                     myfunc.WriteFile(log_record, divided_logfile_query, "a")
 
-                url = "http://" + hostname + BASEURL + "result/%s"%(jobid)
+                url = "http://" + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 if seqinfo['warninfo'] != "":
@@ -2595,7 +2408,7 @@ class Service_submitseq(ServiceBase):
             numseq_this_user="", isforcerun=""):
         seq = seq + "\n" #force add a new line for correct parsing the fasta file
         seqinfo = {}
-        filtered_seq = ValidateSeq(seq, seqinfo)
+        filtered_seq = webserver_common.ValidateSeq(seq, seqinfo, g_params)
         # ValidateFixtop(fixtop) #to be implemented
         if numseq_this_user != "" and numseq_this_user.isdigit():
             seqinfo['numseq_this_user'] = int(numseq_this_user)
@@ -2653,7 +2466,7 @@ class Service_submitseq(ServiceBase):
                 if seqinfo['client_ip'] != "":
                     myfunc.WriteFile(log_record, divided_logfile_query, "a")
 
-                url = "http://" + hostname + BASEURL + "result/%s"%(jobid)
+                url = "http://" + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 if seqinfo['warninfo'] != "":
