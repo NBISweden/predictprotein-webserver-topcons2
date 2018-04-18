@@ -2137,7 +2137,7 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 20 == 5:
+        if loop % 100 == 50:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
