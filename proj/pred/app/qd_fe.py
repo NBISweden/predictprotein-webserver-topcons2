@@ -229,7 +229,12 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
     if os.path.exists(finishedjoblogfile):
         finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
 
+    # these two list try to update the finished list and submitted list so that
+    # deleted jobs will not be included, there is a separate list started with
+    # all_xxx which keeps also the historical jobs
     new_finished_list = []  # Finished or Failed
+    new_submitted_list = []  # 
+
     new_runjob_list = []    # Running
     new_waitjob_list = []    # Queued
     lines = hdl.readlines()
@@ -255,8 +260,16 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             except:
                 pass
 
+            isRstFolderExist = False
+            if os.path.exists(rstdir):
+                isRstFolderExist = True
+
+
+            if isRstFolderExist:
+                new_submitted_list.append([jobid,line])
+
             if jobid in finished_job_dict:
-                if os.path.exists(rstdir):
+                if isRstFolderExist:
                     li = [jobid] + finished_job_dict[jobid]
                     new_finished_list.append(li)
                 continue
@@ -301,6 +314,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         lines = hdl.readlines()
     hdl.close()
 
+# re-write logs of submitted jobs
+    li_str = []
+    for li in new_submitted_list:
+        li_str.append(li[1])
+    if len(li_str)>0:
+        myfunc.WriteFile("\n".join(li_str)+"\n", submitjoblogfile, "w", True)
+    else:
+        myfunc.WriteFile("", submitjoblogfile, "w", True)
+
 # re-write logs of finished jobs
     li_str = []
     for li in new_finished_list:
@@ -330,7 +352,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
 # update allfinished jobs
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
-    allfinished_jobid_set = myfunc.ReadIDList2(allfinishedjoblogfile, col=0, delim="\t")
+    allfinished_jobid_set = set(myfunc.ReadIDList2(allfinishedjoblogfile, col=0, delim="\t"))
     li_str = []
     for li in new_finished_list:
         jobid = li[0]
@@ -338,6 +360,17 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             li_str.append("\t".join(li))
     if len(li_str)>0:
         myfunc.WriteFile("\n".join(li_str)+"\n", allfinishedjoblogfile, "a", True)
+
+# update all_submitted jobs
+    allsubmittedjoblogfile = "%s/all_submitted_seq.log"%(path_log)
+    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allfinishedjoblogfile, col=0, delim="\t"))
+    li_str = []
+    for li in new_submitted_list:
+        jobid = li[0]
+        if not jobid in allsubmitted_jobid_set:
+            li_str.append(li[1])
+    if len(li_str)>0:
+        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmittedjoblogfile, "a", True)
 
 # write logs of running and queuing jobs
 # the queuing jobs are sorted in descending order by the suq priority
