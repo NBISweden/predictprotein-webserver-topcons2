@@ -2137,7 +2137,7 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 100 == 2:
+        if loop % 800 == 2:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
@@ -2208,7 +2208,7 @@ def InitGlobalParameter():#{{{
     g_params['DEBUG'] = False
     g_params['DEBUG_NO_SUBMIT'] = False
     g_params['DEBUG_CACHE'] = False
-    g_params['SLEEP_INTERVAL'] = 20    # sleep interval in seconds
+    g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
     g_params['MAX_KEEP_DAYS'] = 30
     g_params['MAX_RESUBMIT'] = 2
