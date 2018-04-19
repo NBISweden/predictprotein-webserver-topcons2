@@ -1401,7 +1401,7 @@ def RunStatistics(path_result, path_log):#{{{
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
     runtimelogfile = "%s/jobruntime.log"%(path_log)
     runtimelogfile_finishedjobid = "%s/jobruntime_finishedjobid.log"%(path_log)
-    submitjoblogfile = "%s/submitted_seq.log"%(path_log)
+    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
     if not os.path.exists(path_stat):
         os.mkdir(path_stat)
 
@@ -1930,7 +1930,7 @@ def RunStatistics(path_result, path_log):#{{{
         pass
 
 #5. output num-submission time series with different bins (day, week, month, year)
-    hdl = myfunc.ReadLineByBlock(submitjoblogfile)
+    hdl = myfunc.ReadLineByBlock(allsubmitjoblogfile)
     dict_submit_day = {}  #["name" numjob, numseq, numjob_web, numseq_web,numjob_wsdl, numseq_wsdl]
     dict_submit_week = {}
     dict_submit_month = {}
@@ -2137,7 +2137,7 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 100 == 50:
+        if loop % 100 == 2:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
