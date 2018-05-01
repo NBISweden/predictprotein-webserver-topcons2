@@ -362,15 +362,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         myfunc.WriteFile("\n".join(li_str)+"\n", allfinishedjoblogfile, "a", True)
 
 # update all_submitted jobs
-    allsubmittedjoblogfile = "%s/all_submitted_seq.log"%(path_log)
-    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmittedjoblogfile, col=0, delim="\t"))
+    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
+    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmitjoblogfile, col=0, delim="\t"))
     li_str = []
     for li in new_submitted_list:
         jobid = li[0]
         if not jobid in allsubmitted_jobid_set:
             li_str.append(li[1])
     if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmittedjoblogfile, "a", True)
+        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmitjoblogfile, "a", True)
 
 # write logs of running and queuing jobs
 # the queuing jobs are sorted in descending order by the suq priority
