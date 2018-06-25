@@ -5,6 +5,7 @@ use CGI qw(:standard);
 use CGI qw(:cgi-lib);
 use CGI qw(:upload);
 
+use utf8;
 use Cwd 'abs_path';
 use File::Basename;
 my $rundir = dirname(abs_path(__FILE__));
