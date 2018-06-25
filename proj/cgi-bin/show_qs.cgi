@@ -8,6 +8,7 @@ use CGI qw(:upload);
 use Cwd 'abs_path';
 use File::Basename;
 my $rundir = dirname(abs_path(__FILE__));
+my $python = abs_path("$rundir/../../env/bin/python");
 # at proj
 my $basedir = abs_path("$rundir/../pred");
 my $auth_ip_file = "$basedir/config/auth_iplist.txt";#ip address which allows to run cgi script
@@ -34,7 +35,7 @@ if(!param())
 
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
-        my $content=`python $basedir/app/show_jobqueuestatus.py`;
+        my $content=`$python $basedir/app/show_jobqueuestatus.py 2>&1`;
         print $content;
         print "</pre>";
     }else{
