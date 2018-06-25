@@ -34,7 +34,7 @@ if(!param())
 
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
-        my $content = `python $basedir/app/show_jobqueuestatus.py`;
+        my $content=`python $basedir/app/show_jobqueuestatus.py`;
         print $content;
         print "</pre>";
     }else{
