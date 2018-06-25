@@ -5,7 +5,6 @@ use CGI qw(:standard);
 use CGI qw(:cgi-lib);
 use CGI qw(:upload);
 
-use utf8;
 use Cwd 'abs_path';
 use File::Basename;
 my $rundir = dirname(abs_path(__FILE__));
@@ -37,7 +36,7 @@ if(!param())
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
         my $content=`$python $basedir/app/show_jobqueuestatus.py 2>&1`;
-        print $content;
+        print "$content";
         print "</pre>";
     }else{
         print "Permission denied!\n";

@@ -12,6 +12,18 @@ import myfunc
 import datetime
 import tabulate
 
+progname = os.path.basename(__file__)
+rootname_progname = os.path.splitext(progname)[0]
+lockname = os.path.realpath(__file__).replace(" ", "").replace("/", "-")
+import fcntl
+lock_file = "/tmp/%s.lock"%(lockname)
+fp = open(lock_file, 'w')
+try:
+    fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except IOError:
+    print >> sys.stderr, "Another instance of %s is running"%(progname)
+    sys.exit(1)
+
 usage="""
 usage: %s server_name [server_name ...]
 
@@ -162,7 +174,7 @@ for server_name in server_list:
         lst.append(value)
     data_line.append(lst)
 
-content = tabulate.tabulate(data_line, header_line, 'fancy_grid')
+content = tabulate.tabulate(data_line, header_line, 'grid')
 print content
 
 
