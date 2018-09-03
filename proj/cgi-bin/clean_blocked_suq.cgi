@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # check if the suq queue is hang, if so, clean it
-#Created 2016-02-29, updated 2016-02-29, Nanjiang Shu
+#Created 2016-02-29, updated 2018-09-03, Nanjiang Shu
 use CGI qw(:standard);
 use CGI qw(:cgi-lib);
 use CGI qw(:upload);
@@ -9,31 +9,20 @@ use Cwd 'abs_path';
 use File::Basename;
 my $rundir = dirname(abs_path(__FILE__));
 # at proj
-my $basedir = abs_path("$rundir/../pred");
+my $basedir = abs_path("$rundir/../");
 my $progname = basename(__FILE__);
-my $logpath = "$basedir/static/log";
+my $logpath = "$basedir/pred/static/log";
 my $errfile = "$logpath/$progname.err";
-my $path_result = "$basedir/static/result";
-my $auth_ip_file = "$basedir/config/auth_iplist.txt";#ip address which allows to run cgi script
+my $path_result = "$basedir/pred/static/result";
+my $auth_ip_file = "$basedir/pred/config/auth_iplist.txt";#ip address which allows to run cgi script
 my $suq = "/usr/bin/suq";
 my $suqbase = "/scratch";
 
 print header();
-print start_html(-title => "get suq list",
+print start_html(-title => "clean blocked suq queue",
     -author => "nanjiang.shu\@scilifelab.se",
     -meta   => {'keywords'=>''});
 
-# if(!param())
-# {
-#     print "<pre>\n";
-#     print "usage: curl get_suqlist.cgi -d base=suqbasedir \n\n";
-#     print "       or in the browser\n\n";
-#     print "       get_suqlist.cgi?base=suqbasedir\n\n";
-#     print "Example\n";
-#     print "       get_suqlist.cgi?base=log\n";
-#     print "</pre>\n";
-#     print end_html();
-# }
 my $remote_host = $ENV{'REMOTE_ADDR'};
 
 my @auth_iplist = ();
@@ -49,8 +38,10 @@ if (grep { $_ eq $remote_host } @auth_iplist) {
     my $command =  "pgrep suq | wc -l ";
     $numsuqjob = `$command`;
     chomp($numsuqjob);
+    my $idx_first_wait_job = `$suq -b $suqbase ls | awk '{if (\$3=="Running" || \$3=="Wait") print}' | awk '{if(\$3=="Wait") print NR}' | head -n 1 2>>$errfile`;
+
     print "<pre>";
-    if ($numsuqjob >= $threshold){
+    if ($numsuqjob >= $threshold || $idx_first_wait_job == 1 ){
         print "numsuqjob = $numsuqjob >= $threshold. Try to clean the queue\n";
         `rm -rf /scratch/.suq ; rm -rf /tmp/.suq.*/; pgrep suq | xargs kill `;
         print "rm -rf /scratch/.suq ; rm -rf /tmp/.suq.*/; pgrep suq | xargs kill\n\n";
