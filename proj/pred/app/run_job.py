@@ -17,6 +17,11 @@
 # ChangeLog 2016-06-30
 #   cache results is saved at static/result/cache using md5 keys
 #   the folder static/md5 is not used anymore
+# ChangeLog 2018-09-04
+#   when the cached job is retrieved, the folder is directly copied to the
+#   result folder instead of creating just the symlink. This is because the
+#   size of cached results are too big (>500GB) and it will be difficult to
+#   delete outdated cached result if the result is just symbolically linked
 
 # how to create md5
 # import hashlib
@@ -181,11 +186,29 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                         md5_key = hashlib.md5(rd.seq).hexdigest()
                         subfoldername = md5_key[:2]
                         cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                        if os.path.exists(cachedir):
-                            # create a symlink to the cache
-                            rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                            os.chdir(outpath_result)
-                            os.symlink(rela_path, subfoldername_this_seq)
+                        zipfile_cache = cachedir + ".zip"
+                        if os.path.exists(cachedir) or os.path.exists(zipfile_cache):
+                            if os.path.exists(cachedir):
+                                try:
+                                    shutil.copytree(cachedir, outpath_this_seq)
+                                except Exception as e:
+                                    msg = "Failed to copytree  %s -> %s"%(cachedir, outpath_this_seq)
+                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                    myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
+                                        msg, str(e)), runjob_errfile, "a")
+                            elif os.path.exists(zipfile_cache):
+                                cmd = ["unzip", zipfile_cache, "-d", outpath_result]
+                                cmdline = " ".join(cmd)
+                                try:
+                                    rmsg = subprocess.check_output(cmd)
+                                except subprocess.CalledProcessError, e:
+                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                    msg = "Failed to unzip %s to dir %s"%(zipfile_cache, outpath_result)
+                                    myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
+                                        msg, str(e)), runjob_errfile, "a", True)
+                                    pass
+                                shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
+
 
                             if os.path.exists(outpath_this_seq):
                                 runtime = 0.0 #in seconds
