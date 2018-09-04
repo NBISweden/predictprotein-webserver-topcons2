@@ -61,6 +61,8 @@ script_scampi = "%s/%s"%(rundir, "mySCAMPI_run.pl")
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
 path_md5cache = "%s/static/md5"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
+path_log = "%s/static/log"%(basedir)
+finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
 
 contact_email = "nanjiang.shu@scilifelab.se"
 vip_user_list = [
@@ -371,36 +373,22 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                         subfoldername = md5_key[:2]
                         md5_subfolder = "%s/%s"%(path_cache, subfoldername)
                         cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                        if os.path.exists(cachedir):
-                            try:
-                                shutil.rmtree(cachedir)
-                            except:
-                                g_params['runjob_err'].append("failed to shutil.rmtree(%s)"%(cachedir)+"\n")
-                                pass
 
+                        # copy the zipped folder to the cache path
+                        origpath = os.getcwd()
+                        os.chdir(outpath_result)
+                        shutil.copytree("seq_%d"%(origIndex), md5_key)
+                        cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
+                        subprocess.check_output(cmd)
                         if not os.path.exists(md5_subfolder):
-                            try:
-                                os.makedirs(md5_subfolder)
-                            except:
-                                pass
+                            os.makedirs(md5_subfolder)
+                        shutil.move("%s.zip"%(md5_key), "%s.zip"%(cachedir))
+                        os.chdir(origpath)
 
-                        if os.path.exists(md5_subfolder) and not os.path.exists(cachedir):
-                            cmd = ["mv","-f", outpath_this_seq, cachedir]
-                            cmdline = " ".join(cmd)
-                            g_params['runjob_log'].append("cmdline: %s"%(cmdline))
-                            try:
-                                subprocess.check_call(cmd)
-                            except CalledProcessError,e:
-                                g_params['runjob_err'].append(str(e)+"\n")
+                        # Add the finished date to the database
 
-
-                        if not os.path.exists(outpath_this_seq) and os.path.exists(cachedir):
-                            rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                            try:
-                                os.chdir(outpath_result)
-                                os.symlink(rela_path,  subfoldername_this_seq)
-                            except:
-                                pass
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        webserver_common.InsertFinishDateToDB(date_str, md5_key, seq, finished_date_db)
 
         all_end_time = time.time()
         all_runtime_in_sec = all_end_time - all_begin_time

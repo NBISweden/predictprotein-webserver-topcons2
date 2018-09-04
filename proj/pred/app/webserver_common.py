@@ -17,6 +17,7 @@ import time
 import tabulate
 import shutil
 import logging
+import sqlite3
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -635,3 +636,24 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
     seqinfo['errinfo'] = seqinfo['errinfo_br'] + seqinfo['errinfo_content']
     return filtered_seq
 #}}}
+def InsertFinishDateToDB(date_str, md5_key, seq, outdb):# {{{
+    """ Insert the finish date to the sqlite3 database
+    """
+    tbname_content = "data"
+    try:
+        con = sqlite3.connect(outdb)
+    except Exception as e:
+        print("Failed to connect to the database outdb %s"%(outdb))
+        raise
+    with con:
+        cur = con.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS %s
+            (
+                md5 TEXT PRIMARY KEY,
+                seq TEXT,
+                date_finish TEXT
+            )"""%(tbname_content))
+        cmd =  "INSERT OR REPLACE INTO %s(md5,  seq, date_finish) VALUES('%s', '%s','%s')"%(tbname_content, md5_key, seq, date_str)
+        cur.execute(cmd)
+# }}}
