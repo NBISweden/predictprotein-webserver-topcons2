@@ -17,6 +17,7 @@ import time
 import tabulate
 import shutil
 import logging
+import subprocess
 import sqlite3
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):

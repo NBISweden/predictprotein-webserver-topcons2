@@ -200,7 +200,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                                         msg, str(e)), runjob_errfile, "a")
                             elif os.path.exists(zipfile_cache):
                                 cmd = ["unzip", zipfile_cache, "-d", outpath_result]
-                                webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+                                webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
                                 shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
 
 
@@ -243,7 +243,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         if os.path.exists(torun_all_seqfile):
             # run scampi to estimate the number of TM helices
             cmd = [script_scampi, torun_all_seqfile, "-outpath", tmp_outpath_result]
-            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+            webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
             for jj in xrange(len(idlist_scampi)):
@@ -284,17 +284,15 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                 continue
 
             cmd = ["python", runscript, seqfile_this_seq,  tmp_outpath_result, blastdir, blastdb]
-            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+            (t_isCmdSuccess, runtime_in_sec) = webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
-            end_time = time.time()
-            runtime_in_sec = end_time - begin_time
 
             if os.path.exists(tmp_outpath_this_seq):
                 singleseqfile = "%s/seq.fa"%(tmp_outpath_this_seq)
                 if os.path.exists(singleseqfile):
                     webserver_common.ReplaceDescriptionSingleFastaFile(singleseqfile, description)
                 cmd = ["mv","-f", tmp_outpath_this_seq, outpath_this_seq]
-                (isCmdSuccess, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+                (isCmdSuccess, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
                 timefile = "%s/time.txt"%(tmp_outpath_result)
                 targetfile = "%s/time.txt"%(outpath_this_seq)
                 if os.path.exists(timefile) and os.path.exists(outpath_this_seq):
@@ -361,14 +359,14 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         os.chdir(outpath)
 #             cmd = ["tar", "-czf", tarball, resultpathname]
         cmd = ["zip", "-rq", zipfile, resultpathname]
-        webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+        webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
 
     isSuccess = False
     if (os.path.exists(finishtagfile) and os.path.exists(zipfile_fullpath)):
         isSuccess = True
         # delete the tmpdir if succeeded
-        if not (os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0)
+        if not (os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0):
             shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
@@ -398,7 +396,7 @@ Please contact %s if you have any questions.
 
 Attached below is the error message:
 %s
-            """%(jobid, contact_email, myfunc.ReadFile(gen_errfile))
+            """%(jobid, contact_email, myfunc.ReadFile(runjob_errfile))
 
         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         msg = "Sendmail %s -> %s, %s"% (from_email, to_email, subject)
