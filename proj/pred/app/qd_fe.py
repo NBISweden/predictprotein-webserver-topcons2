@@ -576,6 +576,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             for i in xrange(len(seqIDList)):
                 toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
         else:
+            cnt_processed_cache = 0
             for i in xrange(len(seqIDList)):
                 isSkip = False
                 outpath_this_seq = "%s/%s"%(outpath_result, "seq_%d"%i)
@@ -2214,6 +2215,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
+    g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     return g_params
 #}}}
 if __name__ == '__main__' :

@@ -12,6 +12,7 @@ import sqlite3
 
 tbname_stat = "stat"
 tbname_content = "data"
+STEP_SHOW = 1000
 
 def AddFinishDateToDB(path_cache, outdb):# {{{
     if not os.path.exists(path_cache):
@@ -29,31 +30,43 @@ def AddFinishDateToDB(path_cache, outdb):# {{{
                 date_finish TEXT
             )"""%(tbname_content))
 
+        cnt_dir_level1 = 0
+        cnt_dir_level2 = 0
         for dir1 in os.listdir(path_cache):
             path1 = os.path.join(path_cache, dir1)
+            cnt_dir_level1 += 1
             for dir2 in os.listdir(path1):
-                md5_key = dir2
-                seq = ""
                 path2 = os.path.join(path1, dir2)
-                targetfile = os.path.join(path2, "query.result.txt")
-                seqfile = os.path.join(path2, "seq.fa")
-                if os.path.exists(targetfile):
-                    seq = ""
-                    if os.path.exists(seqfile):
-                            content = open(seqfile,"r").read()
-                            try:
-                                seq  = content.split("\n")[1]
-                            except:
-                                pass
-                    date_finish = time.strftime('%Y-%m-%d %H:%M:%S %Z', time.localtime(os.path.getmtime(targetfile)))
-                    cmd =  "INSERT OR REPLACE INTO %s(md5,  seq, date_finish) VALUES('%s', '%s','%s')"%(tbname_content, md5_key, seq, date_finish)
-                    cur.execute(cmd)
+                if os.path.isdir(path2) and (len(dir2) == 32):
+                    cnt_dir_level2 += 1
 
-                else:
-                    try:
-                        shutil.rmtree(path2)
-                    except Exception as e:
-                        print >> sys.stderr, "Failed to delete broken result folder %s"%(path2)
+                    if cnt_dir_level2 % STEP_SHOW == 1:
+                        print ("Processing #dir_level1 %4d, #dir_level2 %4d"%(cnt_dir_level1, cnt_dir_level2))
+
+                    md5_key = dir2
+                    seq = ""
+                    path2 = os.path.join(path1, dir2)
+                    targetfile = os.path.join(path2, "query.result.txt")
+                    seqfile = os.path.join(path2, "seq.fa")
+                    if os.path.exists(targetfile):
+                        seq = ""
+                        if os.path.exists(seqfile):
+                                content = open(seqfile,"r").read()
+                                try:
+                                    seq  = content.split("\n")[1]
+                                except:
+                                    pass
+                        date_finish = time.strftime('%Y-%m-%d %H:%M:%S %Z', 
+                            time.localtime(os.path.getmtime(targetfile)))
+                        cmd =  "INSERT OR REPLACE INTO %s(md5,  seq, date_finish) VALUES('%s', '%s','%s')"%(tbname_content, md5_key, seq, date_finish)
+                        cur.execute(cmd)
+
+                    else:
+                        try:
+                            shutil.rmtree(path2)
+                        except Exception as e:
+                            print >> sys.stderr, "Failed to delete broken result folder %s"%(path2)
+
 
 
 # }}}
