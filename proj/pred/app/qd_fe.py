@@ -113,6 +113,7 @@ script_scampi = "%s/%s"%(rundir, "mySCAMPI_run.pl")
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
 black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
+finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
 
 def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_short
@@ -523,15 +524,22 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # ordered seq index to run
     cnttry_idx_file = "%s/cntsubmittry_seqindex.txt"%(rstdir)#index file to keep log of tries
 
-    errfile = "%s/%s"%(rstdir, "runjob.err")
+    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
+    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
     finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
     tmpdir = "%s/tmpdir"%(rstdir)
     qdinittagfile = "%s/runjob.qdinit"%(rstdir)
     failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
     starttagfile = "%s/%s"%(rstdir, "runjob.start")
+    cache_process_finish_tagfile = "%s/cache_processed.finish"%(rstdir)
     fafile = "%s/query.fa"%(rstdir)
     split_seq_dir = "%s/splitaa"%(tmpdir)
     forceruntagfile = "%s/forcerun"%(rstdir)
+    lastprocessed_cache_idx_file = "%s/lastprocessed_cache_idx.txt"%(rstdir)
+    if os.path.exists(forceruntagfile):
+        isForceRun = "True"
+    else:
+        isForceRun = "False"
 
     finished_idx_list = []
     failed_idx_list = []    # [origIndex]
@@ -559,76 +567,93 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     #    running order
     # 3. generate a file with sorted seqindex
     # 4. generate splitted sequence files named by the original seqindex
+
+
     if not os.path.exists(qdinittagfile): #initialization#{{{
         if not os.path.exists(tmpdir):
             os.mkdir(tmpdir)
 
-        init_finished_idx_list = [] # [origIndex]
+        if isForceRun or os.path.exists(cache_process_finish_tagfile):
+            isCacheProcessingFinished = True
+        else:
+            isCacheProcessingFinished = False
+
         # ==== 1.dealing with cached results 
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(fafile)
         if len(seqIDList) <= 0:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
-            myfunc.WriteFile("Read query seq file failed. Zero sequence read in.\n", errfile, "a", True)
+            msg =  "Read query seq file failed. Zero sequence read in."
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
             return 1
+
         toRunDict = {}
-        if os.path.exists(forceruntagfile):
-            for i in xrange(len(seqIDList)):
-                toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
-        else:
+        if not isCacheProcessingFinished:
+            finished_idx_set = set(finished_idx_list)
+
+            if os.path.exists(lastprocessed_cache_idx_file):
+                try:
+                    lastprocessed_idx = int(myfunc.ReadFile(lastprocessed_cache_idx_file))
+                except:
+                    lastprocessed_idx = 0
+
             cnt_processed_cache = 0
-            for i in xrange(len(seqIDList)):
-                isSkip = False
+            for i in xrange(lastprocessed_idx+1, len(seqIDList)):
+                if i in finished_idx_set:
+                    continue
                 outpath_this_seq = "%s/%s"%(outpath_result, "seq_%d"%i)
                 subfoldername_this_seq = "seq_%d"%(i)
                 md5_key = hashlib.md5(seqList[i]).hexdigest()
                 subfoldername = md5_key[:2]
                 cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                if os.path.exists(cachedir):
-                    # create a symlink to the cache
-                    rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                    os.chdir(outpath_result)
-                    if not os.path.exists(subfoldername_this_seq):
-                        os.symlink(rela_path, subfoldername_this_seq)
+                zipfile_cache = cachedir + ".zip"
+
+                if os.path.exists(cachedir) or os.path.exists(zipfile_cache):
+                    if os.path.exists(cachedir):
+                        try:
+                            shutil.copytree(cachedir, outpath_this_seq)
+                        except Exception as e:
+                            msg = "Failed to copytree  %s -> %s"%(cachedir, outpath_this_seq)
+                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
+                                msg, str(e)), runjob_errfile, "a")
+                    elif os.path.exists(zipfile_cache):
+                        cmd = ["unzip", zipfile_cache, "-d", outpath_result]
+                        cmdline = " ".join(cmd)
+                        try:
+                            rmsg = subprocess.check_output(cmd)
+                        except subprocess.CalledProcessError, e:
+                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            msg = "Failed to unzip %s to dir %s"%(zipfile_cache, outpath_result)
+                            myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
+                                msg, str(e)), runjob_errfile, "a", True)
+                            pass
+                        shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
+
 
                     if os.path.exists(outpath_this_seq):
                         if not os.path.exists(starttagfile): #write start tagfile
                             date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                             myfunc.WriteFile(date_str, starttagfile, "w", True)
 
-                        runtime = 0.0 #in seconds
-                        topfile = "%s/%s/topcons.top"%(
-                                outpath_this_seq, "Topcons")
-                        top = myfunc.ReadFile(topfile).strip()
-                        numTM = myfunc.CountTM(top)
-                        posSP = myfunc.GetSPPosition(top)
-                        if len(posSP) > 0:
-                            isHasSP = True
-                        else:
-                            isHasSP = False
-                        info_finish = [ "seq_%d"%i,
-                                str(len(seqList[i])), str(numTM),
-                                str(isHasSP), "cached", str(runtime),
-                                seqAnnoList[i].replace('\t', ' ')]
+                        info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
+                                i, len(seqList[i]), seqAnnoList[i], source_result="cached", runtime=0.0)
                         myfunc.WriteFile("\t".join(info_finish)+"\n",
                                 finished_seq_file, "a", isFlush=True)
-                        init_finished_idx_list.append(str(i))
-                        isSkip = True
+                        myfunc.WriteFile("%d\n"%(i), finished_idx_file, "a", True)
+                    if cnt_processed_cache > g_params['MAX_CACHE_PROCESS']:
+                        myfunc.WriteFile(str(lastprocessed_idx), lastprocessed_cache_idx_file, "w", True)
+                        return 0
+                    cnt_processed_cache += 1
 
-                if not isSkip:
-                    # first try to delete the outfolder if exists
-                    if os.path.exists(outpath_this_seq):
-                        try:
-                            shutil.rmtree(outpath_this_seq)
-                        except OSError:
-                            pass
-                    toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')] #init value for numTM is 0
+            myfunc.WriteDateTimeTagFile(cache_process_finish_tagfile, runjob_logfile, runjob_errfile)
 
-        #Write finished_idx_file
-        if len(init_finished_idx_list)>0:
-            myfunc.WriteFile("\n".join(init_finished_idx_list)+"\n", finished_idx_file, "a", True)
+        # Regenerate toRunDict
+        for i in xrange(len(seqIDList)):
+            if not i in processed_idx_set:
+            toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
 
-        # run scampi single to estimate the number of TM helices and then run
+        # run SCAMPI-single to estimate the number of TM helices and then run
         # the query sequences in the descending order of numTM
         torun_all_seqfile = "%s/%s"%(tmpdir, "query.torun.fa")
         dumplist = []
@@ -645,15 +670,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         if os.path.exists(torun_all_seqfile):
             # run scampi to estimate the number of TM helices
             cmd = [script_scampi, torun_all_seqfile, "-outpath", tmpdir]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
             for jj in xrange(len(idlist_scampi)):
@@ -690,16 +707,11 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             myfunc.WriteFile(seqcontent, seqfile_this_seq, "w", True)
         # qdinit file is written at the end of initialization, to make sure
         # that initialization is either not started or completed
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile(date_str, qdinittagfile, "w", True)
+        webserver_common.WriteDateTimeTagFile(qdinittagfile, runjob_logfile, runjob_errfile)
 #}}}
 
 
     # 5. try to submit the job 
-    if os.path.exists(forceruntagfile):
-        isforcerun = "True"
-    else:
-        isforcerun = "False"
     toRunIndexList = [] # index in str
     processedIndexSet = set([]) #seq index set that are already processed
     submitted_loginfo_list = []
@@ -774,10 +786,11 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         myfunc.WriteFile("\tSubmitting seq %4d "%(origIndex),
                                 gen_logfile, "a", True)
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
-                                jobname, useemail, str(numseq_this_user), isforcerun)
+                                jobname, useemail, str(numseq_this_user), isForceRun)
                     except Exception as e:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                        myfunc.WriteFile("[Date: %s] Failed to run myclient.service.submitjob_remote on node %s with error msg %s\n"%(date_str, node, str(e)), gen_errfile, "a", True)
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        msg =  "Failed to run submitjob_remote on node %s with error msg %s"%(node, str(e))
+                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                         rtValue = []
                         pass
 
@@ -1079,47 +1092,22 @@ def GetResult(jobid):#{{{
                                 subfoldername = md5_key[:2]
                                 md5_subfolder = "%s/%s"%(path_cache, subfoldername)
                                 cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                                if os.path.exists(cachedir):
-                                    try:
-                                        shutil.rmtree(cachedir)
-                                    except Exception as e:
-                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s) with msg %s\n"%(cachedir, str(e)), gen_logfile, "a", True)
-                                        pass
 
+                                # copy the zipped folder to the cache path
+                                origpath = os.getcwd()
+                                os.chdir(outpath_result)
+                                shutil.copytree("seq_%d"%(origIndex), md5_key)
+                                cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
+                                subprocess.check_output(cmd)
                                 if not os.path.exists(md5_subfolder):
-                                    try:
-                                        os.makedirs(md5_subfolder)
-                                    except:
-                                        pass
+                                    os.makedirs(md5_subfolder)
+                                shutil.move("%s.zip"%(md5_key), "%s.zip"%(cachedir))
+                                shutil.rmtree(md5_key) # delete the temp folder named as md5 hash
+                                os.chdir(origpath)
 
-                                if os.path.exists(md5_subfolder) and not os.path.exists(cachedir):
-
-                                    cmd = ["mv","-f", outpath_this_seq, cachedir]
-                                    cmdline = " ".join(cmd)
-                                    try:
-                                        subprocess.check_output(cmd)
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(cmdline), gen_logfile, "a", True)
-                                    except subprocess.CalledProcessError,e:
-                                        print e
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: %s\n"%(str(e)), gen_logfile, "a", True)
-                                        pass
-
-                                if not os.path.exists(outpath_this_seq) and os.path.exists(cachedir):
-                                    rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                                    try:
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: chdir(%s)\n"%(outpath_result), 
-                                                    gen_logfile, "a", True)
-                                            myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s)\n"%(rela_path, 
-                                                subfoldername_this_seq), gen_logfile, "a", True)
-                                        os.chdir(outpath_result)
-                                        os.symlink(rela_path,  subfoldername_this_seq)
-                                    except:
-                                        if g_params['DEBUG_CACHE']:
-                                            myfunc.WriteFile("\tDEBUG_CACHE: os.symlink(%s, %s) failed\n"%(rela_path, subfoldername_this_seq), gen_errfile, "a", True)
-                                        pass
+                                # Add the finished date to the database
+                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                webserver_common.InsertFinishDateToDB(date_str, md5_key, seq, finished_date_db)
 
 #}}}
                 elif status in ["Failed", "None"]:
@@ -1135,10 +1123,10 @@ def GetResult(jobid):#{{{
                         cnttry = 1
                         pass
                     if cnttry < g_params['MAX_RESUBMIT']:
-                        resubmit_idx_list.append(str(origIndex))
+                        myfunc.WriteFile("%d\n"%(origIndex), torun_idx_file, "a", True)
                         cntTryDict[int(origIndex)] = cnttry+1
                     else:
-                        failed_idx_list.append(str(origIndex))
+                        myfunc.WriteFile("%d\n"%(origIndex), failed_idx_file, "a", True)
                 if status != "Wait" and not os.path.exists(starttagfile):
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S")
                     myfunc.WriteFile(date_str, starttagfile, "w", True)
@@ -1162,19 +1150,13 @@ def GetResult(jobid):#{{{
             else:
                 runtime = runtime1
 
-            topfile = "%s/%s/topcons.top"%(
-                    outpath_this_seq, "Topcons")
-            top = myfunc.ReadFile(topfile).strip()
-            numTM = myfunc.CountTM(top)
-            posSP = myfunc.GetSPPosition(top)
-            if len(posSP) > 0:
-                isHasSP = True
-            else:
-                isHasSP = False
-            info_finish = [ "seq_%d"%origIndex, str(len(seq)), str(numTM),
-                    str(isHasSP), "newrun", str(runtime), description]
-            finished_info_list.append("\t".join(info_finish))
-            finished_idx_list.append(str(origIndex))#}}}
+            info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
+                    origIndex, len(seq), description, source_result="newrun",
+                    runtime=runtime)
+            myfunc.WriteFile("\t".join(info_finish)+"\n", finished_seq_file, "a", True)
+            myfunc.WriteFile("%d\n"%(origIndex), finished_idx_file, "a", True)
+
+            #}}}
 
         if not isFinish_remote:
             time_in_remote_queue = time.time() - submit_time_epoch
@@ -1195,19 +1177,6 @@ def GetResult(jobid):#{{{
                 keep_queueline_list.append(line)
 #}}}
     #Finally, write log files
-    finished_idx_list = list(set(finished_idx_list))
-    failed_idx_list = list(set(failed_idx_list))
-    resubmit_idx_list = list(set(resubmit_idx_list))
-
-
-    if len(finished_info_list)>0:
-        myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
-    if len(finished_idx_list)>0:
-        myfunc.WriteFile("\n".join(finished_idx_list)+"\n", finished_idx_file, "a", True)
-    if len(failed_idx_list)>0:
-        myfunc.WriteFile("\n".join(failed_idx_list)+"\n", failed_idx_file, "a", True)
-    if len(resubmit_idx_list)>0:
-        myfunc.WriteFile("\n".join(resubmit_idx_list)+"\n", torun_idx_file, "a", True)
 
     if g_params['DEBUG']:
         myfunc.WriteFile("len(keep_queueline_list)=%d\n"%(len(keep_queueline_list)), gen_logfile, "a", True)
@@ -1220,8 +1189,6 @@ def GetResult(jobid):#{{{
     with open(cnttry_idx_file, 'w') as fpout:
         json.dump(cntTryDict, fpout)
 
-
-
     return 0
 #}}}
 
@@ -1231,7 +1198,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
     rstdir = "%s/%s"%(path_result, jobid)
     tmpdir = "%s/tmpdir"%(rstdir)
     outpath_result = "%s/%s"%(rstdir, jobid)
-    errfile = "%s/%s"%(rstdir, "runjob.err")
+    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
     logfile = "%s/%s"%(rstdir, "runjob.log")
     finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
@@ -1304,7 +1271,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             myfunc.WriteFile("\t%s\n"%(cmdline), gen_logfile, "a", True)
             subprocess.check_output(cmd)
         except subprocess.CalledProcessError, e:
-            myfunc.WriteFile(str(e)+"\n", errfile, "a", True)
+            myfunc.WriteFile(str(e)+"\n", runjob_errfile, "a", True)
             is_zip_success = False
             pass
 
@@ -1321,8 +1288,8 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         # send the result to email
         if myfunc.IsValidEmailAddress(email):#{{{
 
-            if os.path.exists(errfile):
-                err_msg = myfunc.ReadFile(errfile)
+            if os.path.exists(runjob_errfile):
+                err_msg = myfunc.ReadFile(runjob_errfile)
 
             from_email = "info@topcons.net"
             to_email = email
@@ -1361,7 +1328,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
             if rtValue != 0:
                 myfunc.WriteFile("Sendmail to {} failed with status {}".format(to_email,
-                    rtValue), errfile, "a", True)
+                    rtValue), runjob_errfile, "a", True)
 
 #}}}
 #}}}

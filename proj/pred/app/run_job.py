@@ -200,33 +200,14 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                                         msg, str(e)), runjob_errfile, "a")
                             elif os.path.exists(zipfile_cache):
                                 cmd = ["unzip", zipfile_cache, "-d", outpath_result]
-                                cmdline = " ".join(cmd)
-                                try:
-                                    rmsg = subprocess.check_output(cmd)
-                                except subprocess.CalledProcessError, e:
-                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-                                    msg = "Failed to unzip %s to dir %s"%(zipfile_cache, outpath_result)
-                                    myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
-                                        msg, str(e)), runjob_errfile, "a", True)
-                                    pass
+                                webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
                                 shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
 
 
                             if os.path.exists(outpath_this_seq):
-                                runtime = 0.0 #in seconds
-                                topfile = "%s/%s/topcons.top"%(
-                                        outpath_this_seq, "Topcons")
-                                top = myfunc.ReadFile(topfile).strip()
-                                numTM = myfunc.CountTM(top)
-                                posSP = myfunc.GetSPPosition(top)
-                                if len(posSP) > 0:
-                                    isHasSP = True
-                                else:
-                                    isHasSP = False
-                                info_finish = [ "seq_%d"%cnt,
-                                        str(len(rd.seq)), str(numTM),
-                                        str(isHasSP), "cached", str(runtime),
-                                        rd.description]
+                                info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
+                                        cnt, len(rd.seq), rd.description, source_result="cached", runtime=0.0)
+
                                 myfunc.WriteFile("\t".join(info_finish)+"\n",
                                         finished_seq_file, "a", isFlush=True)
                                 isSkip = True
@@ -262,11 +243,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         if os.path.exists(torun_all_seqfile):
             # run scampi to estimate the number of TM helices
             cmd = [script_scampi, torun_all_seqfile, "-outpath", tmp_outpath_result]
-            try:
-                rmsg = subprocess.check_output(cmd)
-            except subprocess.CalledProcessError, e:
-                g_params['runjob_err'].append(str(e)+"\n")
-                pass
+            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
             for jj in xrange(len(idlist_scampi)):
@@ -283,8 +260,6 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         # sortedlist
 
         for item in sortedlist:
-#             g_params['runjob_log'].append("tmpdir = %s"%(tmpdir))
-            #cmd = [script_getseqlen, infile, "-o", tmp_outfile , "-printid"]
             origIndex = item[0]
             seq = item[1][0]
             description = item[1][2]
@@ -303,22 +278,14 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             myfunc.WriteFile(seqcontent, seqfile_this_seq, "w")
 
             if not os.path.exists(seqfile_this_seq):
-                g_params['runjob_err'].append("failed to generate seq index %d"%(origIndex))
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                msg = "failed to generate seq index %d"%(origIndex)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
                 continue
 
-
             cmd = ["python", runscript, seqfile_this_seq,  tmp_outpath_result, blastdir, blastdb]
-            cmdline = " ".join(cmd)
-            g_params['runjob_log'].append(" ".join(cmd))
-            begin_time = time.time()
-            try:
-                rmsg = subprocess.check_output(cmd)
-                g_params['runjob_log'].append("workflow:\n"+rmsg+"\n")
-            except subprocess.CalledProcessError, e:
-                g_params['runjob_err'].append(str(e)+"\n")
-                g_params['runjob_err'].append("cmdline: "+ cmdline +"\n")
-                g_params['runjob_err'].append(rmsg + "\n")
-                pass
+            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+
             end_time = time.time()
             runtime_in_sec = end_time - begin_time
 
@@ -327,39 +294,24 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                 if os.path.exists(singleseqfile):
                     webserver_common.ReplaceDescriptionSingleFastaFile(singleseqfile, description)
                 cmd = ["mv","-f", tmp_outpath_this_seq, outpath_this_seq]
-                isCmdSuccess = False
-                try:
-                    subprocess.check_output(cmd)
-                    isCmdSuccess = True
-                except subprocess.CalledProcessError, e:
-                    msg =  "Failed to run prediction for sequence No. %d\n"%(origIndex)
-                    g_params['runjob_err'].append(msg)
-                    g_params['runjob_err'].append(str(e)+"\n")
-                    pass
+                (isCmdSuccess, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
                 timefile = "%s/time.txt"%(tmp_outpath_result)
                 targetfile = "%s/time.txt"%(outpath_this_seq)
                 if os.path.exists(timefile) and os.path.exists(outpath_this_seq):
                     try:
                         shutil.move(timefile, targetfile)
                     except:
-                        g_params['runjob_err'].append("Failed to move %s/time.txt"%(tmp_outpath_result)+"\n")
-                        pass
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        msg = "Failed to move %s -> %s"%(timefile, targetfile)
+                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+
 
                 if isCmdSuccess:
                     runtime = runtime_in_sec #in seconds
-                    topfile = "%s/%s/topcons.top"%(
-                            outpath_this_seq, "Topcons")
-                    top = myfunc.ReadFile(topfile).strip()
-                    numTM = myfunc.CountTM(top)
-                    posSP = myfunc.GetSPPosition(top)
-                    if len(posSP) > 0:
-                        isHasSP = True
-                    else:
-                        isHasSP = False
-                    info_finish = [ "seq_%d"%origIndex, str(len(seq)), str(numTM),
-                            str(isHasSP), "newrun", str(runtime), description]
-                    myfunc.WriteFile("\t".join(info_finish)+"\n",
-                            finished_seq_file, "a", isFlush=True)
+                    info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
+                           origIndex, len(seq), description, source_result="newrun", runtime=runtime)
+
+                    myfunc.WriteFile("\t".join(info_finish)+"\n", finished_seq_file, "a", True)
                     # now write the text output for this seq
 
                     info_this_seq = "%s\t%d\t%s\t%s"%("seq_%d"%origIndex, len(seq), description, seq)
@@ -383,26 +335,20 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                         if not os.path.exists(md5_subfolder):
                             os.makedirs(md5_subfolder)
                         shutil.move("%s.zip"%(md5_key), "%s.zip"%(cachedir))
+                        shutil.rmtree(md5_key) # delete the temp folder named as md5 hash
                         os.chdir(origpath)
 
                         # Add the finished date to the database
-
                         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                         webserver_common.InsertFinishDateToDB(date_str, md5_key, seq, finished_date_db)
 
         all_end_time = time.time()
         all_runtime_in_sec = all_end_time - all_begin_time
 
-        if len(g_params['runjob_log']) > 0 :
-            rt_msg = myfunc.WriteFile("\n".join(g_params['runjob_log'])+"\n", runjob_logfile, "a")
-            if rt_msg:
-                g_params['runjob_err'].append(rt_msg)
 
         datetime = time.strftime("%Y-%m-%d %H:%M:%S")
         if os.path.exists(finished_seq_file):
             rt_msg = myfunc.WriteFile(datetime, finishtagfile)
-            if rt_msg:
-                g_params['runjob_err'].append(rt_msg)
 
 # now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
@@ -415,26 +361,20 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         os.chdir(outpath)
 #             cmd = ["tar", "-czf", tarball, resultpathname]
         cmd = ["zip", "-rq", zipfile, resultpathname]
-        try:
-            subprocess.check_output(cmd)
-        except subprocess.CalledProcessError, e:
-            g_params['runjob_err'].append(str(e))
-            pass
+        webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
 
 
     isSuccess = False
     if (os.path.exists(finishtagfile) and os.path.exists(zipfile_fullpath)):
         isSuccess = True
         # delete the tmpdir if succeeded
-        if g_params['runjob_err'] == []:
+        if not (os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0)
             shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
         failtagfile = "%s/runjob.failed"%(outpath)
         datetime = time.strftime("%Y-%m-%d %H:%M:%S")
         rt_msg = myfunc.WriteFile(datetime, failtagfile)
-        if rt_msg:
-            g_params['runjob_err'].append(rt_msg)
 
 # send the result to email
 # do not sendmail at the cloud VM
@@ -458,14 +398,18 @@ Please contact %s if you have any questions.
 
 Attached below is the error message:
 %s
-            """%(jobid, contact_email, "\n".join(g_params['runjob_err']))
-        g_params['runjob_log'].append("Sendmail %s -> %s, %s"% (from_email, to_email, subject)) #debug
+            """%(jobid, contact_email, myfunc.ReadFile(gen_errfile))
+
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        msg = "Sendmail %s -> %s, %s"% (from_email, to_email, subject)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_logfile, "a", True)
         rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
         if rtValue != 0:
-            g_params['runjob_err'].append("Sendmail to {} failed with status {}".format(to_email, rtValue))
+            msg =  "Sendmail to {} failed with status {}".format(to_email, rtValue)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
 
-    if len(g_params['runjob_err']) > 0:
-        rt_msg = myfunc.WriteFile("\n".join(g_params['runjob_err'])+"\n", runjob_errfile, "w")
+
+    if os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0:
         return 1
     return 0
 #}}}
@@ -553,8 +497,6 @@ def main(g_params):#{{{
 def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
-    g_params['runjob_log'] = []
-    g_params['runjob_err'] = []
     g_params['isForceRun'] = False
     g_params['base_www_url'] = ""
     return g_params

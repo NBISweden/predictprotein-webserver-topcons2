@@ -657,3 +657,59 @@ def InsertFinishDateToDB(date_str, md5_key, seq, outdb):# {{{
         cmd =  "INSERT OR REPLACE INTO %s(md5,  seq, date_finish) VALUES('%s', '%s','%s')"%(tbname_content, md5_key, seq, date_str)
         cur.execute(cmd)
 # }}}
+def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, source_result="", runtime=0.0):# {{{
+    """Get the list info_finish for the method TOPCONS2"""
+    topfile = "%s/%s/topcons.top"%(
+            outpath_this_seq, "Topcons")
+    top = myfunc.ReadFile(topfile).strip()
+    numTM = myfunc.CountTM(top)
+    posSP = myfunc.GetSPPosition(top)
+    if len(posSP) > 0:
+        isHasSP = True
+    else:
+        isHasSP = False
+    info_finish = [ "seq_%d"%origIndex,
+            str(seqLength), str(numTM),
+            str(isHasSP), source_result, str(runtime),
+            seqAnno.replace('\t', ' ')]
+    return info_finish
+# }}}
+def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
+    if not os.path.exists(outfile):
+        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            myfunc.WriteFile(datetime, outfile)
+            msg = "Write tag file %s succeeded"%(outfile)
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        except Exception as e:
+            msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+# }}}
+def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
+    """Input cmd in list
+       Run the command and also output message to logs
+    """
+    begin_time = time.time()
+
+    isCmdSuccess = False
+    cmdline = " ".join(cmd)
+    datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    msg = cmdline
+    myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+    rmsg = ""
+    try:
+        rmsg = subprocess.check_output(cmd)
+        msg = "workflow: %s"%(rmsg)
+        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        isCmdSuccess = True
+    except subprocess.CalledProcessError, e:
+        msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
+        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        isCmdSuccess = False
+        pass
+
+    end_time = time.time()
+    runtime_in_sec = end_time - begin_time
+
+    return (isCmdSuccess, runtime_in_sec)
+# }}}
