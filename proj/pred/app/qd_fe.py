@@ -162,9 +162,9 @@ def GetNumSuqJob(node):#{{{
         else:
             return -1
     except:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[Date: %s] requests.get(%s) failed\n"%(date_str,
-            url), gen_errfile, "a", True)
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        msg = "requests.get(%s) failed"%(url)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
         return -1
 
 #}}}
@@ -296,7 +296,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             UPPER_WAIT_TIME_IN_SEC = 60
             isValidSubmitDate = True
             try:
-                submit_date = datetime.datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
 
@@ -427,26 +427,21 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                             else:
                                 runtime = runtime1
 
-                            topfile = "%s/%s/topcons.top"%(
-                                    outpath_this_seq, "Topcons")
 # get origIndex and then read description the description list
                             try:
                                 description = seqannolist[origIndex].replace('\t', ' ')
                             except:
                                 description = "seq_%d"%(origIndex)
-                            top = myfunc.ReadFile(topfile).strip()
-                            numTM = myfunc.CountTM(top)
-                            posSP = myfunc.GetSPPosition(top)
-                            if len(posSP) > 0:
-                                isHasSP = True
-                            else:
-                                isHasSP = False
-                            info_finish = [ dd, str(len(top)), str(numTM),
-                                    str(isHasSP), "newrun", str(runtime), description]
+                            try:
+                                seq = seqlist[origIndex]
+                            except:
+                                seq = ""
+                            webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, len(seq), description, source_result="newrun", runtime=runtime)
                             finished_info_list.append("\t".join(info_finish))
                 except:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    myfunc.WriteFile("[Date: %s] Failed to os.listdir(%s)\n"%(date_str, outpath_result), gen_errfile, "a", True)
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    msg = "Failed to os.listdir(%s)"%(outpath_result)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     raise
                 if len(finished_info_list)>0:
                     myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
@@ -581,8 +576,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         # ==== 1.dealing with cached results 
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(fafile)
         if len(seqIDList) <= 0:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-            myfunc.WriteFile(date_str, failedtagfile, "w", True)
+            webserver_common.WriteDateTimeTagFile(failedtagfile)
             msg =  "Read query seq file failed. Zero sequence read in."
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
             return 1
@@ -633,8 +627,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
                     if os.path.exists(outpath_this_seq):
                         if not os.path.exists(starttagfile): #write start tagfile
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                            myfunc.WriteFile(date_str, starttagfile, "w", True)
+                            webserver_common.WriteDateTimeTagFile(starttagfile)
 
                         info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
                                 i, len(seqList[i]), seqAnnoList[i], source_result="cached", runtime=0.0)
@@ -651,7 +644,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         # Regenerate toRunDict
         for i in xrange(len(seqIDList)):
             if not i in processed_idx_set:
-            toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
+                toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
 
         # run SCAMPI-single to estimate the number of TM helices and then run
         # the query sequences in the descending order of numTM
@@ -670,7 +663,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         if os.path.exists(torun_all_seqfile):
             # run scampi to estimate the number of TM helices
             cmd = [script_scampi, torun_all_seqfile, "-outpath", tmpdir]
-            webserver_common.RunCmd(cmd, runjob_logfile, gen_errfile)
+            webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
             for jj in xrange(len(idlist_scampi)):
@@ -729,9 +722,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             try:
                 myclient = Client(wsdl_url, cache=None, timeout=30)
             except:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str,
-                    wsdl_url), gen_errfile, "a", True)
+                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                msg =  "Failed to access %s"%(wsdl_url)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                 break
 
             [cnt, maxnum] = cntSubmitJobDict[node]
@@ -813,12 +806,13 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
                             else:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                myfunc.WriteFile("[Date: %s] bad remote jobid = %s, rtValue=%s\n"%(date_str, remote_jobid, str(rtValue)), gen_errfile, "a", True)
-
+                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                msg =  "Bad remote jobid = %s, rtValue=%s"%(remote_jobid, str(rtValue))
+                                myfunc.WriteFile("[%s] %s\n"%(date_str,msg), gen_errfile, "a", True)
                         else:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                            myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
+                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            msg = "bad wsdl return value"
+                            myfunc.WriteFile("[%s] %s\n"%(date_str), gen_errfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded on node %s\n"%(node), gen_logfile, "a", True)
@@ -956,8 +950,9 @@ def GetResult(jobid):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str, wsdl_url), gen_errfile, "a", True)
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            msg =  "Failed to access %s"%(wsdl_url)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
             pass
 
 
@@ -993,8 +988,9 @@ def GetResult(jobid):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except Exception as e:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s) on node %s with error msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            msg =  "Failed to run checkjob(%s) on node %s with errmsg %s\n"%(remote_jobid, node, str(e))
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
             rtValue = []
             pass
         isSuccess = False
@@ -1009,8 +1005,9 @@ def GetResult(jobid):#{{{
 
                 if errinfo and errinfo.find("does not exist")!=-1:
                     if g_params['DEBUG']:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                        myfunc.WriteFile("[Date: %s] %s: %s\n"%(date_str, remote_jobid, errinfo), gen_logfile, "a", True)
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        msg = "Failed for remote_jobid %s with errmsg %s"%(remote_jobid, str(errinfo))
+                        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
 
                     isFinish_remote = True
 
@@ -1030,14 +1027,7 @@ def GetResult(jobid):#{{{
                             pass
                     if os.path.exists(outfile_zip) and isRetrieveSuccess:
                         cmd = ["unzip", outfile_zip, "-d", tmpdir]
-                        cmdline = " ".join(cmd)
-                        try:
-                            rmsg = subprocess.check_output(cmd)
-                        except subprocess.CalledProcessError, e:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                            myfunc.WriteFile("[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                    date_str, cmdline, str(e)), gen_logfile, "a", True)
-                            pass
+                        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
                         rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
 
                         if os.path.islink(outpath_this_seq):
@@ -1047,14 +1037,8 @@ def GetResult(jobid):#{{{
 
                         if os.path.exists(rst_this_seq) and not os.path.exists(outpath_this_seq):
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
-                            cmdline = " ".join(cmd)
-                            try:
-                                rmsg = subprocess.check_output(cmd)
-                            except subprocess.CalledProcessError, e:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                myfunc.WriteFile( "[Date: %s] cmdline=%s\nerrmsg=%s\n"%(
-                                        date_str, cmdline, str(e)), gen_logfile, "a", True)
-                                pass
+                            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+
                             if os.path.exists(outpath_this_seq):
                                 isSuccess = True
 
@@ -1063,8 +1047,9 @@ def GetResult(jobid):#{{{
                                 try:
                                     rtValue2 = myclient.service.deletejob(remote_jobid)
                                 except Exception as e:
-                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                    msg = "Failed to deletejob(%s) on node %s with errmsg %s"%(remote_jobid, node, str(e))
+                                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                                     rtValue2 = []
                                     pass
 
@@ -1128,8 +1113,7 @@ def GetResult(jobid):#{{{
                     else:
                         myfunc.WriteFile("%d\n"%(origIndex), failed_idx_file, "a", True)
                 if status != "Wait" and not os.path.exists(starttagfile):
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                    myfunc.WriteFile(date_str, starttagfile, "w", True)
+                    webserver_common.WriteDateTimeTagFile(starttagfile)
 
                 if g_params['DEBUG_CACHE']:
                     myfunc.WriteFile("\n", gen_logfile, "a", True)
@@ -1169,7 +1153,7 @@ def GetResult(jobid):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
                     rtValue2 = []
                     pass
@@ -1199,7 +1183,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
     tmpdir = "%s/tmpdir"%(rstdir)
     outpath_result = "%s/%s"%(rstdir, jobid)
     runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
-    logfile = "%s/%s"%(rstdir, "runjob.log")
+    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
     finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
     failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
     seqfile = "%s/query.fa"%(rstdir)
@@ -1235,8 +1219,8 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         if base_www_url == "":
             base_www_url = "http://topcons.net"
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        date_str_epoch = time.time()
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str_epoch_now = time.time()
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
@@ -1249,8 +1233,8 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             maplist.append("%s\t%d\t%s\t%s"%("seq_%d"%i, len(seqList[i]),
                 seqAnnoList[i].replace('\t', ' '), seqList[i]))
         start_date_str = myfunc.ReadFile(starttagfile).strip()
-        start_date_epoch = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
-        all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
+        start_date_epoch = webserver_common.datetime_str_to_epoch(start_date_str)
+        all_runtime_in_sec = float(date_str_epoch_now) - float(start_date_epoch)
 
         myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
         webserver_common.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
@@ -1266,71 +1250,24 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         os.chdir(rstdir)
         is_zip_success = True
         cmd = ["zip", "-rq", zipfile, jobid]
-        cmdline = " ".join(cmd)
-        try:
-            myfunc.WriteFile("\t%s\n"%(cmdline), gen_logfile, "a", True)
-            subprocess.check_output(cmd)
-        except subprocess.CalledProcessError, e:
-            myfunc.WriteFile(str(e)+"\n", runjob_errfile, "a", True)
-            is_zip_success = False
-            pass
+
+        (is_zip_success, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
         if len(failed_idx_list)>0:
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
 
         if is_zip_success:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile(date_str, finishtagfile, "w", True)
+            webserver_common.WriteDateTimeTagFile(finishtagfile)
 
         if finish_status == "success":
             shutil.rmtree(tmpdir)
 
         # send the result to email
-        if myfunc.IsValidEmailAddress(email):#{{{
-
-            if os.path.exists(runjob_errfile):
-                err_msg = myfunc.ReadFile(runjob_errfile)
-
-            from_email = "info@topcons.net"
-            to_email = email
-            subject = "Your result for TOPCONS2 JOBID=%s"%(jobid)
-            if finish_status == "success":
-                bodytext = """
-    Your result is ready at %s/pred/result/%s
-
-    Thanks for using TOPCONS2
-
-            """%(base_www_url, jobid)
-            elif finish_status == "failed":
-                bodytext="""
-    We are sorry that your job with jobid %s is failed.
-
-    Please contact %s if you have any questions.
-
-    Attached below is the error message:
-    %s
-                """%(jobid, contact_email, err_msg)
-            else:
-                bodytext="""
-    Your result is ready at %s/pred/result/%s
-
-    We are sorry that TOPCONS failed to predict some sequences of your job.
-
-    Please re-submit the queries that have been failed.
-
-    If you have any further questions, please contact %s.
-
-    Attached below is the error message:
-    %s
-                """%(base_www_url, jobid, contact_email, err_msg)
-
-            myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), logfile, "a", True)
-            rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
-            if rtValue != 0:
-                myfunc.WriteFile("Sendmail to {} failed with status {}".format(to_email,
-                    rtValue), runjob_errfile, "a", True)
-
-#}}}
+        if myfunc.IsValidEmailAddress(email):
+            webserver_common.SendEmail_TOPCONS2(jobid, base_www_url,
+                    finish_status, to_email=email, contact_email=contact_email,
+                    runjob_logfile, runjob_errfile)
+        webserver_common.CleanJobFolder_TOPCONS2(rstdir)
 #}}}
 def DeleteOldResult(path_result, path_log):#{{{
     """
@@ -1348,7 +1285,7 @@ def DeleteOldResult(path_result, path_log):#{{{
         if finish_date_str != "":
             isValidFinishDate = True
             try:
-                finish_date = datetime.datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+                finish_date = webserver_common.datetime_str_to_time(finish_date_str)
             except ValueError:
                 isValidFinishDate = False
 
@@ -1357,9 +1294,9 @@ def DeleteOldResult(path_result, path_log):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
-                    myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
 def RunStatistics(path_result, path_log):#{{{
@@ -1489,15 +1426,15 @@ def RunStatistics(path_result, path_log):#{{{
             isValidStartDate = True
             isValidFinishDate = True
             try:
-                submit_date = datetime.datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                submit_date = webserver_common.datetime_str_to_time(submit_date_str)
             except ValueError:
                 isValidSubmitDate = False
             try:
-                start_date = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+                start_date =  webserver_common.datetime_str_to_time(start_date_str)
             except ValueError:
                 isValidStartDate = False
             try:
-                finish_date = datetime.datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+                finish_date = webserver_common.datetime_str_to_time(finish_date_str)
             except ValueError:
                 isValidFinishDate = False
 
@@ -1554,28 +1491,12 @@ def RunStatistics(path_result, path_log):#{{{
             fpout.close()
             #plot
             cmd = ["%s/app/plot_numseq_of_job.sh"%(basedir), outfile]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
         except IOError:
             continue
     cmd = ["%s/app/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
             outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
-    cmdline = " ".join(cmd)
-    try:
-        rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-        myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-            cmdline), gen_errfile, "a", True)
-        pass
+    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 # output waittime vs numseq_of_job
 # output finishtime vs numseq_of_job
@@ -1661,29 +1582,13 @@ def RunStatistics(path_result, path_log):#{{{
         outfile = flist[i]
         if os.path.exists(outfile):
             cmd = ["%s/app/plot_nseq_waitfinishtime.sh"%(basedir), outfile]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
     flist = flist2+flist3
     for i in xrange(len(flist)):
         outfile = flist[i]
         if os.path.exists(outfile):
             cmd = ["%s/app/plot_avg_waitfinishtime.sh"%(basedir), outfile]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 # get longest predicted seq
 # get query with most TM helics
@@ -1842,43 +1747,19 @@ def RunStatistics(path_result, path_log):#{{{
         pass
     if os.path.exists(outfile_avg_runtime):
         cmd = ["%s/app/plot_avg_runtime.sh"%(basedir), outfile_avg_runtime]
-        cmdline = " ".join(cmd)
-        try:
-            rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError, e:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-            myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                cmdline), gen_errfile, "a", True)
-            pass
+        webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
     flist = [outfile_runtime, outfile_runtime_pfam, outfile_runtime_cdd,
             outfile_runtime_uniref]
     for outfile in flist:
         if os.path.exists(outfile):
             cmd = ["%s/app/plot_length_runtime.sh"%(basedir), outfile]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
     cmd = ["%s/app/plot_length_runtime_mtp.sh"%(basedir), "-pfam",
             outfile_runtime_pfam, "-cdd", outfile_runtime_cdd, "-uniref",
             outfile_runtime_uniref, "-sep-avg"]
-    cmdline = " ".join(cmd)
-    try:
-        rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-        myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-            cmdline), gen_errfile, "a", True)
-        pass
+    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 #4. how many predicted with signal peptide
     outfile_hasSP = "%s/noSP_hasSP.stat.txt"%(path_stat)
@@ -1887,15 +1768,7 @@ def RunStatistics(path_result, path_log):#{{{
             "\"With SP\"", cnt_hasSP, myfunc.FloatDivision(cnt_hasSP, cntseq))
     myfunc.WriteFile(content, outfile_hasSP, "w", True)
     cmd = ["%s/app/plot_nosp_sp.sh"%(basedir), outfile_hasSP]
-    cmdline = " ".join(cmd)
-    try:
-        rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-        myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-            cmdline), gen_errfile, "a", True)
-        pass
+    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 #5. output num-submission time series with different bins (day, week, month, year)
     hdl = myfunc.ReadLineByBlock(allsubmitjoblogfile)
@@ -1919,7 +1792,7 @@ def RunStatistics(path_result, path_log):#{{{
                 method_submission = strs[7]
                 isValidSubmitDate = True
                 try:
-                    submit_date = datetime.datetime.strptime(submit_date_str, "%Y-%m-%d %H:%M:%S")
+                    submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 except ValueError:
                     isValidSubmitDate = False
                 if isValidSubmitDate:#{{{
@@ -2031,15 +1904,7 @@ def RunStatistics(path_result, path_log):#{{{
         #plot
         if os.path.exists(outfile):
             cmd = ["%s/app/plot_numsubmit.sh"%(basedir), outfile]
-            cmdline = " ".join(cmd)
-            try:
-                rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError, e:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                myfunc.WriteFile("[Date: %s]"%(date_str)+str(e)+"\n", gen_errfile, "a", True)
-                myfunc.WriteFile("[Date: %s] cmdline = %s\n"%(date_str,
-                    cmdline), gen_errfile, "a", True)
-                pass
+            webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 #}}}
 
@@ -2072,7 +1937,7 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
         num_avail_node = len(avail_computenode_list)
@@ -2188,8 +2053,6 @@ def InitGlobalParameter():#{{{
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
 
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
-    print >> sys.stderr, "\n\n[Date: %s]\n"%(date_str)
     status = main(g_params)
 
     sys.exit(status)

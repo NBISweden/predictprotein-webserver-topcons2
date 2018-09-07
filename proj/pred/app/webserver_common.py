@@ -376,7 +376,7 @@ def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > MAX_KEEP_DAYS:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
                     myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
@@ -677,7 +677,7 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
+        datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         try:
             myfunc.WriteFile(datetime, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
@@ -714,3 +714,84 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
 
     return (isCmdSuccess, runtime_in_sec)
 # }}}
+def SendEmail_TOPCONS2(jobid, base_www_url, finish_status, to_email="", contact_email="", runjob_logfile="", runjob_errfile=""):# {{{
+    """Send notification email to the user for TOPCONS2 web-server"""
+    if os.path.exists(runjob_errfile):
+        err_msg = myfunc.ReadFile(runjob_errfile)
+
+    from_email = "info@topcons.net"
+    subject = "Your result for TOPCONS2 JOBID=%s"%(jobid)
+    if finish_status == "success":
+        bodytext = """
+Your result is ready at %s/pred/result/%s
+
+Thanks for using TOPCONS2
+
+    """%(base_www_url, jobid)
+    elif finish_status == "failed":
+        bodytext="""
+We are sorry that your job with jobid %s is failed.
+
+Please contact %s if you have any questions.
+
+Attached below is the error message:
+%s
+        """%(jobid, contact_email, err_msg)
+    else:
+        bodytext="""
+Your result is ready at %s/pred/result/%s
+
+We are sorry that TOPCONS failed to predict some sequences of your job.
+
+Please re-submit the queries that have been failed.
+
+If you have any further questions, please contact %s.
+
+Attached below is the error message:
+%s
+        """%(base_www_url, jobid, contact_email, err_msg)
+
+    myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), runjob_logfile, "a", True)
+    rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
+    if rtValue != 0:
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        msg =  "Sendmail to {} failed with status {}".format(to_email, rtValue)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+        return 1
+    else:
+        return 0
+# }}}
+def CLeanJobFolder_TOPCONS2(rstdir):# {{{
+    """Clean the jobfolder for TOPCONS2 after finishing"""
+    flist =[
+            "%s/remotequeue_seqindex.txt"%(rstdir),
+            "%s/torun_seqindex.txt"%(rstdir)
+            ]
+    for f in flist:
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except:
+                pass
+# }}}
+def datetime_str_to_epoch(date_str):# {{{
+    """convert the datetime in string to epoch
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+    else:
+        return datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
+# }}}
+def datetime_str_to_time(date_str):# {{{
+    """convert the datetime in string to datetime type
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    else:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
+# }}}
+
