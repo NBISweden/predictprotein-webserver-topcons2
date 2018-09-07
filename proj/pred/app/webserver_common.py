@@ -695,12 +695,11 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
     isCmdSuccess = False
     cmdline = " ".join(cmd)
     datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    msg = cmdline
-    myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+    myfunc.WriteFile("[%s] %s\n"%(datetime, cmdline),  runjob_logfile, "a", True)
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
-        msg = "workflow: %s"%(rmsg)
+        msg = "workflow: %s"%(cmdline)
         myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
         isCmdSuccess = True
     except subprocess.CalledProcessError, e:
@@ -761,7 +760,7 @@ Attached below is the error message:
     else:
         return 0
 # }}}
-def CLeanJobFolder_TOPCONS2(rstdir):# {{{
+def CleanJobFolder_TOPCONS2(rstdir):# {{{
     """Clean the jobfolder for TOPCONS2 after finishing"""
     flist =[
             "%s/remotequeue_seqindex.txt"%(rstdir),
@@ -780,9 +779,9 @@ def datetime_str_to_epoch(date_str):# {{{
     """
     strs = date_str.split()
     if len(strs) == 2:
-        return datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
     else:
-        return datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
 # }}}
 def datetime_str_to_time(date_str):# {{{
     """convert the datetime in string to datetime type

@@ -436,7 +436,9 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                                 seq = seqlist[origIndex]
                             except:
                                 seq = ""
-                            webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, len(seq), description, source_result="newrun", runtime=runtime)
+                            info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
+                                    origIndex, len(seq), description,
+                                    source_result="newrun", runtime=runtime)
                             finished_info_list.append("\t".join(info_finish))
                 except:
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -532,9 +534,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     forceruntagfile = "%s/forcerun"%(rstdir)
     lastprocessed_cache_idx_file = "%s/lastprocessed_cache_idx.txt"%(rstdir)
     if os.path.exists(forceruntagfile):
-        isForceRun = "True"
+        isForceRun = True
     else:
-        isForceRun = "False"
+        isForceRun = False
 
     finished_idx_list = []
     failed_idx_list = []    # [origIndex]
@@ -576,20 +578,24 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
         # ==== 1.dealing with cached results 
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(fafile)
         if len(seqIDList) <= 0:
-            webserver_common.WriteDateTimeTagFile(failedtagfile)
+            webserver_common.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
             msg =  "Read query seq file failed. Zero sequence read in."
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
             return 1
 
-        toRunDict = {}
+        if g_params['DEBUG']:
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            msg = "jobid = %s, isCacheProcessingFinished=%s"%(jobid, str(isCacheProcessingFinished))
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
         if not isCacheProcessingFinished:
             finished_idx_set = set(finished_idx_list)
 
+            lastprocessed_idx = -1
             if os.path.exists(lastprocessed_cache_idx_file):
                 try:
                     lastprocessed_idx = int(myfunc.ReadFile(lastprocessed_cache_idx_file))
                 except:
-                    lastprocessed_idx = 0
+                    lastprocessed_idx = -1
 
             cnt_processed_cache = 0
             for i in xrange(lastprocessed_idx+1, len(seqIDList)):
@@ -627,7 +633,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
                     if os.path.exists(outpath_this_seq):
                         if not os.path.exists(starttagfile): #write start tagfile
-                            webserver_common.WriteDateTimeTagFile(starttagfile)
+                            webserver_common.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 
                         info_finish = webserver_common.GetInfoFinish_TOPCONS2(outpath_this_seq,
                                 i, len(seqList[i]), seqAnnoList[i], source_result="cached", runtime=0.0)
@@ -639,9 +645,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         return 0
                     cnt_processed_cache += 1
 
-            myfunc.WriteDateTimeTagFile(cache_process_finish_tagfile, runjob_logfile, runjob_errfile)
+            webserver_common.WriteDateTimeTagFile(cache_process_finish_tagfile, runjob_logfile, runjob_errfile)
 
         # Regenerate toRunDict
+        toRunDict = {}
         for i in xrange(len(seqIDList)):
             if not i in processed_idx_set:
                 toRunDict[i] = [seqList[i], 0, seqAnnoList[i].replace('\t', ' ')]
@@ -741,8 +748,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
 
                 if g_params['DEBUG']:
-                    myfunc.WriteFile("g_params['DEBUG']: cnt (%d) < maxnum (%d) "\
-                            "and iToRun(%d) < numToRun(%d)"%(cnt, maxnum, iToRun, numToRun), gen_logfile, "a", True)
+                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    msg = "DEBUG: cnt (%d) < maxnum (%d) and iToRun(%d) < numToRun(%d)"%(
+                            cnt, maxnum, iToRun, numToRun)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 fastaseq = ""
                 seqid = ""
                 seqanno = ""
@@ -779,7 +788,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         myfunc.WriteFile("\tSubmitting seq %4d "%(origIndex),
                                 gen_logfile, "a", True)
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
-                                jobname, useemail, str(numseq_this_user), isForceRun)
+                                jobname, useemail, str(numseq_this_user), str(isForceRun))
                     except Exception as e:
                         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                         msg =  "Failed to run submitjob_remote on node %s with error msg %s"%(node, str(e))
@@ -871,6 +880,8 @@ def GetResult(jobid):#{{{
     failed_idx_list = []    # [origIndex]
     resubmit_idx_list = []  # [origIndex]
     keep_queueline_list = [] # [line] still in queue
+    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
+    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
 
     cntTryDict = {}
     if os.path.exists(cnttry_idx_file):
@@ -1113,7 +1124,7 @@ def GetResult(jobid):#{{{
                     else:
                         myfunc.WriteFile("%d\n"%(origIndex), failed_idx_file, "a", True)
                 if status != "Wait" and not os.path.exists(starttagfile):
-                    webserver_common.WriteDateTimeTagFile(starttagfile)
+                    webserver_common.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 
                 if g_params['DEBUG_CACHE']:
                     myfunc.WriteFile("\n", gen_logfile, "a", True)
@@ -1240,7 +1251,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         webserver_common.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, base_www_url, statfile=statfile)
 
-        myfunc.WriteFile("\Write HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
+        myfunc.WriteFile("\tWrite HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
         webserver_common.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
@@ -1257,7 +1268,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
 
         if is_zip_success:
-            webserver_common.WriteDateTimeTagFile(finishtagfile)
+            webserver_common.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
 
         if finish_status == "success":
             shutil.rmtree(tmpdir)
@@ -1265,7 +1276,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         # send the result to email
         if myfunc.IsValidEmailAddress(email):
             webserver_common.SendEmail_TOPCONS2(jobid, base_www_url,
-                    finish_status, to_email=email, contact_email=contact_email,
+                    finish_status, email, contact_email,
                     runjob_logfile, runjob_errfile)
         webserver_common.CleanJobFolder_TOPCONS2(rstdir)
 #}}}
@@ -1970,7 +1981,7 @@ def main(g_params):#{{{
                             remotequeueDict[node].append(remotejobid)
 
 
-        if loop % 800 == 2:
+        if loop % 800 == 50:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
@@ -2053,6 +2064,8 @@ def InitGlobalParameter():#{{{
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
 
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    print >> sys.stderr, "\n[%s] qd_fe.py restarted\n"%(date_str)
     status = main(g_params)
 
     sys.exit(status)
