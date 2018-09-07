@@ -897,7 +897,7 @@ def get_running(request):#{{{
             except ValueError:
                 isValidSubmitDate = False
             start_date_str = ""
-            if os.path.exists(start_date_str):
+            if os.path.exists(starttagfile):
                 start_date_str = myfunc.ReadFile(starttagfile).strip()
             try:
                 start_date =  webserver_common.datetime_str_to_time(start_date_str)
