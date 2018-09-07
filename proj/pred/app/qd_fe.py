@@ -1274,7 +1274,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             shutil.rmtree(tmpdir)
 
         # send the result to email
-        if myfunc.IsValidEmailAddress(email):
+        if webserver_common.IsFrontEndNode(base_www_url) and myfunc.IsValidEmailAddress(email):
             webserver_common.SendEmail_TOPCONS2(jobid, base_www_url,
                     finish_status, email, contact_email,
                     runjob_logfile, runjob_errfile)

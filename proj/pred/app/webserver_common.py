@@ -715,6 +715,7 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
 # }}}
 def SendEmail_TOPCONS2(jobid, base_www_url, finish_status, to_email="", contact_email="", runjob_logfile="", runjob_errfile=""):# {{{
     """Send notification email to the user for TOPCONS2 web-server"""
+    err_msg = ""
     if os.path.exists(runjob_errfile):
         err_msg = myfunc.ReadFile(runjob_errfile)
 

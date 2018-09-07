@@ -246,7 +246,8 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
         if os.path.exists(torun_all_seqfile):
             # run scampi to estimate the number of TM helices
             cmd = [script_scampi, torun_all_seqfile, "-outpath", tmp_outpath_result]
-            webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
+            # do not output the error of scampi to errfile
+            webserver_common.RunCmd(cmd, runjob_logfile, runjob_logfile) 
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
             for jj in xrange(len(idlist_scampi)):
@@ -366,7 +367,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
     if (os.path.exists(finishtagfile) and os.path.exists(zipfile_fullpath)):
         isSuccess = True
         # delete the tmpdir if succeeded
-        if not (os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0):
+        if not (os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 1):
             shutil.rmtree(tmpdir) #DEBUG, keep tmpdir
     else:
         isSuccess = False
@@ -374,38 +375,16 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
 
 # send the result to email
 # do not sendmail at the cloud VM
-    if (g_params['base_www_url'].find("topcons.net") != -1 and
-            myfunc.IsValidEmailAddress(email)):
-        from_email = "info@topcons.net"
-        to_email = email
-        subject = "Your result for TOPCONS2 JOBID=%s"%(jobid)
+    if webserver_common.IsFrontEndNode(g_params['base_www_url']) and myfunc.IsValidEmailAddress(email):
         if isSuccess:
-            bodytext = """
-Your result is ready at %s/pred/result/%s
-
-Thanks for using TOPCONS2
-
-        """%(g_params['base_www_url'], jobid)
+            finish_status = "success"
         else:
-            bodytext="""
-We are sorry that your job with jobid %s is failed.
+            finish_status = "failed"
+        webserver_common.SendEmail_TOPCONS2(jobid, g_params['base_www_url'],
+                finish_status, email, contact_email,
+                runjob_logfile, runjob_errfile)
 
-Please contact %s if you have any questions.
-
-Attached below is the error message:
-%s
-            """%(jobid, contact_email, myfunc.ReadFile(runjob_errfile))
-
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        msg = "Sendmail %s -> %s, %s"% (from_email, to_email, subject)
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_logfile, "a", True)
-        rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
-        if rtValue != 0:
-            msg =  "Sendmail to {} failed with status {}".format(to_email, rtValue)
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
-
-
-    if os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 0:
+    if os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 1:
         return 1
     return 0
 #}}}
