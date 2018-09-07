@@ -585,7 +585,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
         if g_params['DEBUG']:
             date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-            msg = "jobid = %s, isCacheProcessingFinished=%s"%(jobid, str(isCacheProcessingFinished))
+            msg = "jobid = %s, isCacheProcessingFinished=%s, MAX_CACHE_PROCESS=%d"%(
+                    jobid, str(isCacheProcessingFinished), g_params['MAX_CACHE_PROCESS'])
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
         if not isCacheProcessingFinished:
             finished_idx_set = set(finished_idx_list)
@@ -628,6 +629,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
                                 msg, str(e)), runjob_errfile, "a", True)
                             pass
+                        if os.path.exists(outpath_this_seq):
+                            shutil.rmtree(outpath_this_seq)
                         shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
 
 
@@ -640,8 +643,13 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         myfunc.WriteFile("\t".join(info_finish)+"\n",
                                 finished_seq_file, "a", isFlush=True)
                         myfunc.WriteFile("%d\n"%(i), finished_idx_file, "a", True)
-                    if cnt_processed_cache > g_params['MAX_CACHE_PROCESS']:
-                        myfunc.WriteFile(str(lastprocessed_idx), lastprocessed_cache_idx_file, "w", True)
+
+                    if g_params['DEBUG']:
+                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        msg = "Get result from cache for seq_%d"%(i)
+                        myfunc.WriteFile("DEBUG [%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                    if cnt_processed_cache+1 >= g_params['MAX_CACHE_PROCESS']:
+                        myfunc.WriteFile(str(i), lastprocessed_cache_idx_file, "w", True)
                         return 0
                     cnt_processed_cache += 1
 
