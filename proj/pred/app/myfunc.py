@@ -1913,9 +1913,9 @@ def second_to_human(time_in_sec):#{{{
     0 days 4 hours 3 minutes returns '4 hours', etc...
     """
 
-    days = time_in_sec/3600/24
-    hours = time_in_sec/3600
-    minutes = time_in_sec%3600/60
+    days = int(time_in_sec)/3600/24
+    hours = int(time_in_sec)/3600
+    minutes = int(time_in_sec)%3600/60
     seconds = time_in_sec%3600%60
 
     str = ""
