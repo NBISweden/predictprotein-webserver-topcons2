@@ -1929,6 +1929,16 @@ def RunStatistics(path_result, path_log):#{{{
             webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
 
 #}}}
+def ArchiveLogFile():# {{{
+    """Archive some of the log files if they are too big"""
+    flist = [gen_logfile, gen_errfile,
+            "%s/restart_qd_fe.cgi.log"%(path_log),
+            "%s/debug.log"%(path_log)]
+
+    for f in flist:
+        if os.path.exists(f):
+            myfunc.ArchiveFile(f, threshold_logfilesize)
+# }}}
 
 def main(g_params):#{{{
     if os.path.exists(black_iplist_file):
@@ -1996,10 +2006,7 @@ def main(g_params):#{{{
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
 
-        if os.path.exists(gen_logfile):
-            myfunc.ArchiveFile(gen_logfile, threshold_logfilesize)
-        if os.path.exists(gen_errfile):
-            myfunc.ArchiveFile(gen_errfile, threshold_logfilesize)
+        ArchiveLogFile()
         # For finished jobs, clean data not used for caching
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
@@ -2034,7 +2041,6 @@ def main(g_params):#{{{
                             numseq_this_user = 1
                             pass
                         rstdir = "%s/%s"%(path_result, jobid)
-                        finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
                         status = strs[1]
 
                         if IsHaveAvailNode(cntSubmitJobDict):
@@ -2053,8 +2059,6 @@ def main(g_params):#{{{
 
     return 0
 #}}}
-
-
 def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
