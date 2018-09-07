@@ -2161,19 +2161,21 @@ def ReadRunJobLog(infile):#{{{
                     method_submission = strs[6]
                     submit_date_str = strs[7]
                     start_date_str = strs[8]
+                    finish_date_str = strs[9]
                     try:
-                        total_numseq_of_user = int(str[9])
+                        total_numseq_of_user = int(str[10])
                     except:
                         total_numseq_of_user = 1
                         pass
                     try:
-                        priority = float(str[10])
+                        priority = float(str[11])
                     except:
                         priority = 0
                         pass
                     dt[jobid] = [status_this_job, jobname, ip, email,
                             numseq, method_submission, submit_date_str,
-                            start_date_str, total_numseq_of_user, priority]
+                            start_date_str, finish_date_str,
+                            total_numseq_of_user, priority]
             lines = hdl.readlines()
         hdl.close()
 
