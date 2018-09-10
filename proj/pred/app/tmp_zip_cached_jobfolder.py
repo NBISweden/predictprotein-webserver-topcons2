@@ -13,18 +13,18 @@ basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pre
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
 
-os = platform.dist()[0].lower()
+linux_dist = platform.dist()[0].lower()
 
 user  = "www-data"
 group = "www-data"
-if os in ["centos", "redhat"]:
+if linux_dist in ["centos", "redhat"]:
     user = "apache"
     group = "apache"
-elif os in ["debian", "ubuntu"]:
+elif linux_dist in ["debian", "ubuntu"]:
     user = "www-data"
     group = "www-data"
 else:
-    print >> sys.stderr, "Unrecognized platform %s"%(os)
+    print >> sys.stderr, "Unrecognized platform %s"%(linux_dist)
     sys.exit(1)
 
 if __name__ == '__main__':
@@ -60,10 +60,9 @@ Examples:
     with con:
         cur = con.cursor()
         cmd =  "SELECT md5, seq, date_finish FROM %s"%(tbname_content)
-        cur.execute(cmd)
-        rows = cur.fetchall()
         cnt = 0
-        for row in rows:
+        for row in cur.execute(cmd):
+            print row
             cnt += 1
             md5_key = row[0]
             seq = row[1]
