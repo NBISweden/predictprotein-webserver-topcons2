@@ -65,7 +65,7 @@ Examples:
                     cmdline = " ".join(cmd)
                     try:
                         print("%d: %s"%(cnt, cmdline))
-                        subprocess.check_output(cmd)
+                        subprocess.check_call(cmd)
                         print("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) ))
                         shutil.rmtree(md5_key)
                     except:
