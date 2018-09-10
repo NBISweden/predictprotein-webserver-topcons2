@@ -62,7 +62,7 @@ Examples:
         cmd =  "SELECT md5, seq, date_finish FROM %s"%(tbname_content)
         cnt = 0
         for row in cur.execute(cmd):
-            print row
+#             print row
             cnt += 1
             md5_key = row[0]
             seq = row[1]
