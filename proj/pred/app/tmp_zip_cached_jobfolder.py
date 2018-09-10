@@ -6,11 +6,26 @@ import sqlite3
 import argparse
 import subprocess
 import shutil
+import platform
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
+
+os = platform.dist()[0].lower()
+
+user  = "www-data"
+group = "www-data"
+if os in ["centos", "redhat"]:
+    user = "apache"
+    group = "apache"
+elif os in ["debian", "ubuntu"]:
+    user = "www-data"
+    group = "www-data"
+else:
+    print >> sys.stderr, "Unrecognized platform %s"%(os)
+    sys.exit(1)
 
 if __name__ == '__main__':
 
@@ -67,6 +82,7 @@ Examples:
                         print("%d: %s"%(cnt, cmdline))
                         subprocess.check_call(cmd)
                         print("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) ))
+                        os.system("chown %s:%s %s"%(user, group, "%s.zip"%(md5_key)))
                         shutil.rmtree(md5_key)
                     except:
                         print >> sys.stderr, "Failed to zip folder %s"%(cachedir)
