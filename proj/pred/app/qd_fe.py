@@ -51,6 +51,7 @@ import hashlib
 import subprocess
 from suds.client import Client
 import numpy
+import random
 
 from geoip import geolite2
 import pycountry
@@ -1114,7 +1115,14 @@ def GetResult(jobid):#{{{
 
                                 # Add the finished date to the database
                                 date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-                                webserver_common.InsertFinishDateToDB(date_str, md5_key, seq, finished_date_db)
+                                MAX_TRY_INSERT_DB = 3
+                                cnttry = 0
+                                while cnttry < MAX_TRY_INSERT_DB:
+                                    t_rv = webserver_common.InsertFinishDateToDB(date_str, md5_key, seq, finished_date_db)
+                                    if t_rv == 0:
+                                        break
+                                    cnttry += 1
+                                    time.sleep(random.random()/1.0)
 
 #}}}
                 elif status in ["Failed", "None"]:

@@ -656,7 +656,13 @@ def InsertFinishDateToDB(date_str, md5_key, seq, outdb):# {{{
                 date_finish TEXT
             )"""%(tbname_content))
         cmd =  "INSERT OR REPLACE INTO %s(md5,  seq, date_finish) VALUES('%s', '%s','%s')"%(tbname_content, md5_key, seq, date_str)
-        cur.execute(cmd)
+        try:
+            cur.execute(cmd)
+            return 0
+        except Exception as e:
+            print >> sys.stderr, "Exception %s"%(str(e))
+            return 1
+
 # }}}
 def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, source_result="", runtime=0.0):# {{{
     """Get the list info_finish for the method TOPCONS2"""
