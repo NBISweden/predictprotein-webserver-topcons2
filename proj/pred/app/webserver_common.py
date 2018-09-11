@@ -645,7 +645,6 @@ def InsertFinishDateToDB(date_str, md5_key, seq, outdb):# {{{
         con = sqlite3.connect(outdb)
     except Exception as e:
         print("Failed to connect to the database outdb %s"%(outdb))
-        raise
     with con:
         cur = con.cursor()
         cur.execute("""
