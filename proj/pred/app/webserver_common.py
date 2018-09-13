@@ -543,6 +543,14 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
             seqinfo['errinfo_content'] += "Please input your sequence in FASTA format.\n"
 
         seqinfo['isValidSeq'] = False
+    elif numseq > g_params['MAX_NUMSEQ_PER_JOB']:
+        seqinfo['errinfo_br'] += "Number of input sequences exceeds the maximum (%d)!\n"%(
+                g_params['MAX_NUMSEQ_PER_JOB'])
+        seqinfo['errinfo_content'] += "Your query has %d sequences. "%(numseq)
+        seqinfo['errinfo_content'] += "However, the maximal allowed sequences per job is %d. "%(
+                g_params['MAX_NUMSEQ_PER_JOB'])
+        seqinfo['errinfo_content'] += "Please split your query into smaller files and submit again.\n"
+        seqinfo['isValidSeq'] = False
     else:
         li_badseq_info = []
         if 'isForceRun' in seqinfo and seqinfo['isForceRun'] and numseq > g_params['MAX_NUMSEQ_FOR_FORCE_RUN']:
@@ -551,6 +559,11 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
                     "The maximum allowable number of sequences of a job is %d. "\
                     "However, your input has %d sequences."%(g_params['MAX_NUMSEQ_FOR_FORCE_RUN'], numseq)
             seqinfo['isValidSeq'] = False
+
+
+# checking for bad sequences in the query
+
+    if seqinfo['isValidSeq']:
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
             anno = seqRecordList[i][1].strip().replace('\t', ' ')
@@ -570,11 +583,13 @@ def ValidateSeq(rawseq, seqinfo, g_params):#{{{
             seqinfo['errinfo_content'] = "\n".join(li_badseq_info) + "\n"
             seqinfo['isValidSeq'] = False
 
-# out of these 26 letters in the alphabet, 
-# B, Z -> X
-# U -> C
-# *, - will be deleted
-# 
+# convert some non-classical letters to the standard amino acid symbols
+# Scheme:
+#    out of these 26 letters in the alphabet, 
+#    B, Z -> X
+#    U -> C
+#    *, - will be deleted
+    if seqinfo['isValidSeq']:
         li_newseq = []
         for i in xrange(numseq):
             seq = seqRecordList[i][2].strip()
