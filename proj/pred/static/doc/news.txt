@@ -14,6 +14,11 @@
 # <TITLE>  Tab news added
 # <CONTENT>  Now you can browse statistics of jobs
 
+<DATE>  2018-09-13
+<TITLE>  Set the maximum number of sequences per query
+<CONTENT>  To avoid the problem of extremely large jobs, we have set the
+maximum number of sequences per query to 50000.
+
 <DATE>  2018-01-24
 <TITLE>  TOPCONS2.0_datasets.zip is updated
 <CONTENT>  The dataset used in the paper TOPCONS2.0_datesets.zip has been
