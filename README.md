@@ -1,6 +1,6 @@
-#Web-server for TOPCONS2
+# Web-server for TOPCONS2
 
-##Description:
+## Description:
     This is the web-server implementation of the TOPCONS2 workflow.
     The web-server is developed with Django (>=1.6.4)
 
@@ -25,10 +25,10 @@
     prediction tools that need to be run for one or many sequences but the
     computational time for each sequence is short.
 
-##Author
+## Author
 Nanjiang Shu
 
-Short-term bioinformatics support at NBIS
+System developer at NBIS
 
 Email: nanjiang.shu@scilifelab.se
 
@@ -70,7 +70,7 @@ peptides. Nucleic Acids Res. 43, W401-W407 (*Co-first authors)
 
 6.  On the computational node. run 
 
-    $ virtualenv env --system-site-packages
+        $ virtualenv env --system-site-packages
 
     to make sure that python can use all other system-wide installed packages
 
