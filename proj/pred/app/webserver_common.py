@@ -706,7 +706,7 @@ def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
             msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
             myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
 # }}}
-def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
+def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
     """Input cmd in list
        Run the command and also output message to logs
     """
@@ -719,8 +719,9 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile):# {{{
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
-        msg = "workflow: %s"%(cmdline)
-        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+        if verbose:
+            msg = "workflow: %s"%(cmdline)
+            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
         isCmdSuccess = True
     except subprocess.CalledProcessError, e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
