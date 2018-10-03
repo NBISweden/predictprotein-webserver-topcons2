@@ -263,13 +263,13 @@ def submit_seq(request):#{{{
                 seqfile = request.FILES['seqfile']
             except KeyError, MultiValueDictKeyError:
                 seqfile = ""
-            date = time.strftime("%Y-%m-%d %H:%M:%S")
+            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             query = {}
             query['rawseq'] = rawseq
             query['seqfile'] = seqfile
             query['email'] = email
             query['jobname'] = jobname
-            query['date'] = date
+            query['date'] = date_str
             query['client_ip'] = client_ip
             query['errinfo'] = ""
             query['method_submission'] = "web"
@@ -316,12 +316,6 @@ def submit_seq(request):#{{{
                 if webserver_common.IsFrontEndNode(base_www_url): #run the daemon only at the frontend
                     cmd = "nohup %s %s &"%(python_exec, qd_fe_scriptfile)
                     os.system(cmd)
-#                 try:
-#                     subprocess.check_output(cmd)
-#                 except subprocess.CalledProcessError, e:
-#                     datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-#                     myfunc.WriteFile("[%s] %s\n"%(datetime, str(e)), gen_errfile, "a")
-
 
                 if query['numseq'] < 0: #go to result page anyway
                     query['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
@@ -631,9 +625,9 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
 def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
     scriptfile = "%s/app/submit_job_to_queue.py"%(SITE_ROOT)
     rstdir = "%s/%s"%(path_result, query['jobid'])
-    errfile = "%s/runjob.err"%(rstdir)
     debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
-    logfile = "%s/runjob.log"%(rstdir)
+    runjob_logfile = "%s/runjob.log"%(rstdir)
+    runjob_errfile = "%s/runjob.err"%(rstdir)
     rmsg = ""
 
     cmd = [python_exec, scriptfile, "-nseq", "%d"%query['numseq'], "-nseq-this-user",
@@ -646,23 +640,13 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
         cmd += ["-host", query['client_ip']]
     if query['isForceRun']:
         cmd += ["-force"]
-    cmdline = " ".join(cmd)
-    try:
-        rmsg = myfunc.check_output(cmd, stderr=subprocess.STDOUT)
-        myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a", True)
-        myfunc.WriteFile(rmsg+"\n", debugfile, "a", True)
-    except subprocess.CalledProcessError, e:
-        failtagfile = "%s/%s"%(rstdir, "runjob.failed")
-        if not os.path.exists(failtagfile):
-            date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            myfunc.WriteFile(date, failtagfile)
-        myfunc.WriteFile(str(e)+"\n", errfile, "a", True)
-        myfunc.WriteFile("cmdline: " + cmdline +"\n", debugfile, "a", True)
-        myfunc.WriteFile(rmsg+"\n", errfile, "a", True)
 
+    (isSuccess, t_runtime) = webserver_common.RunCmd(cmd, runjob_logfile, runjob_errfile)
+    if not isSuccess:
+        webserver_common.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
         return 1
-
-    return 0
+    else:
+        return 0
 
 #}}}
 
@@ -1448,8 +1432,8 @@ def get_serverstatus(request):#{{{
                 cntjob += 1
         num_seq_in_local_queue = cntjob
     except subprocess.CalledProcessError, e:
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S")
-        myfunc.WriteFile("[%s] %s\n"%(datetime, str(e)), gen_errfile, "a", True)
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a", True)
 
 # get jobs queued remotely ()
     runjob_dict = {}
@@ -2366,7 +2350,7 @@ class Service_submitseq(ServiceBase):
             seqinfo['jobname'] = jobname
             seqinfo['email'] = email
             seqinfo['fixtop'] = fixtop
-            seqinfo['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            seqinfo['date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             seqinfo['client_ip'] = client_ip
             seqinfo['hostname'] = hostname
             seqinfo['method_submission'] = "wsdl"
@@ -2439,7 +2423,7 @@ class Service_submitseq(ServiceBase):
             seqinfo['jobname'] = jobname
             seqinfo['email'] = email
             seqinfo['fixtop'] = fixtop
-            seqinfo['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            seqinfo['date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
             seqinfo['client_ip'] = client_ip
             seqinfo['hostname'] = hostname
             seqinfo['method_submission'] = "wsdl"
