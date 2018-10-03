@@ -351,6 +351,26 @@ def GetLocDef(predfile):#{{{
 
     return (loc_def, loc_def_score)
 #}}}
+def datetime_str_to_epoch(date_str):# {{{
+    """convert the datetime in string to epoch
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
+    else:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
+# }}}
+def datetime_str_to_time(date_str):# {{{
+    """convert the datetime in string to datetime type
+    The string of datetime may with or without the zone info
+    """
+    strs = date_str.split()
+    if len(strs) == 2:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    else:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
+# }}}
 def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
     """
     Delete jobdirs that are finished > MAX_KEEP_DAYS
@@ -367,7 +387,7 @@ def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
         if finish_date_str != "":
             isValidFinishDate = True
             try:
-                finish_date = datetime.datetime.strptime(finish_date_str, "%Y-%m-%d %H:%M:%S")
+                finish_date = datetime_str_to_time(finish_date_str)
             except ValueError:
                 isValidFinishDate = False
 
@@ -697,14 +717,14 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
     if not os.path.exists(outfile):
-        datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         try:
-            myfunc.WriteFile(datetime, outfile)
+            myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
         except Exception as e:
             msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
 # }}}
 def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
     """Input cmd in list
@@ -714,18 +734,17 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
 
     isCmdSuccess = False
     cmdline = " ".join(cmd)
-    datetime = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    myfunc.WriteFile("[%s] %s\n"%(datetime, cmdline),  runjob_logfile, "a", True)
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
         if verbose:
             msg = "workflow: %s"%(cmdline)
-            myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
         isCmdSuccess = True
     except subprocess.CalledProcessError, e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(datetime, msg),  runjob_errfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
         isCmdSuccess = False
         pass
 
@@ -794,25 +813,5 @@ def CleanJobFolder_TOPCONS2(rstdir):# {{{
                 os.remove(f)
             except:
                 pass
-# }}}
-def datetime_str_to_epoch(date_str):# {{{
-    """convert the datetime in string to epoch
-    The string of datetime may with or without the zone info
-    """
-    strs = date_str.split()
-    if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
-# }}}
-def datetime_str_to_time(date_str):# {{{
-    """convert the datetime in string to datetime type
-    The string of datetime may with or without the zone info
-    """
-    strs = date_str.split()
-    if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
 # }}}
 

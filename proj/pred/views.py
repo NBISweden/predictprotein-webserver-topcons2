@@ -628,6 +628,7 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
     debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
     runjob_logfile = "%s/runjob.log"%(rstdir)
     runjob_errfile = "%s/runjob.err"%(rstdir)
+    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
     rmsg = ""
 
     cmd = [python_exec, scriptfile, "-nseq", "%d"%query['numseq'], "-nseq-this-user",

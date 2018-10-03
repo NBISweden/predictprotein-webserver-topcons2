@@ -163,7 +163,7 @@ def GetNumSuqJob(node):#{{{
         else:
             return -1
     except:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         msg = "requests.get(%s) failed"%(url)
         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
         return -1
@@ -442,7 +442,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                                     source_result="newrun", runtime=runtime)
                             finished_info_list.append("\t".join(info_finish))
                 except:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "Failed to os.listdir(%s)"%(outpath_result)
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                     raise
@@ -588,7 +588,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             return 1
 
         if g_params['DEBUG']:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             msg = "jobid = %s, isCacheProcessingFinished=%s, MAX_CACHE_PROCESS=%d"%(
                     jobid, str(isCacheProcessingFinished), g_params['MAX_CACHE_PROCESS'])
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
@@ -619,7 +619,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             shutil.copytree(cachedir, outpath_this_seq)
                         except Exception as e:
                             msg = "Failed to copytree  %s -> %s"%(cachedir, outpath_this_seq)
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
                                 msg, str(e)), runjob_errfile, "a")
                     elif os.path.exists(zipfile_cache):
@@ -628,7 +628,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         try:
                             rmsg = subprocess.check_output(cmd)
                         except subprocess.CalledProcessError, e:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             msg = "Failed to unzip %s to dir %s"%(zipfile_cache, outpath_result)
                             myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
                                 msg, str(e)), runjob_errfile, "a", True)
@@ -649,7 +649,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         myfunc.WriteFile("%d\n"%(i), finished_idx_file, "a", True)
 
                     if g_params['DEBUG']:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         msg = "Get result from cache for seq_%d"%(i)
                         myfunc.WriteFile("DEBUG [%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     if cnt_processed_cache+1 >= g_params['MAX_CACHE_PROCESS']:
@@ -741,7 +741,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             try:
                 myclient = Client(wsdl_url, cache=None, timeout=30)
             except:
-                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                 msg =  "Failed to access %s"%(wsdl_url)
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                 break
@@ -760,7 +760,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
 
                 if g_params['DEBUG']:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "DEBUG: cnt (%d) < maxnum (%d) and iToRun(%d) < numToRun(%d)"%(
                             cnt, maxnum, iToRun, numToRun)
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
@@ -802,7 +802,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
                                 jobname, useemail, str(numseq_this_user), str(isForceRun))
                     except Exception as e:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         msg =  "Failed to run submitjob_remote on node %s with error msg %s"%(node, str(e))
                         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                         rtValue = []
@@ -827,11 +827,11 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
                             else:
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 msg =  "Bad remote jobid = %s, rtValue=%s"%(remote_jobid, str(rtValue))
                                 myfunc.WriteFile("[%s] %s\n"%(date_str,msg), gen_errfile, "a", True)
                         else:
-                            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             msg = "bad wsdl return value"
                             myfunc.WriteFile("[%s] %s\n"%(date_str), gen_errfile, "a", True)
                 if isSubmitSuccess:
@@ -973,7 +973,7 @@ def GetResult(jobid):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             msg =  "Failed to access %s"%(wsdl_url)
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
             pass
@@ -1011,7 +1011,7 @@ def GetResult(jobid):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except Exception as e:
-            date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
             msg =  "Failed to run checkjob(%s) on node %s with errmsg %s\n"%(remote_jobid, node, str(e))
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
             rtValue = []
@@ -1028,7 +1028,7 @@ def GetResult(jobid):#{{{
 
                 if errinfo and errinfo.find("does not exist")!=-1:
                     if g_params['DEBUG']:
-                        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         msg = "Failed for remote_jobid %s with errmsg %s"%(remote_jobid, str(errinfo))
                         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
 
@@ -1070,7 +1070,7 @@ def GetResult(jobid):#{{{
                                 try:
                                     rtValue2 = myclient.service.deletejob(remote_jobid)
                                 except Exception as e:
-                                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                     msg = "Failed to deletejob(%s) on node %s with errmsg %s"%(remote_jobid, node, str(e))
                                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                                     rtValue2 = []
@@ -1114,7 +1114,7 @@ def GetResult(jobid):#{{{
                                 os.chdir(origpath)
 
                                 # Add the finished date to the database
-                                date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                                date_str = time.strftime(g_params['FORMAT_DATETIME'])
                                 MAX_TRY_INSERT_DB = 3
                                 cnttry = 0
                                 while cnttry < MAX_TRY_INSERT_DB:
@@ -1183,7 +1183,7 @@ def GetResult(jobid):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
                     rtValue2 = []
                     pass
@@ -1249,7 +1249,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         if base_www_url == "":
             base_www_url = "http://topcons.net"
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         date_str_epoch_now = time.time()
 
         # Now write the text output to a single file
@@ -1324,7 +1324,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > g_params['MAX_KEEP_DAYS']:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, g_params['MAX_KEEP_DAYS'])
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
@@ -2082,12 +2082,13 @@ def InitGlobalParameter():#{{{
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
     g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
+    g_params['FORMAT_DATETIME'] = "%Y-%m-%d %H:%M:%S %Z"
     return g_params
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
 
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    date_str = time.strftime(g_params['FORMAT_DATETIME'])
     print >> sys.stderr, "\n[%s] qd_fe.py restarted\n"%(date_str)
     status = main(g_params)
 
