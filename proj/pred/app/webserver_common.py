@@ -26,10 +26,10 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         print >> fpout, "##############################################################################"
         print >> fpout, "Subcons result file"
-        print >> fpout, "Generated from %s at %s"%(base_www_url, date)
+        print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
         print >> fpout, "Total request time: %.1f seconds."%(runtime_in_sec)
         print >> fpout, "##############################################################################"
         cnt = 0
@@ -94,10 +94,10 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         print >> fpout, "##############################################################################"
         print >> fpout, "TOPCONS2 result file"
-        print >> fpout, "Generated from %s at %s"%(base_www_url, date)
+        print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
         print >> fpout, "Total request time: %.1f seconds."%(runtime_in_sec)
         print >> fpout, "##############################################################################"
         cnt = 0
@@ -378,7 +378,7 @@ def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
                     rstdir = "%s/%s"%(path_result, jobid)
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
-                    myfunc.WriteFile("[Date: %s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
+                    myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
 def IsFrontEndNode(base_www_url):#{{{
