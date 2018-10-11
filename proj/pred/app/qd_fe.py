@@ -1329,6 +1329,14 @@ def DeleteOldResult(path_result, path_log):#{{{
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
+def CleanServerFile(path_tmp, path_log):#{{{
+    """Clean old files on the server"""
+# clean tmp files
+    msg = "CleanServerFile..."
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+    cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
+    webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+#}}}
 def RunStatistics(path_result, path_log):#{{{
 # 1. calculate average running time, only for those sequences with time.txt
 # show also runtime of type and runtime -vs- seqlength
@@ -2013,6 +2021,7 @@ def main(g_params):#{{{
         if loop % 800 == 50:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
+            CleanServerFile(path_tmp, path_log)
 
         ArchiveLogFile()
         # For finished jobs, clean data not used for caching
