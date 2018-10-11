@@ -709,10 +709,11 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
         isHasSP = True
     else:
         isHasSP = False
+    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
     info_finish = [ "seq_%d"%origIndex,
             str(seqLength), str(numTM),
             str(isHasSP), source_result, str(runtime),
-            seqAnno.replace('\t', ' ')]
+            seqAnno.replace('\t', ' '), date_str]
     return info_finish
 # }}}
 def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
