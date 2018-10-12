@@ -1329,7 +1329,7 @@ def DeleteOldResult(path_result, path_log):#{{{
                     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
-def CleanServerFile(path_tmp, path_log):#{{{
+def CleanServerFile():#{{{
     """Clean old files on the server"""
 # clean tmp files
     msg = "CleanServerFile..."
@@ -2021,7 +2021,7 @@ def main(g_params):#{{{
         if loop % 800 == 50:
             RunStatistics(path_result, path_log)
             DeleteOldResult(path_result, path_log)
-            CleanServerFile(path_tmp, path_log)
+            CleanServerFile()
 
         ArchiveLogFile()
         # For finished jobs, clean data not used for caching
