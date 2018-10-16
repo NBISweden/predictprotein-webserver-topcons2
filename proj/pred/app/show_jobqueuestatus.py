@@ -9,8 +9,12 @@ import shutil
 import subprocess
 import pwd
 import myfunc
-import datetime
+import webserver_common
+from datetime import datetime
+from pytz import timezone
+
 import tabulate
+TZ = "Europe/Stockholm"
 
 progname = os.path.basename(__file__)
 rootname_progname = os.path.splitext(progname)[0]
@@ -96,7 +100,7 @@ def GetJobCounter(logfile_query, logfile_finished_jobid, path_result):#{{{
             elif status == "Failed":
                 failed_jobid_set.add(jobid)
         lines = hdl.readlines()
-        current_time = datetime.datetime.now()
+        current_time = datetime.now(timezone(TZ))
         while lines != None:
             for line in lines:
                 strs = line.split("\t")
@@ -107,8 +111,7 @@ def GetJobCounter(logfile_query, logfile_finished_jobid, path_result):#{{{
                 submit_date_str = strs[0]
                 isValidSubmitDate = True
                 try:
-                    submit_date = datetime.datetime.strptime(submit_date_str, 
-                            "%Y-%m-%d %H:%M:%S")
+                    submit_date = webserver_common.datetime_str_to_time(submit_date_str)
                 except ValueError:
                     isValidSubmitDate = False
 

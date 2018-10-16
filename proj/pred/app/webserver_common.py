@@ -12,13 +12,17 @@ import os
 import sys
 import re
 import myfunc
-import datetime
 import time
+from datetime import datetime
+from dateutil import parser as dtparser
+from pytz import timezone
 import tabulate
 import shutil
 import logging
 import subprocess
 import sqlite3
+
+TZ = "Europe/Stockholm"
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -352,28 +356,23 @@ def GetLocDef(predfile):#{{{
     return (loc_def, loc_def_score)
 #}}}
 def datetime_str_to_epoch(date_str):# {{{
-    """convert the datetime in string to epoch
-    The string of datetime may with or without the zone info
+    """convert the date_time in string to epoch
+    The string of date_time may with or without the zone info
     """
-    strs = date_str.split()
-    if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").strftime('%s')
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z").strftime('%s')
+    return dtparser.parse(date_str).strftime("%s")
 # }}}
 def datetime_str_to_time(date_str):# {{{
-    """convert the datetime in string to datetime type
-    The string of datetime may with or without the zone info
+    """convert the date_time in string to datetime type
+    The string of date_time may with or without the zone info
     """
     strs = date_str.split()
+    dt = dtparser.parse(date_str)
     if len(strs) == 2:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-    else:
-        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %Z")
+        dt = dt.replace(tzinfo=timezone('UTC'))
+    return dt
 # }}}
-def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
-    """
-    Delete jobdirs that are finished > MAX_KEEP_DAYS
+def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
+    """Delete jobdirs that are finished > MAX_KEEP_DAYS
     """
     finishedjoblogfile = "%s/finished_job.log"%(path_log)
     finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
@@ -392,14 +391,22 @@ def DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=180):#{{{
                 isValidFinishDate = False
 
             if isValidFinishDate:
-                current_time = datetime.datetime.now()
+                current_time = datetime.now(timezone(TZ))
                 timeDiff = current_time - finish_date
                 if timeDiff.days > MAX_KEEP_DAYS:
                     rstdir = "%s/%s"%(path_result, jobid)
                     date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
-                    myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", gen_logfile, "a", True)
+                    myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
+#}}}
+def CleanServerFile(logfile, errfile):#{{{
+    """Clean old files on the server"""
+# clean tmp files
+    msg = "CleanServerFile..."
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), logfile, "a", True)
+    cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
+    webserver_common.RunCmd(cmd, logfile, errfile)
 #}}}
 def IsFrontEndNode(base_www_url):#{{{
     """
@@ -716,18 +723,18 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
             seqAnno.replace('\t', ' '), date_str]
     return info_finish
 # }}}
-def WriteDateTimeTagFile(outfile, runjob_logfile, runjob_errfile):# {{{
+def WriteDateTimeTagFile(outfile, logfile, errfile):# {{{
     if not os.path.exists(outfile):
         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         try:
             myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  logfile, "a", True)
         except Exception as e:
             msg = "Failed to write to file %s with message: \"%s\""%(outfile, str(e))
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  errfile, "a", True)
 # }}}
-def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
+def RunCmd(cmd, logfile, errfile, verbose=False):# {{{
     """Input cmd in list
        Run the command and also output message to logs
     """
@@ -741,11 +748,11 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
         rmsg = subprocess.check_output(cmd)
         if verbose:
             msg = "workflow: %s"%(cmdline)
-            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_logfile, "a", True)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  logfile, "a", True)
         isCmdSuccess = True
     except subprocess.CalledProcessError, e:
         msg = "cmdline: %s\nFailed with message \"%s\""%(cmdline, str(e))
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  runjob_errfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  errfile, "a", True)
         isCmdSuccess = False
         pass
 
@@ -754,11 +761,11 @@ def RunCmd(cmd, runjob_logfile, runjob_errfile, verbose=False):# {{{
 
     return (isCmdSuccess, runtime_in_sec)
 # }}}
-def SendEmail_TOPCONS2(jobid, base_www_url, finish_status, to_email="", contact_email="", runjob_logfile="", runjob_errfile=""):# {{{
+def SendEmail_TOPCONS2(jobid, base_www_url, finish_status, to_email="", contact_email="", logfile="", errfile=""):# {{{
     """Send notification email to the user for TOPCONS2 web-server"""
     err_msg = ""
-    if os.path.exists(runjob_errfile):
-        err_msg = myfunc.ReadFile(runjob_errfile)
+    if os.path.exists(errfile):
+        err_msg = myfunc.ReadFile(errfile)
 
     from_email = "info@topcons.net"
     subject = "Your result for TOPCONS2 JOBID=%s"%(jobid)
@@ -792,12 +799,12 @@ Attached below is the error message:
 %s
         """%(base_www_url, jobid, contact_email, err_msg)
 
-    myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), runjob_logfile, "a", True)
+    myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), logfile, "a", True)
     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
     if rtValue != 0:
         date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         msg =  "Sendmail to {} failed with status {}".format(to_email, rtValue)
-        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), runjob_errfile, "a", True)
+        myfunc.WriteFile("[%s] %s\n"%(date_str, msg), errfile, "a", True)
         return 1
     else:
         return 0

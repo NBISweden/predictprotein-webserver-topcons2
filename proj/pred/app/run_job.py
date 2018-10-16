@@ -32,14 +32,12 @@
 
 import os
 import sys
-import subprocess
 import time
 import myfunc
 import webserver_common
 import glob
 import hashlib
 import shutil
-import datetime
 import site
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
@@ -47,6 +45,7 @@ rundir = os.path.dirname(os.path.realpath(__file__))
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 execfile(activate_env, dict(__file__=activate_env))
+
 
 blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
 os.environ['SCAMPI_DIR'] = "/server/scampi"
@@ -63,6 +62,9 @@ path_md5cache = "%s/static/md5"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
 path_log = "%s/static/log"%(basedir)
 finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
+
+gen_logfile = "%s/%s.log"%(path_log, progname)
+gen_errfile = "%s/%s.err"%(path_log, progname)
 
 contact_email = "nanjiang.shu@scilifelab.se"
 vip_user_list = [
@@ -333,7 +335,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                         os.chdir(outpath_result)
                         shutil.copytree("seq_%d"%(origIndex), md5_key)
                         cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
-                        subprocess.check_output(cmd)
+                        webserver_common.RunCmd(cmd, runjob_logfile, runjob_logfile)
                         if not os.path.exists(md5_subfolder):
                             os.makedirs(md5_subfolder)
                         shutil.move("%s.zip"%(md5_key), "%s.zip"%(cachedir))
@@ -448,19 +450,17 @@ def main(g_params):#{{{
         print >> sys.stderr, "outpath not set. exit"
         return 1
     elif not os.path.exists(outpath):
-        try:
-            subprocess.check_output(["mkdir", "-p", outpath])
-        except subprocess.CalledProcessError, e:
-            print >> sys.stderr, e
+        cmd = ["mkdir", "-p", outpath]
+        (t_isCmdSuccess, t_runtime) = webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+        if not t_isCmdSuccess:
             return 1
     if tmpdir == "":
         print >> sys.stderr, "tmpdir not set. exit"
         return 1
     elif not os.path.exists(tmpdir):
-        try:
-            subprocess.check_output(["mkdir", "-p", tmpdir])
-        except subprocess.CalledProcessError, e:
-            print >> sys.stderr, e
+        cmd = ["mkdir", "-p", tmpdir]
+        (t_isCmdSuccess, t_runtime) = webserver_common.RunCmd(cmd, gen_logfile, gen_errfile)
+        if not t_isCmdSuccess:
             return 1
 
     numseq = myfunc.CountFastaSeq(infile)
