@@ -11,6 +11,7 @@
 import os
 import sys
 import re
+rundir = os.path.dirname(os.path.realpath(__file__))
 import myfunc
 import time
 from datetime import datetime
