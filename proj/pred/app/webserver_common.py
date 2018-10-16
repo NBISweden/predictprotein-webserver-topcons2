@@ -23,6 +23,7 @@ import subprocess
 import sqlite3
 
 TZ = "Europe/Stockholm"
+FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -30,7 +31,7 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         print >> fpout, "##############################################################################"
         print >> fpout, "Subcons result file"
         print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
@@ -98,7 +99,7 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
         if statfile != "":
             fpstat = open(statfile, "w")
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         print >> fpout, "##############################################################################"
         print >> fpout, "TOPCONS2 result file"
         print >> fpout, "Generated from %s at %s"%(base_www_url, date_str)
@@ -395,7 +396,7 @@ def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
                 timeDiff = current_time - finish_date
                 if timeDiff.days > MAX_KEEP_DAYS:
                     rstdir = "%s/%s"%(path_result, jobid)
-                    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+                    date_str = time.strftime(FORMAT_DATETIME)
                     msg = "\tjobid = %s finished %d days ago (>%d days), delete."%(jobid, timeDiff.days, MAX_KEEP_DAYS)
                     myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
@@ -404,6 +405,7 @@ def CleanServerFile(logfile, errfile):#{{{
     """Clean old files on the server"""
 # clean tmp files
     msg = "CleanServerFile..."
+    date_str = time.strftime(FORMAT_DATETIME)
     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), logfile, "a", True)
     cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
     webserver_common.RunCmd(cmd, logfile, errfile)
@@ -716,7 +718,7 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
         isHasSP = True
     else:
         isHasSP = False
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    date_str = time.strftime(FORMAT_DATETIME)
     info_finish = [ "seq_%d"%origIndex,
             str(seqLength), str(numTM),
             str(isHasSP), source_result, str(runtime),
@@ -725,7 +727,7 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
 # }}}
 def WriteDateTimeTagFile(outfile, logfile, errfile):# {{{
     if not os.path.exists(outfile):
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         try:
             myfunc.WriteFile(date_str, outfile)
             msg = "Write tag file %s succeeded"%(outfile)
@@ -742,7 +744,7 @@ def RunCmd(cmd, logfile, errfile, verbose=False):# {{{
 
     isCmdSuccess = False
     cmdline = " ".join(cmd)
-    date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    date_str = time.strftime(FORMAT_DATETIME)
     rmsg = ""
     try:
         rmsg = subprocess.check_output(cmd)
@@ -802,7 +804,7 @@ Attached below is the error message:
     myfunc.WriteFile("Sendmail %s -> %s, %s"% (from_email, to_email, subject), logfile, "a", True)
     rtValue = myfunc.Sendmail(from_email, to_email, subject, bodytext)
     if rtValue != 0:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(FORMAT_DATETIME)
         msg =  "Sendmail to {} failed with status {}".format(to_email, rtValue)
         myfunc.WriteFile("[%s] %s\n"%(date_str, msg), errfile, "a", True)
         return 1
