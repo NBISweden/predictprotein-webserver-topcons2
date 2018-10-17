@@ -20,11 +20,11 @@ esac
 
 filelist=$*
 
-echo $filelist
 for file in $filelist;do
     if [ ! -L $file ];then
         continue
     fi
+    echo $file
     mv  $file $file.tmp
     realpath=$(readlink  -f $file.tmp )
     rsync -arz  $realpath/ $file/
