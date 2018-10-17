@@ -37,17 +37,23 @@ def ZipResultFolder(md5_key, cnt):
     if os.path.exists(cachedir) and not os.path.exists(zipfile_cache):
         origpath = os.getcwd()
         os.chdir(md5_subfolder)
-        cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
-        cmdline = " ".join(cmd)
-        try:
-            print("%d: %s"%(cnt, cmdline))
-            subprocess.check_call(cmd)
-            print("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) ))
-            os.system("chown %s:%s %s"%(user, group, "%s.zip"%(md5_key)))
+        targetfile = os.path.join(cachedir, "query.result.txt")
+        if os.path.exists(targetfile):
+            cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
+            cmdline = " ".join(cmd)
+            try:
+                print("%d: %s"%(cnt, cmdline))
+                subprocess.check_call(cmd)
+                print("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) ))
+                os.system("chown %s:%s %s"%(user, group, "%s.zip"%(md5_key)))
+                shutil.rmtree(md5_key)
+            except:
+                print >> sys.stderr, "Failed to zip folder %s"%(cachedir)
+                raise
+        else:
+            print("%d: %s"%(cnt, "bad result! just rmtree(%s)"%(md5_key) ))
             shutil.rmtree(md5_key)
-        except:
-            print >> sys.stderr, "Failed to zip folder %s"%(cachedir)
-            raise
+
         os.chdir(origpath)
 
 if __name__ == '__main__':
