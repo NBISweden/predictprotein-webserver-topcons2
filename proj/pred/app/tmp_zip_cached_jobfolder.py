@@ -96,6 +96,7 @@ Examples:
                     ZipResultFolder(md5_key, cnt)
     elif not md5_file == None:
         md5_list = open(md5_file).read().split("\n")
+        md5_list = filter(None, md5_list)
         cnt = 0
         for md5_key in md5_list:
             cnt += 1
