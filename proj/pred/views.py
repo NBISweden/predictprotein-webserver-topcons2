@@ -1794,7 +1794,7 @@ def download(request):#{{{
         info['size_database'] = size_database_str
     if os.path.exists(md5file_database):
         md5_key = myfunc.ReadFile(md5file_database).strip()
-        if['md5_key_zipfile_database'] = md5_key
+        info['md5_key_zipfile_database'] = md5_key
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
