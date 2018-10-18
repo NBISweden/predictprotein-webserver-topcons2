@@ -77,6 +77,9 @@
                     Please note that the zip file is very large.<br><br>
                 </font>
                 <a href="{{STATIC_URL}}download/{{zipfile_database}}">{{zipfile_database}} </a>({{size_database}})<br><br>
+                {% if md5_key_zipfile_database %}
+                md5_checksum: {{md5_key_zipfile_database}}
+                {% endif %}
                 {#<a href="{{STATIC_URL}}download/README.txt">README for the TOPCONS2.0 package</a>#}
                     <br><br>
                 </p>

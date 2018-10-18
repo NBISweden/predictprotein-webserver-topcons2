@@ -1781,6 +1781,7 @@ def download(request):#{{{
     size_wholepackage = 0
     zipfile_wholepackage = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2.0_Linux_x64_with_database.zip")
     zipfile_database = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2_database.zip")
+    md5file_database = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2_database.zip.md5")
     if os.path.exists(zipfile_wholepackage):
         info['zipfile_wholepackage'] = os.path.basename(zipfile_wholepackage)
         size_wholepackage = os.path.getsize(os.path.realpath(zipfile_wholepackage))
@@ -1791,6 +1792,9 @@ def download(request):#{{{
         size_database = os.path.getsize(os.path.realpath(zipfile_database))
         size_database_str = myfunc.Size_byte2human(size_database)
         info['size_database'] = size_database_str
+    if os.path.exists(md5file_database):
+        md5_key = myfunc.ReadFile(md5file_database).strip()
+        if['md5_key_zipfile_database'] = md5_key
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
