@@ -7,6 +7,7 @@ import argparse
 import subprocess
 import shutil
 import platform
+from zipfile import ZipFile
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
@@ -53,8 +54,18 @@ def ZipResultFolder(md5_key, cnt):
         else:
             print("%d: %s"%(cnt, "bad result! just rmtree(%s)"%(md5_key) ))
             shutil.rmtree(md5_key)
-
         os.chdir(origpath)
+    elif os.path.exists(zipfile_cache):
+        #check weather the zipped file is a valid prediction result
+        with ZipFile(zipfile_cache, "r") as myzip:
+            li = myzip.namelist()
+            target = "%s/query.result.txt"%(md5_key)
+            if target in li:
+                print("%d: %s"%(cnt, "Valid zipped result for %s"%(md5_key) ))
+            else:
+                print("%d: %s"%(cnt, "bad zipped result! just delete zipfile(%s)"%(md5_key) ))
+                os.remove(zipfile_cache)
+
 
 if __name__ == '__main__':
 
