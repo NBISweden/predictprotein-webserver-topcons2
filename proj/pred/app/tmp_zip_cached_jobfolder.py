@@ -57,14 +57,18 @@ def ZipResultFolder(md5_key, cnt):
         os.chdir(origpath)
     elif os.path.exists(zipfile_cache):
         #check weather the zipped file is a valid prediction result
-        with ZipFile(zipfile_cache, "r") as myzip:
-            li = myzip.namelist()
-            target = "%s/query.result.txt"%(md5_key)
-            if target in li:
-                print("%d: %s"%(cnt, "Valid zipped result for %s"%(md5_key) ))
-            else:
-                print("%d: %s"%(cnt, "bad zipped result! just delete zipfile(%s)"%(md5_key) ))
-                os.remove(zipfile_cache)
+        try:
+            with ZipFile(zipfile_cache, "r") as myzip:
+                li = myzip.namelist()
+                target = "%s/query.result.txt"%(md5_key)
+                if target in li:
+                    print("%d: %s"%(cnt, "Valid zipped result for %s"%(md5_key) ))
+                else:
+                    print("%d: %s"%(cnt, "bad zipped result! just delete zipfile(%s)"%(md5_key) ))
+                    os.remove(zipfile_cache)
+        except Exception as e:
+            print("%d: %s"%(cnt, "BadZipFile! just delete zipfile(%s)"%(md5_key) ))
+            os.remove(zipfile_cache)
 
 
 if __name__ == '__main__':
