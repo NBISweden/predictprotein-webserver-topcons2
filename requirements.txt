@@ -1,26 +1,26 @@
-misc/spyne.github.tar.gz
-misc/requests-2.12.3.tar.gz
+spyne==2.13.2-alpha
+requests==2.20.1
+mod-wsgi==4.6.5
+Django==1.11.15
 
-mod-wsgi
 
 pysqlite==2.8.3
-lxml==3.6.0
+lxml==4.2.5
 suds==0.4
-biopython==1.68
+biopython==1.72
 django-eztables==0.3.2
 
-matplotlib==1.5.3
-numpy==1.11.2
-scipy==0.18.1
+matplotlib==2.2.3
+numpy==1.15.4
+scipy==1.1.0
 
-pytz==2016.7
-python-dateutil==2.6.0
+pytz==2018.5
+python-dateutil==2.7.3
 
 python-geoip==1.2
 python-geoip-geolite2==2015.0303
 pycountry-nopytest
-pycountry==17.1.8
+pycountry==18.5.26
 
 tabulate==0.7.7
 
-Django==1.6.2

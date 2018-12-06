@@ -69,8 +69,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 
 # add eztables
-from django.template import add_to_builtins
-add_to_builtins('eztables.templatetags.eztables')
+# from django.template import add_to_builtins
+# add_to_builtins('eztables.templatetags.eztables')
 
 # global parameters
 g_params = {}
@@ -124,9 +124,9 @@ from django.http import HttpResponseRedirect
 from django.views.static import serve
 
 
-#from pred.models import Query
-from pred.models import SubmissionForm
-from pred.models import FieldContainer
+from proj.pred.models import Query
+from proj.pred.models import SubmissionForm
+from proj.pred.models import FieldContainer
 from django.template import Context, loader
 
 def index(request):#{{{
@@ -280,6 +280,8 @@ def submit_seq(request):#{{{
             query['fix_str'] = fix_str
             query['isForceRun'] = isForceRun
             query['username'] = username
+            query['STATIC_URL'] = settings.STATIC_URL
+
 
             is_valid = webserver_common.ValidateQuery(request, query, g_params)
 
@@ -352,6 +354,7 @@ def submit_seq(request):#{{{
             divided_logfile_finished_jobid)
     info['form'] = form
     info['jobcounter'] = jobcounter
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/submit_seq.html', info)
 #}}}
 
@@ -379,6 +382,7 @@ def login(request):#{{{
     info['client_ip'] = client_ip
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser, divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/login.html', info)
 #}}}
 def WaitForResult(jobid, MAX_WAIT_TIME=2):#{{{
@@ -779,6 +783,7 @@ def get_queue(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/queue.html', info)
 #}}}
 def get_running(request):#{{{
@@ -916,6 +921,7 @@ def get_running(request):#{{{
         info['content'] = jobid_inqueue_list
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser, divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/running.html', info)
 #}}}
 def get_finished_job(request):#{{{
@@ -1078,6 +1084,7 @@ def get_finished_job(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/finished_job.html', info)
 
 #}}}
@@ -1238,18 +1245,10 @@ def get_failed_job(request):#{{{
 
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/failed_job.html', info)
 #}}}
 
-def search(request):#{{{
-    if 'q' in request.GET and request.GET['q']:
-        q = request.GET['q']
-        seq = Query.objects.filter(seqname=q)
-        return render(request, 'search_results.html',
-            {'seq': seq, 'query': q})
-    else:
-        return HttpResponse('Please submit a search term.')
-#}}}
 def get_help(request):#{{{
     info = {}
 
@@ -1275,6 +1274,7 @@ def get_help(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/help.html', info)
 #}}}
 def get_countjob_country(request):#{{{
@@ -1328,6 +1328,7 @@ def get_countjob_country(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/countjob_country.html', info)
 #}}}
 def get_news(request):#{{{
@@ -1362,6 +1363,7 @@ def get_news(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/news.html', info)
 #}}}
 def get_reference(request):#{{{
@@ -1389,6 +1391,7 @@ def get_reference(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/reference.html', info)
 #}}}
 def get_serverstatus(request):#{{{
@@ -1671,6 +1674,7 @@ def get_serverstatus(request):#{{{
             divided_logfile_query, divided_logfile_finished_jobid)
 
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/serverstatus.html', info)
 #}}}
 def get_example(request):#{{{
@@ -1698,6 +1702,7 @@ def get_example(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/example.html', info)
 #}}}
 def oldtopcons(request):#{{{
@@ -1751,6 +1756,7 @@ def help_wsdl_api(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/help_wsdl_api.html', info)
 #}}}
 def download(request):#{{{
@@ -1799,6 +1805,7 @@ def download(request):#{{{
     info['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
 
+    info['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/download.html', info)
 #}}}
 
@@ -2173,6 +2180,7 @@ def get_results(request, jobid="1"):#{{{
 
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    resultdict['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/get_results.html', resultdict)
 #}}}
 def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
@@ -2305,21 +2313,11 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
 
     resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
             divided_logfile_query, divided_logfile_finished_jobid)
+    resultdict['STATIC_URL'] = settings.STATIC_URL
     return render(request, 'pred/get_results_eachseq.html', resultdict)
 #}}}
 
 
-def my_view(request):#{{{
-    # loop through keys
-    for key in request.POST:
-        value = request.POST[key]
-    # loop through keys and values
-    for key, value in request.POST.iteritems():
-        print key, value
-#}}}
-def search_form(request):#{{{
-    return render(request, 'pred/search_form.html')
-#}}}
 # enabling wsdl service
 
 #{{{ The actual wsdl api
