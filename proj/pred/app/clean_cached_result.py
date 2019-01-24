@@ -11,10 +11,10 @@ from datetime import datetime
 from pytz import timezone
 import tempfile
 import myfunc
-import webserver_common
+import webserver_common as webcom
 
-FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
-TZ = "Europe/Stockholm"
+FORMAT_DATETIME = webcom.FORMAT_DATETIME
+TZ = webcom.TZ
 
 progname=os.path.basename(sys.argv[0])
 rootname_progname = os.path.splitext(progname)[0]
@@ -75,7 +75,7 @@ def CleanCachedResult(MAX_KEEP_DAYS):# {{{
                     cnt += 1
                     md5_key = row[0]
                     finish_date_str = row[1]
-                    finish_date = webserver_common.datetime_str_to_time(finish_date_str)
+                    finish_date = webcom.datetime_str_to_time(finish_date_str)
                     current_time = datetime.now(timezone(TZ))
                     timeDiff = current_time - finish_date
                     if timeDiff.days > MAX_KEEP_DAYS:
