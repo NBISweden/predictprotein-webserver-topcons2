@@ -1260,12 +1260,16 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         start_date_epoch = webcom.datetime_str_to_epoch(start_date_str)
         all_runtime_in_sec = float(date_str_epoch_now) - float(start_date_epoch)
 
-        myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
-        webcom.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
-                all_runtime_in_sec, base_www_url, statfile=statfile)
+        finishtagfile_result = "%s/%s"%(rstdir, "write_result_finish.tag")
+        if not os.path.exists(finishtagfile_result):
+            myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
+            webcom.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
+                    all_runtime_in_sec, base_www_url, statfile=statfile)
 
-        myfunc.WriteFile("\tWrite HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
-        webcom.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
+        finishtagfile_resulthtml = "%s/%s"%(rstdir, "write_htmlresult_finish.tag")
+        if not os.path.exists(finishtagfile_resulthtml):
+            myfunc.WriteFile("\tWrite HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
+            webcom.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)
         # note that zip rq will zip the real data for symbolic links
@@ -1275,7 +1279,11 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         is_zip_success = True
         cmd = ["zip", "-rq", zipfile, jobid]
 
-        (is_zip_success, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
+        finishtagfile_zipfile = "%s/%s"%(rstdir, "write_zipfile_finish.tag")
+        if not os.path.exists(finishtagfile_zipfile):
+            (is_zip_success, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
+            if is_zip_success:
+                WriteDateTimeTagFile(finishtagfile_zipfile, runjob_logfile, runjob_errfile)
 
         if len(failed_idx_list)>0:
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
@@ -2031,7 +2039,6 @@ def main(g_params):#{{{
         myfunc.WriteFile("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile, "a", True)
         time.sleep(g_params['SLEEP_INTERVAL'])
         loop += 1
-
 
     return 0
 #}}}

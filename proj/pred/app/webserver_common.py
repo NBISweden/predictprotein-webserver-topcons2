@@ -203,6 +203,8 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
             print >> fpout, "##############################################################################"
             cnt += 1
 
+        fpout.close()
+
         if fpstat:
             out_str_list = []
             out_str_list.append("num_TMPro_cons %d"% num_TMPro_cons)
@@ -215,6 +217,11 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
 
             fpstat.close()
 
+        rstdir = os.path.realpath("%s/.."%(outpath_result))
+        runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
+        runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
+        finishtagfile = "%s/%s"%(rstdir, "write_result_finish.tag")
+        WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
     except IOError:
         print "Failed to write to file %s"%(outfile)
 #}}}
@@ -319,7 +326,14 @@ def WriteHTMLResultTable_TOPCONS(outfile, finished_seq_file):#{{{
 
     WriteHTMLTail(fpout)
     fpout.close()
-    return 0#}}}
+
+    rstdir = os.path.abspath(os.path.dirname(os.path.abspath(outfile))+'/../')
+    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
+    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
+    finishtagfile = "%s/%s"%(rstdir, "write_htmlresult_finish.tag")
+    WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
+    return 0
+#}}}
 def ReplaceDescriptionSingleFastaFile(infile, new_desp):#{{{
     """Replace the description line of the fasta file by the new_desp
     """
