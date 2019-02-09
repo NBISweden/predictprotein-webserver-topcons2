@@ -1283,7 +1283,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         if not os.path.exists(finishtagfile_zipfile):
             (is_zip_success, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
             if is_zip_success:
-                WriteDateTimeTagFile(finishtagfile_zipfile, runjob_logfile, runjob_errfile)
+                webcom.WriteDateTimeTagFile(finishtagfile_zipfile, runjob_logfile, runjob_errfile)
 
         if len(failed_idx_list)>0:
             myfunc.WriteFile(date_str, failedtagfile, "w", True)
