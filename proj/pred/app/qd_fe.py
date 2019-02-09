@@ -1951,7 +1951,7 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
         num_avail_node = len(avail_computenode_list)
@@ -2026,6 +2026,14 @@ def main(g_params):#{{{
                             pass
                         rstdir = "%s/%s"%(path_result, jobid)
                         status = strs[1]
+                        myfunc.WriteFile("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile, "a", True)
+
+                        runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
+                        if os.path.exists(runjob_lockfile):
+                            msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
+                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
+                            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                            continue
 
                         if IsHaveAvailNode(cntSubmitJobDict):
                             if not g_params['DEBUG_NO_SUBMIT']:
