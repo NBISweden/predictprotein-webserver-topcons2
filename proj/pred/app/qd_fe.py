@@ -2024,6 +2024,7 @@ def main(g_params):#{{{
                         except:
                             numseq_this_user = 1
                             pass
+                        method_submission = strs[6]
                         rstdir = "%s/%s"%(path_result, jobid)
                         status = strs[1]
                         myfunc.WriteFile("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile, "a", True)
@@ -2035,7 +2036,7 @@ def main(g_params):#{{{
                             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                             continue
 
-                        if IsHaveAvailNode(cntSubmitJobDict):
+                        if IsHaveAvailNode(cntSubmitJobDict) or (numseq <= 2 and method_submission == "web"):
                             if not g_params['DEBUG_NO_SUBMIT']:
                                 SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
                         GetResult(jobid) # the start tagfile is written when got the first result
