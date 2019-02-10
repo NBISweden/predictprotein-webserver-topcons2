@@ -42,6 +42,8 @@ import site
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
 rundir = os.path.dirname(os.path.realpath(__file__))
+basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
+path_result = "%s/static/result"%(basedir)
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 execfile(activate_env, dict(__file__=activate_env))
