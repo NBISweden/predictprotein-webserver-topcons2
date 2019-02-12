@@ -39,6 +39,7 @@ import glob
 import hashlib
 import shutil
 import site
+import fcntl
 progname =  os.path.basename(sys.argv[0])
 wspace = ''.join([" "]*len(progname))
 rundir = os.path.dirname(os.path.realpath(__file__))
