@@ -26,6 +26,12 @@ import sqlite3
 
 python_exec = os.path.realpath("%s/env/bin/python"%(webserver_rootdir))
 
+basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
+path_log = "%s/static/log"%(basedir)
+path_stat = "%s/stat"%(path_log)
+path_result = "%s/static/result"%(basedir)
+path_cache = "%s/static/result/cache"%(basedir)
+
 TZ = "Europe/Stockholm"
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
@@ -791,6 +797,102 @@ Attached below is the error message:
     else:
         return 0
 # }}}
+def GetJobCounter(info): #{{{
+# get job counter for the client_ip
+# get the table from runlog, 
+# for queued or running jobs, if source=web and numseq=1, check again the tag file in
+# each individual folder, since they are queued locally
+    logfile_query = info['divided_logfile_query']
+    logfile_finished_jobid = info['divided_logfile_finished_jobid']
+    isSuperUser = info['isSuperUser']
+    client_ip = info['client_ip']
+    maxdaystoshow = info['MAX_DAYS_TO_SHOW']
+
+    jobcounter = {}
+
+    jobcounter['queued'] = 0
+    jobcounter['running'] = 0
+    jobcounter['finished'] = 0
+    jobcounter['failed'] = 0
+    jobcounter['nojobfolder'] = 0 #of which the folder jobid does not exist
+
+    jobcounter['queued_idlist'] = []
+    jobcounter['running_idlist'] = []
+    jobcounter['finished_idlist'] = []
+    jobcounter['failed_idlist'] = []
+    jobcounter['nojobfolder_idlist'] = []
+
+    hdl = myfunc.ReadLineByBlock(logfile_query)
+    if hdl.failure:
+        return jobcounter
+    else:
+        finished_job_dict = myfunc.ReadFinishedJobLog(logfile_finished_jobid)
+        finished_jobid_set = set([])
+        failed_jobid_set = set([])
+        for jobid in finished_job_dict:
+            status = finished_job_dict[jobid][0]
+            rstdir = "%s/%s"%(path_result, jobid)
+            if status == "Finished":
+                finished_jobid_set.add(jobid)
+            elif status == "Failed":
+                failed_jobid_set.add(jobid)
+        lines = hdl.readlines()
+        current_time = datetime.now(timezone(TZ))
+        while lines != None:
+            for line in lines:
+                strs = line.split("\t")
+                if len(strs) < 7:
+                    continue
+                ip = strs[2]
+                if not isSuperUser and ip != client_ip:
+                    continue
+
+                submit_date_str = strs[0]
+                isValidSubmitDate = True
+                try:
+                    submit_date = datetime_str_to_time(submit_date_str)
+                except ValueError:
+                    isValidSubmitDate = False
+
+                if not isValidSubmitDate:
+                    continue
+
+                diff_date = current_time - submit_date
+                if diff_date.days > maxdaystoshow:
+                    continue
+                jobid = strs[1]
+                rstdir = "%s/%s"%(path_result, jobid)
+
+                if jobid in finished_jobid_set:
+                    jobcounter['finished'] += 1
+                    jobcounter['finished_idlist'].append(jobid)
+                elif jobid in failed_jobid_set:
+                    jobcounter['failed'] += 1
+                    jobcounter['failed_idlist'].append(jobid)
+                else:
+                    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
+                    failtagfile = "%s/%s"%(rstdir, "runjob.failed")
+                    starttagfile = "%s/%s"%(rstdir, "runjob.start")
+                    if not os.path.exists(rstdir):
+                        jobcounter['nojobfolder'] += 1
+                        jobcounter['nojobfolder_idlist'].append(jobid)
+                    elif os.path.exists(failtagfile):
+                        jobcounter['failed'] += 1
+                        jobcounter['failed_idlist'].append(jobid)
+                    elif os.path.exists(finishtagfile):
+                        jobcounter['finished'] += 1
+                        jobcounter['finished_idlist'].append(jobid)
+                    elif os.path.exists(starttagfile):
+                        jobcounter['running'] += 1
+                        jobcounter['running_idlist'].append(jobid)
+                    else:
+                        jobcounter['queued'] += 1
+                        jobcounter['queued_idlist'].append(jobid)
+            lines = hdl.readlines()
+        hdl.close()
+    return jobcounter
+#}}}
+
 def CleanJobFolder_TOPCONS2(rstdir):# {{{
     """Clean the jobfolder for TOPCONS2 after finishing"""
     flist =[

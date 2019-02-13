@@ -38,6 +38,19 @@ import time
 import math
 import shutil
 import json
+
+SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+progname =  os.path.basename(__file__)
+rootname_progname = os.path.splitext(progname)[0]
+path_app = "%s/app"%(SITE_ROOT)
+sys.path.append(path_app)
+path_log = "%s/static/log"%(SITE_ROOT)
+path_stat = "%s/stat"%(path_log)
+path_result = "%s/static/result"%(SITE_ROOT)
+path_tmp = "%s/static/tmp"%(SITE_ROOT)
+path_md5 = "%s/static/md5"%(SITE_ROOT)
+python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
+
 import myfunc
 import webserver_common as webcom
 
@@ -92,18 +105,6 @@ g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
 
 
 
-SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
-progname =  os.path.basename(__file__)
-rootname_progname = os.path.splitext(progname)[0]
-path_app = "%s/app"%(SITE_ROOT)
-sys.path.append(path_app)
-path_log = "%s/static/log"%(SITE_ROOT)
-path_stat = "%s/stat"%(path_log)
-path_result = "%s/static/result"%(SITE_ROOT)
-path_tmp = "%s/static/tmp"%(SITE_ROOT)
-path_md5 = "%s/static/md5"%(SITE_ROOT)
-
-python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
 
 
 
@@ -259,7 +260,7 @@ def submit_seq(request):#{{{
             query['Cfix'] = Cfix
             query['fix_str'] = fix_str
             query['isForceRun'] = isForceRun
-            query['username'] = username
+            query['username'] = info['username']
             query['STATIC_URL'] = settings.STATIC_URL
 
 
@@ -316,7 +317,7 @@ def submit_seq(request):#{{{
         form = SubmissionForm()
 
 
-    jobcounter = webserver_common.GetJobCounter(info)
+    jobcounter = webcom.GetJobCounter(info)
     info['form'] = form
     info['jobcounter'] = jobcounter
     info['MAX_ALLOWD_NUMSEQ'] = g_params['MAX_ALLOWD_NUMSEQ']
@@ -565,7 +566,7 @@ def get_queue(request):#{{{
 
         info['content'] = jobinfo_list
 
-    info['jobcounter'] = webserver_common.GetJobCounter(info)
+    info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/queue.html', info)
 #}}}
 def get_running(request):#{{{
@@ -581,7 +582,7 @@ def get_running(request):#{{{
     if info['isSuperUser']:
         info['header'].insert(6, "Host")
 
-    hdl = myfunc.ReadLineByBlock(divided_logfile_query)
+    hdl = myfunc.ReadLineByBlock(info['divided_logfile_query'])
     if hdl.failure:
         info['errmsg'] = ""
         pass
@@ -822,7 +823,7 @@ def get_failed_job(request):#{{{
     if info['isSuperUser']:
         info['header'].insert(5, "Host")
 
-    hdl = myfunc.ReadLineByBlock(divided_logfile_query)
+    hdl = myfunc.ReadLineByBlock(info['divided_logfile_query'])
     if hdl.failure:
 #         info['errmsg'] = "Failed to retrieve finished job information!"
         info['errmsg'] = ""
@@ -831,7 +832,7 @@ def get_failed_job(request):#{{{
         finished_job_dict = myfunc.ReadFinishedJobLog(info['divided_logfile_finished_jobid'])
         jobRecordList = []
         lines = hdl.readlines()
-        current_time = datetime(timezone(TZ))
+        current_time = datetime.now(timezone(TZ))
         while lines != None:
             for line in lines:
                 strs = line.split("\t")
@@ -1676,7 +1677,7 @@ def get_results(request, jobid="1"):#{{{
     resultdict['TMlist'] = TMlist
     resultdict['MAX_ROWS_TO_SHOW_IN_TABLE'] = g_params['MAX_ROWS_TO_SHOW_IN_TABLE']
 
-    resultdict['jobcounter'] = GetJobCounter(client_ip, isSuperUser,
+    resultdict['jobcounter'] = webcom.GetJobCounter(resultdict)
     return render(request, 'pred/get_results.html', resultdict)
 #}}}
 def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
