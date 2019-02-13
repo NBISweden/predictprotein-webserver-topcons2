@@ -753,6 +753,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 outpath_this_seq = "%s/%s"%(outpath_result, "seq_%d"%origIndex)
                 if os.path.exists(outpath_this_seq):
                     iToRun += 1
+                    processedIndexSet.add(str(origIndex))
+                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
+                    msg = "result folder already existing for seq_%d"%(origIndex)
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     continue
 
 
