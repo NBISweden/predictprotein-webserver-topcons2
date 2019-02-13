@@ -945,6 +945,17 @@ def get_failed_job(request):#{{{
 def get_help(request):#{{{
     info = {}
     set_basic_config(request, info)
+    configfile = "%s/config/config.json"%(SITE_ROOT)
+    config = {}
+    if os.path.exists(configfile):
+        text = myfunc.ReadFile(configfile)
+        config = json.loads(text)
+    try:
+        MAX_KEEP_DAYS = config['qd_fe']['MAX_KEEP_DAYS']
+    except KeyError:
+        MAX_KEEP_DAYS = 30
+        pass
+    info['MAX_KEEP_DAYS'] = MAX_KEEP_DAYS
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/help.html', info)
 #}}}
