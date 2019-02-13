@@ -2121,13 +2121,16 @@ def ReadFinishedJobLog(infile, status=""):#{{{
                         jobname = strs[2]
                         ip = strs[3]
                         email = strs[4]
-                        numseq_str = strs[5]
+                        try:
+                            numseq = int(strs[5])
+                        except:
+                            numseq = 1
                         method_submission = strs[6]
                         submit_date_str = strs[7]
                         start_date_str = strs[8]
                         finish_date_str = strs[9]
                         dt[jobid] = [status_this_job, jobname, ip, email,
-                                numseq_str, method_submission, submit_date_str,
+                                numseq, method_submission, submit_date_str,
                                 start_date_str, finish_date_str]
             lines = hdl.readlines()
         hdl.close()
