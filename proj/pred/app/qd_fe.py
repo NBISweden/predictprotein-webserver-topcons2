@@ -1176,12 +1176,15 @@ def GetResult(jobid):#{{{
             # problem of dead jobs in the remote server due to server
             # rebooting)
             if status != "Running" and time_in_remote_queue > g_params['MAX_TIME_IN_REMOTE_QUEUE']:
+                date_str = time.strftime(g_params['FORMAT_DATETIME'])
+                msg = "Trying to delete the job in the remote queue since time_in_remote_queue = %d and status = '%s'"%(time_in_remote_queue, status)
+                myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                 # delete the remote job on the remote server
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+                    msg = "Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(remote_jobid, node, str(e))
+                    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                     rtValue2 = []
                     pass
             else:
