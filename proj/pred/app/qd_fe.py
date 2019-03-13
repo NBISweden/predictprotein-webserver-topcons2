@@ -898,8 +898,11 @@ def GetResult(jobid):#{{{
 
     cntTryDict = {}
     if os.path.exists(cnttry_idx_file):
-        with open(cnttry_idx_file, 'r') as fpin:
-            cntTryDict = json.load(fpin)
+        try:
+            with open(cnttry_idx_file, 'r') as fpin:
+                cntTryDict = json.load(fpin)
+        except ValueError: #rewrite the cnttry_idx_file if it is corrupted
+            myfunc.WriteFile("",cnttry_idx_file, "w", isFlush=True)
 
     # in case of missing queries, if remotequeue_idx_file is empty  but the job
     # is still not finished, force re-creating torun_idx_file
@@ -924,6 +927,8 @@ def GetResult(jobid):#{{{
         jobinfolist = jobinfo.split("\t")
         if len(jobinfolist) >= 8:
             numseq = int(jobinfolist[3])
+
+
 
         if g_params['DEBUG']:
             myfunc.WriteFile("len(completed_idx_set)=%d+%d=%d, numseq=%d\n"%(len(idlist1), len(idlist2), len(completed_idx_set), numseq), gen_logfile, "a", True)
