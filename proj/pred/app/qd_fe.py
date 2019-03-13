@@ -2052,9 +2052,10 @@ def main(g_params):#{{{
                             continue
 
                         if (IsHaveAvailNode(cntSubmitJobDict) 
-                            or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
-                                and method_submission == "web")
-                            ):
+                                or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
+                                    and method_submission == "web")
+                                or not webcom.IsCacheProcessingFinished(rstdir)
+                                ):
                             if not g_params['DEBUG_NO_SUBMIT']:
                                 SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
                         GetResult(jobid) # the start tagfile is written when got the first result

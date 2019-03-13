@@ -34,6 +34,20 @@ path_cache = "%s/static/result/cache"%(basedir)
 
 TZ = "Europe/Stockholm"
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
+def IsCacheProcessingFinished(rstdir):# {{{
+    """Check whether the jobdir is still under cache processing"""
+    forceruntagfile = "%s/forcerun"%(rstdir)
+    cache_process_finish_tagfile = "%s/cache_processed.finish"%(rstdir)
+    if os.path.exists(forceruntagfile):
+        isForceRun = True
+    else:
+        isForceRun = False
+    if isForceRun or os.path.exists(cache_process_finish_tagfile):
+        isCacheProcessingFinished = True
+    else:
+        isCacheProcessingFinished = False
+    return isCacheProcessingFinished
+# }}}
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
