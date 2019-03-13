@@ -40,6 +40,7 @@ sys.path.append("%s/env/lib/python2.7/site-packages/"%(webserver_root))
 sys.path.append("/usr/local/lib/python2.7/dist-packages")
 
 import myfunc
+import math
 import webserver_common as webcom
 import time
 from datetime import datetime
@@ -474,7 +475,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             # note that the priority is deducted by numseq so that for jobs
             # from the same user, jobs with fewer sequences are placed with
             # higher priority
-            priority = myfunc.GetSuqPriority(numseq_this_user) - numseq
+            priority = myfunc.FloatDivision(myfunc.GetSuqPriority(numseq_this_user) - numseq, 
+                    math.sqrt(numseq))
 
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
