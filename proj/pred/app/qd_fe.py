@@ -2051,7 +2051,10 @@ def main(g_params):#{{{
                             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                             continue
 
-                        if IsHaveAvailNode(cntSubmitJobDict) or (numseq <= 2 and method_submission == "web"):
+                        if (IsHaveAvailNode(cntSubmitJobDict) 
+                            or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
+                                and method_submission == "web")
+                            ):
                             if not g_params['DEBUG_NO_SUBMIT']:
                                 SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
                         GetResult(jobid) # the start tagfile is written when got the first result
@@ -2077,6 +2080,7 @@ def InitGlobalParameter():#{{{
     g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
     g_params['MAX_KEEP_DAYS'] = 30
+    g_params['THRESHOLD_SMALL_JOB'] = 10 #max number of sequences to be considered as small job
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
