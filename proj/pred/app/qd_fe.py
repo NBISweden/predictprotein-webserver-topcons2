@@ -1279,13 +1279,17 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         finishtagfile_result = "%s/%s"%(rstdir, "write_result_finish.tag")
         if not os.path.exists(finishtagfile_result):
-            myfunc.WriteFile("\tDump result to file %s\n"%(resultfile_text), gen_logfile, "a", True)
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
+            msg =  "Dump result to file %s ..."%(resultfile_text)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
             webcom.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
                     all_runtime_in_sec, base_www_url, statfile=statfile)
 
         finishtagfile_resulthtml = "%s/%s"%(rstdir, "write_htmlresult_finish.tag")
         if not os.path.exists(finishtagfile_resulthtml):
-            myfunc.WriteFile("\tWrite HTML table to %s\n"%(resultfile_html), gen_logfile, "a", True)
+            date_str = time.strftime(g_params['FORMAT_DATETIME'])
+            msg =  "Write HTML table to %s ..."%(resultfile_html)
+            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
             webcom.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
 
         # now making zip instead (for windows users)

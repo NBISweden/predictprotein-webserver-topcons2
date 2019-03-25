@@ -23,6 +23,7 @@ import shutil
 import logging
 import subprocess
 import sqlite3
+from nanjianglib.timeit import timeit
 
 python_exec = os.path.realpath("%s/env/bin/python"%(webserver_rootdir))
 
@@ -48,6 +49,7 @@ def IsCacheProcessingFinished(rstdir):# {{{
         isCacheProcessingFinished = False
     return isCacheProcessingFinished
 # }}}
+@timeit
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -105,6 +107,7 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
     except IOError:
         print "Failed to write to file %s"%(outfile)
 #}}}
+@timeit
 def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
     try:
@@ -301,6 +304,7 @@ def WriteHTMLTableContent_TOPCONS(tablename, tabletitle, index_table_header,#{{{
     print >> fpout, "</tbody>"
     print >> fpout, "</table>"
 #}}}
+@timeit
 def WriteHTMLResultTable_TOPCONS(outfile, finished_seq_file):#{{{
     """Write html table for the results
     """
@@ -949,6 +953,7 @@ def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
                     myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
+@timeit
 def CleanServerFile(logfile, errfile):#{{{
     """Clean old files on the server"""
 # clean tmp files
@@ -958,6 +963,7 @@ def CleanServerFile(logfile, errfile):#{{{
     cmd = ["bash", "%s/clean_server_file.sh"%(rundir)]
     RunCmd(cmd, logfile, errfile)
 #}}}
+@timeit
 def CleanCachedResult(logfile, errfile):#{{{
     """Clean outdated cahced results on the server"""
 # clean tmp files
