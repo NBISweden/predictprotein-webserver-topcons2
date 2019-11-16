@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ChangeLog 2015-03-19
 #   1. WSDL is broken since seqinfo['isForceRun'] is not set
 #      This function is only enabled for the web interface
@@ -43,7 +44,8 @@ SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 progname =  os.path.basename(__file__)
 rootname_progname = os.path.splitext(progname)[0]
 path_app = "%s/app"%(SITE_ROOT)
-sys.path.append(path_app)
+if not path_app in sys.path:
+    sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
