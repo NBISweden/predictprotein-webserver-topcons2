@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 import sys
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.append("%s/pred/app/"%(BASE_DIR))
+app_path = "%s/pred/app/"%(BASE_DIR)
+if not app_path in sys.path:
+    sys.path.append(app_path)
 import myfunc
 
 try:

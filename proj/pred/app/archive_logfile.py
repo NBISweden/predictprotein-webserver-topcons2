@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Filename: archive_logfile.py
 # Description: archive logfile using gnu gzip

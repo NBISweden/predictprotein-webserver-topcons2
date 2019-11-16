@@ -35,9 +35,8 @@ webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
 #Add the site-packages of the virtualenv
-site.addsitedir("%s/env/lib/python2.7/site-packages/"%(webserver_root))
-sys.path.append("%s/env/lib/python2.7/site-packages/"%(webserver_root))
-sys.path.append("/usr/local/lib/python2.7/dist-packages")
+site.addsitedir("%s/env/lib/python3.7/site-packages/"%(webserver_root))
+sys.path.append("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 
 import myfunc
 import math
