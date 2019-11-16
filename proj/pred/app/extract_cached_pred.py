@@ -78,7 +78,7 @@ def OutputRecord(seqnumber, seqid, description, seq, fpout):# {{{
 
             return 0
     else:
-        print >> sys.stderr, "record not found for %s"%(seqid)
+        print("record not found for %s"%(seqid), file=sys.stderr)
         return 1
 
 # }}}

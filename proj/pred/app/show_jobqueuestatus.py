@@ -25,7 +25,7 @@ fp = open(lock_file, 'w')
 try:
     fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except IOError:
-    print >> sys.stderr, "Another instance of %s is running"%(progname)
+    print("Another instance of %s is running"%(progname), file=sys.stderr)
     sys.exit(1)
 
 usage="""
@@ -178,6 +178,6 @@ for server_name in server_list:
     data_line.append(lst)
 
 content = tabulate.tabulate(data_line, header_line, 'grid')
-print content
+print(content)
 
 

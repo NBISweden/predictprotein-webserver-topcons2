@@ -47,7 +47,7 @@ basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pre
 path_result = "%s/static/result"%(basedir)
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
-execfile(activate_env, dict(__file__=activate_env))
+exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
 
 FORMAT_DATETIME = webcom.FORMAT_DATETIME
 TZ = webcom.TZ
@@ -102,9 +102,9 @@ Examples:
 """%(progname)
 
 def PrintHelp(fpout=sys.stdout):#{{{
-    print >> fpout, usage_short
-    print >> fpout, usage_ext
-    print >> fpout, usage_exp#}}}
+    print(usage_short, file=fpout)
+    print(usage_ext, file=fpout)
+    print(usage_exp, file=fpout)#}}}
 
 def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
     all_begin_time = time.time()
@@ -258,14 +258,14 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             webcom.RunCmd(cmd, runjob_logfile, runjob_logfile) 
         if os.path.exists(topfile_scampiseq):
             (idlist_scampi, annolist_scampi, toplist_scampi) = myfunc.ReadFasta(topfile_scampiseq)
-            for jj in xrange(len(idlist_scampi)):
+            for jj in range(len(idlist_scampi)):
                 numTM = myfunc.CountTM(toplist_scampi[jj])
                 try:
                     toRunDict[int(idlist_scampi[jj])][1] = numTM
                 except (KeyError, ValueError, TypeError):
                     pass
 
-        sortedlist = sorted(toRunDict.items(), key=lambda x:x[1][1], reverse=True)
+        sortedlist = sorted(list(toRunDict.items()), key=lambda x:x[1][1], reverse=True)
         #format of sortedlist [(origIndex: [seq, numTM, description]), ...]
 
         # submit sequences one by one to the workflow according to orders in
@@ -440,14 +440,14 @@ def main(g_params):#{{{
                 g_params['isForceRun'] = True
                 i += 1
             else:
-                print >> sys.stderr, "Error! Wrong argument:", argv[i]
+                print("Error! Wrong argument:", argv[i], file=sys.stderr)
                 return 1
         else:
             infile = argv[i]
             i += 1
 
     if jobid == "":
-        print >> sys.stderr, "%s: jobid not set. exit"%(sys.argv[0])
+        print("%s: jobid not set. exit"%(sys.argv[0]), file=sys.stderr)
         return 1
 
     g_params['jobid'] = jobid
@@ -460,13 +460,13 @@ def main(g_params):#{{{
     try:
         fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError:
-        print >> sys.stderr, "Another instance of %s is running"%(progname)
+        print("Another instance of %s is running"%(progname), file=sys.stderr)
         return 1
 
     if myfunc.checkfile(infile, "infile") != 0:
         return 1
     if outpath == "":
-        print >> sys.stderr, "outpath not set. exit"
+        print("outpath not set. exit", file=sys.stderr)
         return 1
     elif not os.path.exists(outpath):
         cmd = ["mkdir", "-p", outpath]
@@ -474,7 +474,7 @@ def main(g_params):#{{{
         if not t_isCmdSuccess:
             return 1
     if tmpdir == "":
-        print >> sys.stderr, "tmpdir not set. exit"
+        print("tmpdir not set. exit", file=sys.stderr)
         return 1
     elif not os.path.exists(tmpdir):
         cmd = ["mkdir", "-p", tmpdir]

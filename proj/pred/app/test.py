@@ -15,7 +15,7 @@ usage: %s TESTMODE options
 
 numArgv = len(sys.argv)
 if numArgv <= 1:
-    print general_usage
+    print(general_usage)
     sys.exit(1)
 TESTMODE=sys.argv[1]
 
@@ -24,7 +24,7 @@ TESTMODE=sys.argv[1]
 if 0:#{{{
     infile = sys.argv[1]
     li = myfunc.ReadIDList2(infile, 2, None)
-    print li
+    print(li)
 #}}}
 if 0:#{{{
    rawseq = ">1\nseqAAAAAAAAAAAAAAAAAAAAAAAAA\n    \n>2  dad\ndfasdf  "
@@ -34,18 +34,18 @@ if 0:#{{{
    seqRecordList = []
    myfunc.ReadFastaFromBuffer(rawseq, seqRecordList, True, 0, 0)
 
-   print seqRecordList
+   print(seqRecordList)
 #}}}
 
 if 0:#{{{
     size = float(sys.argv[1])
-    print "size=",size
-    print "humansize=", myfunc.Size_byte2human(size)#}}}
+    print("size=",size)
+    print("humansize=", myfunc.Size_byte2human(size))#}}}
 
 if 0:#{{{
     newsfile = "%s/static/doc/news.txt"%(basedir)
     newsList = myfunc.ReadNews(newsfile)
-    print newsList#}}}
+    print(newsList)#}}}
 
 if 0:#{{{
     seqfile="/data3/tmp/t3.seq"
@@ -58,7 +58,7 @@ if TESTMODE in ['writehtmltopcons']:#{{{
         infile = sys.argv[2]
         outfile = sys.argv[3]
     except IndexError:
-        print "usage: %s %s finished_seq outfile"%(sys.argv[0], TESTMODE)
+        print("usage: %s %s finished_seq outfile"%(sys.argv[0], TESTMODE))
         sys.exit(1)
 
     webserver_common.WriteHTMLResultTable_TOPCONS(outfile, infile)

@@ -16,7 +16,7 @@ STEP_SHOW = 1000
 
 def AddFinishDateToDB(path_cache, outdb):# {{{
     if not os.path.exists(path_cache):
-        print >> sys.stderr, "path_cache %s does not exist. Exit!"
+        print("path_cache %s does not exist. Exit!", file=sys.stderr)
         return 1
     cntseq = 0
     con = sqlite3.connect(outdb)
@@ -41,7 +41,7 @@ def AddFinishDateToDB(path_cache, outdb):# {{{
                     cnt_dir_level2 += 1
 
                     if cnt_dir_level2 % STEP_SHOW == 1:
-                        print ("Processing #dir_level1 %4d, #dir_level2 %4d"%(cnt_dir_level1, cnt_dir_level2))
+                        print(("Processing #dir_level1 %4d, #dir_level2 %4d"%(cnt_dir_level1, cnt_dir_level2)))
 
                     md5_key = dir2
                     seq = ""
@@ -65,7 +65,7 @@ def AddFinishDateToDB(path_cache, outdb):# {{{
                         try:
                             shutil.rmtree(path2)
                         except Exception as e:
-                            print >> sys.stderr, "Failed to delete broken result folder %s"%(path2)
+                            print("Failed to delete broken result folder %s"%(path2), file=sys.stderr)
 
 
 

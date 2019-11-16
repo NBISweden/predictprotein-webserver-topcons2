@@ -25,7 +25,7 @@ elif linux_dist in ["debian", "ubuntu"]:
     user = "www-data"
     group = "www-data"
 else:
-    print >> sys.stderr, "Unrecognized platform %s"%(linux_dist)
+    print("Unrecognized platform %s"%(linux_dist), file=sys.stderr)
     sys.exit(1)
 
 def ZipResultFolder(md5_key, cnt):
@@ -43,31 +43,31 @@ def ZipResultFolder(md5_key, cnt):
             cmd = ["zip", "-rq", "%s.zip"%(md5_key), md5_key]
             cmdline = " ".join(cmd)
             try:
-                print("%d: %s"%(cnt, cmdline))
+                print(("%d: %s"%(cnt, cmdline)))
                 subprocess.check_call(cmd)
-                print("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) ))
+                print(("%d: %s"%(cnt, "rmtree(%s)"%(md5_key) )))
                 os.system("chown %s:%s %s"%(user, group, "%s.zip"%(md5_key)))
                 shutil.rmtree(md5_key)
             except:
-                print >> sys.stderr, "Failed to zip folder %s"%(cachedir)
+                print("Failed to zip folder %s"%(cachedir), file=sys.stderr)
                 raise
         else:
-            print("%d: %s"%(cnt, "bad result! just rmtree(%s)"%(md5_key) ))
+            print(("%d: %s"%(cnt, "bad result! just rmtree(%s)"%(md5_key) )))
             shutil.rmtree(md5_key)
         os.chdir(origpath)
     elif os.path.exists(zipfile_cache):
         #check weather the zipped file is a valid prediction result
         try:
-            with ZipFile(zipfile_cache, "r") as myzip:
+            with ZipFile(zipfile_cache, "rb") as myzip:
                 li = myzip.namelist()
                 target = "%s/query.result.txt"%(md5_key)
                 if target in li:
-                    print("%d: %s"%(cnt, "Valid zipped result for %s"%(md5_key) ))
+                    print(("%d: %s"%(cnt, "Valid zipped result for %s"%(md5_key) )))
                 else:
-                    print("%d: %s"%(cnt, "bad zipped result! just delete zipfile(%s)"%(md5_key) ))
+                    print(("%d: %s"%(cnt, "bad zipped result! just delete zipfile(%s)"%(md5_key) )))
                     os.remove(zipfile_cache)
         except Exception as e:
-            print("%d: %s"%(cnt, "BadZipFile! just delete zipfile(%s)"%(md5_key) ))
+            print(("%d: %s"%(cnt, "BadZipFile! just delete zipfile(%s)"%(md5_key) )))
             os.remove(zipfile_cache)
 
 
@@ -117,7 +117,7 @@ Examples:
                     ZipResultFolder(md5_key, cnt)
     elif not md5_file == None:
         md5_list = open(md5_file).read().split("\n")
-        md5_list = filter(None, md5_list)
+        md5_list = [_f for _f in md5_list if _f]
         cnt = 0
         for md5_key in md5_list:
             cnt += 1
