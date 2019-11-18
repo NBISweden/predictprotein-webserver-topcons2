@@ -11,23 +11,30 @@ import os
 import sys
 import site
 
-from subprocess import Popen, PIPE
 from os import environ
 
-
 rundir = os.path.dirname(os.path.abspath(__file__))
-basedir = "%s/.."%(rundir)
+basedir = os.path.abspath("%s/../"%(rundir))
+path_log = "%s/pred/static/log"%(rundir)
+
+INTERP = "%s/env/bin/python"%(basedir)
+#INTERP is present twice so that the new python interpreter
+#knows the actual executable path
+if sys.executable != INTERP:
+    os.execl(INTERP, INTERP, *sys.argv)
+
+
 # Activate the virtual env
 activate_env="%s/env/bin/activate_this.py"%(basedir)
 exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
-os.system("which python")
+os.system("which python >> %s/debug.log" %( path_log) )
 
 #Add the site-packages of the virtualenv
 site.addsitedir("%s/env/lib/python3.7/site-packages/"%(basedir))
 
 # Add the directory for the project
 sys.path.append(basedir)
-sys.path.append(rundir)
+sys.path.insert(0,"%s/env/bin"%(basedir))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")
 
