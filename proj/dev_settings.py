@@ -27,7 +27,7 @@ SECRET_KEY = '5&!cq9#+(_=!ou=mco0=-qrmn6h66o(f)h$ho4+0vo1#d24xdy'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['dev.topcons.net']
+ALLOWED_HOSTS = [u'localhost', 'dev.topcons.net']
 
 STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
 
