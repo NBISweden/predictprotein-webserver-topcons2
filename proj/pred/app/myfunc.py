@@ -1875,8 +1875,8 @@ def date_diff(older, newer):#{{{
 
     timeDiff = newer - older
     days = timeDiff.days
-    hours = timeDiff.seconds/3600
-    minutes = timeDiff.seconds%3600/60
+    hours   = int(timeDiff.seconds/3600+0.5)
+    minutes = int(timeDiff.seconds%3600/60+0.5)
     seconds = timeDiff.seconds%3600%60
 
     str = ""
