@@ -4,25 +4,19 @@ WSGI config for proj project.
 It exposes the WSGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 """
 
 import os
 import sys
 import site
 
-from os import environ
+from django.core.wsgi import get_wsgi_application
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 rundir = os.path.dirname(os.path.abspath(__file__))
 basedir = os.path.abspath("%s/../"%(rundir))
 path_log = "%s/pred/static/log"%(rundir)
-
-INTERP = "%s/env/bin/python"%(basedir)
-#INTERP is present twice so that the new python interpreter
-#knows the actual executable path
-if sys.executable != INTERP:
-    os.execl(INTERP, INTERP, *sys.argv)
-
 
 # Activate the virtual env
 activate_env="%s/env/bin/activate_this.py"%(basedir)
@@ -36,8 +30,5 @@ site.addsitedir("%s/env/lib/python3.7/site-packages/"%(basedir))
 sys.path.append(basedir)
 sys.path.insert(0,"%s/env/bin"%(basedir))
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proj.settings")
 
-
-from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
