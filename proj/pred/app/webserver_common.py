@@ -751,7 +751,7 @@ def RunCmd(cmd, logfile, errfile, verbose=False):# {{{
     date_str = time.strftime(FORMAT_DATETIME)
     rmsg = ""
     try:
-        rmsg = subprocess.check_output(cmd)
+        rmsg = subprocess.check_output(cmd, encoding='UTF-8')
         if verbose:
             msg = "workflow: %s"%(cmdline)
             myfunc.WriteFile("[%s] %s\n"%(date_str, msg),  logfile, "a", True)
@@ -953,6 +953,11 @@ def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
                     myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
+def loginfo(msg, outfile):# {{{
+    """Write loginfo to outfile, appending current time"""
+    date_str = time.strftime(FORMAT_DATETIME)
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), outfile, "a", True)
+# }}}
 @timeit
 def CleanServerFile(logfile, errfile):#{{{
     """Clean old files on the server"""

@@ -1032,8 +1032,8 @@ def get_serverstatus(request):#{{{
     cmd = [suq_exec, "-b", suq_basedir, "ls"]
     cmdline = " ".join(cmd)
     try:
-        suq_ls_content =  myfunc.check_output(cmd, stderr=subprocess.STDOUT)
-        lines = suq_ls_content.split("\n")
+        suq_ls_content =  myfunc.check_output(cmd, encoding='UTF-8', stderr=subprocess.STDOUT)
+        lines = suq_ls_content.split('\n')
         cntjob = 0
         for line in lines:
             if line.find("runjob") != -1:
@@ -1303,7 +1303,7 @@ def help_wsdl_api(request):#{{{
             continue
         cmd = [api_script_file, "-h"]
         try:
-            usage = subprocess.check_output(cmd)
+            usage = subprocess.check_output(cmd, encoding='UTF-8')
         except subprocess.CalledProcessError as e:
             usage = ""
         api_script_info_list.append([api_script_lang_list[i], api_script_basename, usage])
