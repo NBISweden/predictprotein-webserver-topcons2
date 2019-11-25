@@ -41,6 +41,34 @@ def IsCacheProcessingFinished(rstdir):# {{{
         isCacheProcessingFinished = False
     return isCacheProcessingFinished
 # }}}
+def IsHaveAvailNode(cntSubmitJobDict):#{{{
+    """
+    Check if there are available slots in any of the computational node
+    format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}  
+    """
+    for node in cntSubmitJobDict:
+        [num_queue_job, max_allowed_job] = cntSubmitJobDict[node]
+        if num_queue_job < max_allowed_job:
+            return True
+    return False
+#}}}
+def get_job_status(jobid, path_result):#{{{
+    status = "";
+    rstdir = "%s/%s"%(path_result, jobid)
+    starttagfile = "%s/%s"%(rstdir, "runjob.start")
+    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
+    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
+    if os.path.exists(failedtagfile):
+        status = "Failed"
+    elif os.path.exists(finishtagfile):
+        status = "Finished"
+    elif os.path.exists(starttagfile):
+        status = "Running"
+    elif os.path.exists(rstdir):
+        status = "Wait"
+    return status
+#}}}
+
 @timeit
 def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
@@ -99,6 +127,7 @@ def WriteSubconsTextResultFile(outfile, outpath_result, maplist,#{{{
     except IOError:
         print("Failed to write to file %s"%(outfile))
 #}}}
+
 @timeit
 def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
         runtime_in_sec, base_www_url, statfile=""):
@@ -240,6 +269,7 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
     except IOError:
         print("Failed to write to file %s"%(outfile))
 #}}}
+
 def WriteHTMLHeader(title, fpout):#{{{
     exturl = "http://topcons.net/static"
     print("<HTML>", file=fpout)
@@ -296,6 +326,7 @@ def WriteHTMLTableContent_TOPCONS(tablename, tabletitle, index_table_header,#{{{
     print("</tbody>", file=fpout)
     print("</table>", file=fpout)
 #}}}
+
 @timeit
 def WriteHTMLResultTable_TOPCONS(outfile, finished_seq_file):#{{{
     """Write html table for the results
@@ -350,6 +381,7 @@ def WriteHTMLResultTable_TOPCONS(outfile, finished_seq_file):#{{{
     WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
     return 0
 #}}}
+
 def ReplaceDescriptionSingleFastaFile(infile, new_desp):#{{{
     """Replace the description line of the fasta file by the new_desp
     """
@@ -971,3 +1003,31 @@ def CleanCachedResult(logfile, errfile):#{{{
     cmd = ["python", "%s/clean_cached_result.py"%(rundir), "-max-keep-day", "480"]
     RunCmd(cmd, logfile, errfile)
 #}}}
+
+def ReadRuntimeFromFile(timefile, default_runtime=0.0):# {{{
+    """Read runtime from timefile"""
+    if os.path.exists(timefile):
+        txt = myfunc.ReadFile(timefile).strip()
+        ss2 = txt.split(";")
+        try:
+            runtime = float(ss2[1])
+        except:
+            runtime = default_runtime
+    else:
+        runtime = default_runtime
+    return runtime
+# }}}
+def ArchiveLogFile(path_log, threshold_logfilesize=20*1024*1024):# {{{
+    """Archive some of the log files if they are too big"""
+    gen_logfile = "%s/qd_fe.log"%(path_log)
+    gen_errfile = "%s/qd_fe.err"%(path_log)
+    flist = [gen_logfile, gen_errfile,
+            "%s/restart_qd_fe.cgi.log"%(path_log),
+            "%s/debug.log"%(path_log),
+            "%s/clean_cached_result.py.log"%(path_log)
+            ]
+
+    for f in flist:
+        if os.path.exists(f):
+            myfunc.ArchiveFile(f, threshold_logfilesize)
+# }}}
