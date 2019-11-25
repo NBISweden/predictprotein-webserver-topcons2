@@ -12,7 +12,6 @@ import os
 import sys
 import re
 rundir = os.path.dirname(os.path.realpath(__file__))
-webserver_rootdir = os.path.realpath("%s/../../../"%(rundir))
 import myfunc
 import time
 from datetime import datetime
@@ -25,13 +24,6 @@ import subprocess
 import sqlite3
 from nanjianglib.timeit import timeit
 
-python_exec = os.path.realpath("%s/env/bin/python"%(webserver_rootdir))
-
-basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
-path_log = "%s/static/log"%(basedir)
-path_stat = "%s/stat"%(path_log)
-path_result = "%s/static/result"%(basedir)
-path_cache = "%s/static/result/cache"%(basedir)
 
 TZ = "Europe/Stockholm"
 FORMAT_DATETIME = "%Y-%m-%d %H:%M:%S %Z"
@@ -825,6 +817,7 @@ def GetJobCounter(info): #{{{
     isSuperUser = info['isSuperUser']
     client_ip = info['client_ip']
     maxdaystoshow = info['MAX_DAYS_TO_SHOW']
+    path_result = info['path_result']
 
     jobcounter = {}
 
@@ -975,6 +968,6 @@ def CleanCachedResult(logfile, errfile):#{{{
     msg = "Clean cached results..."
     date_str = time.strftime(FORMAT_DATETIME)
     myfunc.WriteFile("[%s] %s\n"%(date_str, msg), logfile, "a", True)
-    cmd = [python_exec, "%s/clean_cached_result.py"%(rundir), "-max-keep-day", "480"]
+    cmd = ["python", "%s/clean_cached_result.py"%(rundir), "-max-keep-day", "480"]
     RunCmd(cmd, logfile, errfile)
 #}}}

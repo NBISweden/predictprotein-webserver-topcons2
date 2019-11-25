@@ -164,6 +164,7 @@ def set_basic_config(request, info):# {{{
     info['client_ip'] = client_ip
     info['BASEURL'] = g_params['BASEURL']
     info['STATIC_URL'] = settings.STATIC_URL
+    info['path_result'] = path_result
 # }}}
 def SetColorStatus(status):#{{{
     if status == "Finished":
