@@ -128,7 +128,7 @@ def MoveCache_mode_result(outpath_this_seq):#{{{
     fafile = "%s/seq.fa"%(outpath_this_seq)
     if os.path.exists(fafile):
         (seqid, seqanno,seq) = myfunc.ReadSingleFasta(fafile)
-        md5_key = hashlib.md5(seq).hexdigest()
+        md5_key = hashlib.md5(seq.encode('utf-8')).hexdigest()
         sub_md5_name = md5_key[:2]
         sub_cachedir = "%s/%s"%(path_cache, sub_md5_name)
         cachedir = "%s/%s/%s"%(path_cache, sub_md5_name, md5_key)
