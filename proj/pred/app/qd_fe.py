@@ -1978,5 +1978,7 @@ def InitGlobalParameter():#{{{
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
-    webcom.loginfo("\n#===============#\nqd_fe.py restarted", gen_logfile)
+    date_str = time.strftime(g_params['FORMAT_DATETIME'])
+    print("\n#===============#\n[Date: %s] qd_fe.py restarted"%(date_str))
+    sys.stdout.flush()
     sys.exit(main(g_params))
