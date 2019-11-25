@@ -26,7 +26,7 @@ print start_html(-title => "set suq ntask",
 #     print "</pre>\n";
 #     print end_html();
 # }
-my $suqbase = "/scratch";
+my $suqbase = "/tmp";
 my $ntask=param('ntask');
 my $remote_host = $ENV{'REMOTE_ADDR'};
 my @auth_iplist = ();

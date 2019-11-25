@@ -31,7 +31,7 @@ if(!param())
 }
 if(param())
 {
-    my $suqbase = "/scratch";
+    my $suqbase = "/tmp";
     my $jobid=param('jobid');
     my $remote_host = $ENV{'REMOTE_ADDR'};
 
