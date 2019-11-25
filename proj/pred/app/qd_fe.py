@@ -1103,7 +1103,7 @@ def GetResult(jobid):#{{{
                                 shutil.rmtree("%s/%s"%(tmpdir, remote_jobid))
 
                                 # create or update the md5 cache
-                                md5_key = hashlib.md5(seq).hexdigest()
+                                md5_key = hashlib.md5(seq.encode('utf-8')).hexdigest()
                                 subfoldername = md5_key[:2]
                                 md5_subfolder = "%s/%s"%(path_cache, subfoldername)
                                 cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
