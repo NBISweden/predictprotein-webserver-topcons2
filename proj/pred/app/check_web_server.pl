@@ -10,6 +10,7 @@ use File::Temp;
 
 use Cwd 'abs_path';
 use File::Basename;
+use POSIX qw(strftime);
 
 use LWP::Simple qw($ua head);
 $ua->timeout(10);
@@ -17,9 +18,9 @@ $ua->timeout(10);
 my $rundir = dirname(abs_path(__FILE__));
 my $basedir = abs_path("$rundir/../");
 require "$rundir/nanjianglib.pl";
+my $FORMAT_DATETIME = '%Y-%m-%d %H:%M:%S %Z';
 
-
-my $date = localtime();
+my $date = strftime "$FORMAT_DATETIME", localtime;
 print "Date: $date\n";
 my $url = "";
 my $servername = "TOPCONS2";
