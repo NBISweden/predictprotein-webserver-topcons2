@@ -230,7 +230,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                     new_finished_list.append(li)
                 continue
 
-            status = webcom.get_job_status(jobid)
+            status = webcom.get_job_status(jobid, path_result)
 
             starttagfile = "%s/%s"%(rstdir, "runjob.start")
             finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
@@ -1054,7 +1054,7 @@ def GetResult(jobid):#{{{
                     # the job is failed for this sequence, try to re-submit
                     isFinish_remote = True
                     if g_params['DEBUG']:
-                        webcom..loginfo("DEBUG: %s, status = %s\n"%(remote_jobid, status), gen_logfile)
+                        webcom.loginfo("DEBUG: %s, status = %s\n"%(remote_jobid, status), gen_logfile)
 
                     cnttry = 1
                     try:
