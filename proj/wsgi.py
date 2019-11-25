@@ -11,9 +11,6 @@ import os
 import sys
 import site
 
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 rundir = os.path.dirname(os.path.abspath(__file__))
 basedir = os.path.abspath("%s/../"%(rundir))
 path_log = "%s/pred/static/log"%(rundir)
@@ -31,4 +28,6 @@ sys.path.append(basedir)
 sys.path.insert(0,"%s/env/bin"%(basedir))
 
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
+from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
