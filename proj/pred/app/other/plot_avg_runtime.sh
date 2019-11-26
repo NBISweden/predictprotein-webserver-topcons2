@@ -84,7 +84,7 @@ EOF
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             convert -rotate 90 $outpath/$basename.png $outpath/$basename.rot.png
             echo "Histogram image output to $pdffile"
             ;;
