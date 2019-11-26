@@ -15,11 +15,12 @@ source ./env/bin/activate
 
 pip3 install --ignore-installed -r requirements.txt
 
-#Install gnuplot 4.6.0
-echo -e "\nInstall gnuplot 4.6.0 to env\n"
+#Install gnuplot 4.2.6
+gnuplot_version=4.2.6
+echo -e "\nInstall gnuplot $gnuplot_version to env\n"
 tmpdir=$(mktemp -d /tmp/tmpdir.setup_virtualenv.XXXXXXXXX) || { echo "Failed to create temp dir" >&2; exit 1; }
-url=https://sourceforge.net/projects/gnuplot/files/gnuplot/4.6.0/gnuplot-4.6.0.tar.gz/download
-filename=gnuplot-4.6.0.tar.gz
+url=https://sourceforge.net/projects/gnuplot/files/gnuplot/${gnuplot_version}/gnuplot-${gnuplot_version}.tar.gz/download
+filename=gnuplot-${gnuplot_version}.tar.gz
 cd $tmpdir
 wget $url -O $filename
 tar -xzf $filename
