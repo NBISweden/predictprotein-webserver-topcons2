@@ -10,7 +10,7 @@ import platform
 from zipfile import ZipFile
 
 rundir = os.path.dirname(os.path.realpath(__file__))
-basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
+basedir = os.path.realpath("%s/../../"%(rundir)) # path of the application, i.e. pred/
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
 
