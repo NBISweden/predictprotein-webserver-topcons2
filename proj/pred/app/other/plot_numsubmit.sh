@@ -119,7 +119,7 @@ set output '$outfile'
     esac
 
 
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
 set style line 2 lt 1 pt 7 ps 1 lc rgb "blue" lw 1
@@ -144,7 +144,7 @@ set timefmt "$timeformat_in"
 set format x "$timeformat_out"
 set xdata time
 set grid y
-plot "$dataFile" using 1:3 ls 1 title "Number of seqs" $plot_setting
+plot "$dataFile" using 1:3 ls 2 title "Number of seqs" $plot_setting
 
 EOF
 
