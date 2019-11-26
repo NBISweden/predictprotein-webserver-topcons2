@@ -149,7 +149,7 @@ EOF
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white  $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white  $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
@@ -210,7 +210,7 @@ EOF
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
