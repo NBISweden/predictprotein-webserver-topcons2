@@ -17,29 +17,25 @@ $ua->timeout(10);
 
 my $rundir = dirname(abs_path(__FILE__));
 my $basedir = abs_path("$rundir/../");
-require "$rundir/nanjianglib.pl";
+my $path_nanjianglib = `which nanjianglib.pl`;
+chomp($path_nanjianglib);
+require "$path_nanjianglib";
 my $FORMAT_DATETIME = '%Y-%m-%d %H:%M:%S %Z';
 
 my $date = strftime "$FORMAT_DATETIME", localtime;
 print "Date: $date\n";
 my $url = "";
 my $servername = "TOPCONS2";
-my @urllist = ("http://topcons.net");
 my $target_qd_script_name = "qd_fe.py";
 my $computenodelistfile = "$basedir/config/computenode.txt";
 my $alert_emaillist_file = "$basedir/config/alert_email.txt";
+my $base_www_url_file = "$basedir/static/log/base_www_url.txt";
 my $from_email = "nanjiang.shu\@scilifelab.se";
 my $title = "";
 my $output = "";
 
-my @to_email_list = ();
-open(IN, "<", $alert_emaillist_file) or die;
-while(<IN>) {
-    chomp;
-    push @to_email_list, $_;
-}
-close IN;
-
+my @to_email_list = ReadFile($alert_emaillist_file);
+my @urllist = ReadList($base_www_url_file);
 
 my %computenodelist = ();
 open(IN, "<", $computenodelistfile) or die;
