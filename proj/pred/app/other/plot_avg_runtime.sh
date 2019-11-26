@@ -53,7 +53,7 @@ set output '$outfile'
 
 
     local max_yrange=`cat $dataFile | awk 'BEGIN{max=-1}{if($2>max) {max=$2}}END{print int(max)+10}'`
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
 set style line 2 lt 1 pt 7 ps 1 lc rgb "blue" lw 1

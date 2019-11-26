@@ -53,7 +53,7 @@ set output '$outfile'
     esac
 
 
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 0 ps 0 lc rgb "red" lw 1
 set style line 2 lt 1 pt 0 ps 0 lc rgb "blue" lw 1
