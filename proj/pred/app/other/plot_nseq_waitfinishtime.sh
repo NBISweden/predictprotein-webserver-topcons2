@@ -139,10 +139,10 @@ if [ ! -f "$dataFile" ]; then
 fi
 
 osname=`uname -s`
-eps2pdf=eps2pdf
+eps2pdf=epstopdf
 case $osname in 
     *Darwin*) eps2pdf=epstopdf;;
-    *Linux*) eps2pdf=eps2pdf;;
+    *Linux*) eps2pdf=epstopdf;;
 esac
 
 case $dataFile in 

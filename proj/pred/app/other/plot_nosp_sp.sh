@@ -133,10 +133,10 @@ if [ ! -f "$dataFile" ]; then
 fi
 
 osname=`uname -s`
-eps2pdf=eps2pdf
+eps2pdf=epstopdf
 case $osname in 
     *Darwin*) eps2pdf=epstopdf;;
-    *Linux*) eps2pdf=eps2pdf;;
+    *Linux*) eps2pdf=epstopdf;;
 esac
 totalcount=`awk -F "\t" 'BEGIN{sum=0} {sum+=$2}END{print sum}' $dataFile`
 Makeplot $dataFile
