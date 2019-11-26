@@ -34,7 +34,7 @@ my $from_email = "nanjiang.shu\@scilifelab.se";
 my $title = "";
 my $output = "";
 
-my @to_email_list = ReadFile($alert_emaillist_file);
+my @to_email_list = ReadList($alert_emaillist_file);
 my @urllist = ReadList($base_www_url_file);
 
 my %computenodelist = ();
