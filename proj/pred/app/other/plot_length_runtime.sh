@@ -87,8 +87,8 @@ set ylabel "Running time (s)"
 set style data points
 set logscale x
 set logscale y
-plot 1/0 ls $linestyle2 lw 6 with points t "$keytitle", \
-     "$dataFile" using 1:2 ls $linestyle1 title ""
+plot 1/0 ls $linestyle2 with points t "$keytitle", \
+     "$dataFile" using 1:2 ls $linestyle1 notitle
 
 EOF
 
