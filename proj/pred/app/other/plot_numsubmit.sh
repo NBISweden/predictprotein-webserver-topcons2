@@ -85,7 +85,6 @@ EOF
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            echo "convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png"
             convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
@@ -138,21 +137,21 @@ set title ""
 set xlabel ""
 set ylabel "Count"
 set xtics rotate by -45 offset 0,-0
-set boxwidth 0.5 relative
 set style fill solid 0.5 border -1
+set boxwidth 0.5 relative
 set logscale y
 set timefmt "$timeformat_in"
 set format x "$timeformat_out"
 set xdata time
 set grid y
-plot "$dataFile" using 1:3 ls 2 title "Number of seqs" $plot_setting
+plot "$dataFile" using 1:3 ls 1 title "Number of seqs" $plot_setting
 
 EOF
 
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white  $outpath/$basename.pdf $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
