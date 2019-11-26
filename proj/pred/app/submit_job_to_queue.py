@@ -3,11 +3,11 @@
 # Description: submit job to queue
 import os
 import sys
-import myfunc
 import subprocess
 import time
 import math
-import webserver_common as webcom
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 import json
 suq_exec = "/usr/bin/suq"
 progname =  os.path.basename(__file__)

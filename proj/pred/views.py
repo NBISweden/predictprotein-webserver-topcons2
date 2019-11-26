@@ -53,8 +53,8 @@ path_tmp = "%s/static/tmp"%(SITE_ROOT)
 path_md5 = "%s/static/md5"%(SITE_ROOT)
 python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
 
-import myfunc
-import webserver_common as webcom
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 
 TZ = webcom.TZ
 os.environ['TZ'] = TZ

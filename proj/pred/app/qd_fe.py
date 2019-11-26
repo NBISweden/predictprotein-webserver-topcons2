@@ -38,9 +38,9 @@ exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file_
 site.addsitedir("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 sys.path.append("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 
-import myfunc
 import math
-import webserver_common as webcom
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 import time
 from datetime import datetime
 from dateutil import parser as dtparser
