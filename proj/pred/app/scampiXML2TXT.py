@@ -5,7 +5,7 @@
 import sys,re,os
 import os.path
 import tempfile
-import myfunc
+from libpredweb import myfunc
 
 #Note: 2010-08-26 
 # still use xslt to read xml files. it is more reliable

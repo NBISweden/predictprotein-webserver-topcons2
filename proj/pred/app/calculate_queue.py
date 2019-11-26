@@ -4,7 +4,7 @@
 # Calculate the queue of jobs in the result folder
 import os
 import sys
-import myfunc
+from libpredweb import myfunc
 import datetime
 
 #  score = queue_time_in_sec / ((rank+addition)**2 * max(length_seq,100)**1.5)

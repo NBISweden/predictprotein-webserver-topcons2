@@ -11,7 +11,7 @@ import subprocess
 import platform
 import pwd
 import grp
-import myfunc
+from libpredweb import myfunc
 import hashlib
 
 usage="""

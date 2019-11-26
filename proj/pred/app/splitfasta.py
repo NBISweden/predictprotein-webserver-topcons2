@@ -12,7 +12,7 @@
 import sys
 import re
 import os
-import myfunc
+from libpredweb import myfunc
 from math import ceil
 
 BLOCK_SIZE = 100000

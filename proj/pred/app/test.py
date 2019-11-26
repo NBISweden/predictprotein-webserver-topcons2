@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import myfunc
-import webserver_common
+from libpredweb import myfunc
+from libpredweb import webserver_common
 
 rundir = os.path.dirname(__file__)
 basedir = os.path.realpath("%s/../"%(rundir))
