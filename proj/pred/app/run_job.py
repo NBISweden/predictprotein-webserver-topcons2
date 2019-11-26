@@ -61,7 +61,7 @@ os.environ['BLASTBIN'] = "%s/bin"%(blastdir)
 os.environ['BLASTDB'] = "%s/%s"%(rundir, "soft/topcons2_webserver/database/blast/")
 blastdb = "%s/%s"%(os.environ['BLASTDB'], "uniref90.fasta" )
 runscript = "%s/%s"%(rundir, "soft/topcons2_webserver/workflow/pfam_workflow.py")
-script_scampi = "%s/%s"%(rundir, "mySCAMPI_run.pl")
+script_scampi = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
 
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
 path_md5cache = "%s/static/md5"%(basedir)
