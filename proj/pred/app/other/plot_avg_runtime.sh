@@ -62,7 +62,7 @@ set style line 11 lt 1 pt 7 ps 2 lc rgb "red" lw 1
 set style line 12 lt 1 pt 7 ps 2 lc rgb "blue" lw 1
 set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 
-set bmargin at screen 0.12
+set bmargin at screen 0.20
 
 set title ""
 set ylabel ""
