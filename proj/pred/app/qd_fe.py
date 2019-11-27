@@ -1731,7 +1731,7 @@ def RunStatistics(path_result, path_log):#{{{
                     day = int(day_str.replace("-", ""))
                     week = int(submit_date.strftime("%Y%V"))
                     month = int(submit_date.strftime("%Y%m"))
-                    year = int(year_str)
+                    year = int(submit_date.year)
                     if not day in dict_submit_day:
                                                 #all   web  wsdl
                         dict_submit_day[day] = [day_str, 0,0,0,0,0,0]
