@@ -1831,6 +1831,10 @@ def RunStatistics(path_result, path_log):#{{{
             pass
         #plot
         if os.path.exists(outfile):
+            if os.path.basename(outfile).find('day') == -1:
+                # extends date time series for missing dates
+                freq = webcom.date_range_frequency(os.path.basename(outfile))
+                webcom.extend_data(outfile, value_columns=['numjob', 'numseq'], freq=freq, outfile=outfile)
             cmd = ["%s/app/other/plot_numsubmit.sh"%(basedir), outfile]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
