@@ -219,7 +219,7 @@ case $dataFile in
         timeformat_out="%Y-%b"
         ;;
     *year*)
-        timeformat_in="%Y"
+        timeformat_in="%Y-%m-%d"
         timeformat_out="%Y"
         ;;
 esac
