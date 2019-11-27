@@ -223,7 +223,7 @@ case $dataFile in
     *year*)
         timeformat_in="%Y-%m-%d"
         timeformat_out="%Y"
-        xticfreqsetting="set xtics=60*60*24*365"
+        xticfreqsetting="set xtics 60*60*24*365"
         ;;
 esac
 
