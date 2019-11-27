@@ -52,7 +52,6 @@ set output '$outfile'
         ;;
     esac
 
-
 /usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
@@ -64,15 +63,16 @@ set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 
 set key autotitle columnhead
 
-
 set tmargin at screen 0.95
 set bmargin at screen 0.25
 set rmargin at screen 0.90
 set lmargin at screen 0.10
 set title ""
+set xdata time
 set xlabel ""
 set ylabel "Count"
 set xtics rotate by -45 offset 0,-0
+$xticfreqsetting
 set style fill solid 0.5 border -1
 set boxwidth 0.5 relative
 set logscale y
@@ -140,6 +140,7 @@ set title ""
 set xlabel ""
 set ylabel "Count"
 set xtics rotate by -45 offset 0,-0
+$xticfreqsetting
 set style fill solid 0.5 border -1
 set boxwidth 0.5 relative
 set logscale y
@@ -205,6 +206,7 @@ case $osname in
 esac
 
 
+xticfreqsetting=
 case $dataFile in 
     *day*)
         timeformat_in="%Y-%m-%d"
@@ -221,6 +223,7 @@ case $dataFile in
     *year*)
         timeformat_in="%Y-%m-%d"
         timeformat_out="%Y"
+        xticfreqsetting="set xtics=60*60*24*365"
         ;;
 esac
 
