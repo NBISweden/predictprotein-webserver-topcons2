@@ -55,7 +55,8 @@ function example_fill(){
 var ImgArraySubmitNumJob = [
     "{% static "log/stat/submit_day.stat.txt.numjob.png" %}" ,
     "{% static "log/stat/submit_week.stat.txt.numjob.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numjob.png" %}" 
+    "{% static "log/stat/submit_month.stat.txt.numjob.png" %}" ,
+    "{% static "log/stat/submit_year.stat.txt.numjob.png" %}",
 ];
 function ChangeImgSubmitNumJob(imgPtr) {
     document.getElementById('imgNumJobSubmit').src = ImgArraySubmitNumJob[imgPtr];
@@ -63,7 +64,8 @@ function ChangeImgSubmitNumJob(imgPtr) {
 var ImgArraySubmitNumSeq = [
     "{% static "log/stat/submit_day.stat.txt.numseq.png" %}" ,
     "{% static "log/stat/submit_week.stat.txt.numseq.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numseq.png" %}" 
+    "{% static "log/stat/submit_month.stat.txt.numseq.png" %}",
+    "{% static "log/stat/submit_year.stat.txt.numseq.png" %}",
 ];
 function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
