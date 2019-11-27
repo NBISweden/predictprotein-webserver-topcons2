@@ -215,7 +215,7 @@ case $dataFile in
         timeformat_out="%Y-W%W"
         ;;
     *month*)
-        timeformat_in="%Y-%b"
+        timeformat_in="%Y-%m-%d"
         timeformat_out="%Y-%b"
         ;;
     *year*)
