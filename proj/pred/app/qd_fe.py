@@ -1726,7 +1726,7 @@ def RunStatistics(path_result, path_log):#{{{
                     day_str = submit_date_str.split()[0]
                     (beginning_of_week, end_of_week) = myfunc.week_beg_end(submit_date)
                     week_str = beginning_of_week.strftime("%Y-%m-%d")
-                    month_str = submit_date.strftime("%Y-%b")
+                    month_str = submit_date.replace(day=1).strftime("%Y-%m-%d")
                     year_str = submit_date.year
                     day = int(day_str.replace("-", ""))
                     week = int(submit_date.strftime("%Y%V"))
