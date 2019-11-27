@@ -64,6 +64,9 @@ set style line 21 lt 1 pt 7 ps 2 lc rgb "grey10" lw 2
 set style line 22 lt 1 pt 7 ps 2 lc rgb "grey30" lw 2
 set style line 33 lt 1 pt 7 ps 2 lc rgb "grey50" lw 2
 
+set key autotitle columnhead
+
+
 set title ""
 set xlabel "Number of sequences of jobs"
 set ylabel "$ylabel"

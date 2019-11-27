@@ -1406,6 +1406,7 @@ def RunStatistics(path_result, path_log):#{{{
         sortedlist = sorted(list(dt.items()), key = lambda x:x[0])
         try:
             fpout = open(outfile,"w")
+            fpout.write("%s\t%s\n"%('numseq','count'))
             for j in range(len(sortedlist)):
                 nseq = sortedlist[j][0]
                 count = sortedlist[j][1]
@@ -1469,6 +1470,7 @@ def RunStatistics(path_result, path_log):#{{{
         sortedlist = sorted(list(dt.items()), key = lambda x:x[0])
         try:
             fpout = open(outfile1,"w")
+            fpout.write("%s\t%s\n"%('numseq','time'))
             for j in range(len(sortedlist)):
                 nseq = sortedlist[j][0]
                 li_time = sortedlist[j][1]
@@ -1479,6 +1481,7 @@ def RunStatistics(path_result, path_log):#{{{
             pass
         try:
             fpout = open(outfile2,"w")
+            fpout.write("%s\t%s\n"%('numseq','time'))
             for j in range(len(sortedlist)):
                 nseq = sortedlist[j][0]
                 li_time = sortedlist[j][1]
@@ -1489,6 +1492,7 @@ def RunStatistics(path_result, path_log):#{{{
             pass
         try:
             fpout = open(outfile3,"w")
+            fpout.write("%s\t%s\n"%('numseq','time'))
             for j in range(len(sortedlist)):
                 nseq = sortedlist[j][0]
                 li_time = sortedlist[j][1]
@@ -1649,6 +1653,7 @@ def RunStatistics(path_result, path_log):#{{{
         sortedlist = sorted(li, key=lambda x:x[0])
         try:
             fpout = open(outfile,"w")
+            fpout.write("%s\t%s\n"%('lengthseq','runtime'))
             for j in range(len(sortedlist)):
                 lengthseq = sortedlist[j][0]
                 runtime = sortedlist[j][1]
@@ -1818,6 +1823,7 @@ def RunStatistics(path_result, path_log):#{{{
         li = li_list[i]
         try:
             fpout = open(outfile,"w")
+            fpout.write("%s\t%s\t%s\n"%('Date', 'numjob', 'numseq'))
             for j in range(len(li)):     # name    njob   nseq
                 fpout.write("%s\t%d\t%d\n"%(li[j][0], li[j][1], li[j][2]))
             fpout.close()

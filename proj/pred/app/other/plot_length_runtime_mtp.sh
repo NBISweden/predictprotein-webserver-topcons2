@@ -62,6 +62,8 @@ set style line 11 lt 1 pt 7 ps 2 lc rgb "red" lw 1
 set style line 12 lt 1 pt 7 ps 2 lc rgb "blue" lw 1
 set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 
+set key autotitle columnhead
+
 set title ""
 set xlabel "Length of sequence" 
 set ylabel "Running time (s)"
@@ -126,6 +128,8 @@ set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 set style line 21 lt 1 pt 7 ps 2 lc rgb "grey10" lw 2
 set style line 22 lt 1 pt 7 ps 2 lc rgb "grey30" lw 2
 set style line 33 lt 1 pt 7 ps 2 lc rgb "grey50" lw 2
+
+set key autotitle columnhead
 
 set title ""
 set xlabel "Length of sequence" 
@@ -193,6 +197,8 @@ set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 set style line 21 lt 1 pt 7 ps 2 lc rgb "grey10" lw 2
 set style line 22 lt 1 pt 7 ps 2 lc rgb "grey30" lw 2
 set style line 33 lt 1 pt 7 ps 2 lc rgb "grey50" lw 2
+
+set key autotitle columnhead
 
 set title ""
 set xlabel "Length of sequence" 
