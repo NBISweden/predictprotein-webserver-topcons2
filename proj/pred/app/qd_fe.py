@@ -40,6 +40,7 @@ sys.path.append("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 
 import math
 from libpredweb import myfunc
+from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
 import time
 from datetime import datetime
@@ -1834,7 +1835,7 @@ def RunStatistics(path_result, path_log):#{{{
             #if os.path.basename(outfile).find('day') == -1:
             # extends date time series for missing dates
             freq = webcom.date_range_frequency(os.path.basename(outfile))
-            webcom.extend_data(outfile, value_columns=['numjob', 'numseq'], freq=freq, outfile=outfile)
+            dataprocess.extend_data(outfile, value_columns=['numjob', 'numseq'], freq=freq, outfile=outfile)
             cmd = ["%s/app/other/plot_numsubmit.sh"%(basedir), outfile]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
