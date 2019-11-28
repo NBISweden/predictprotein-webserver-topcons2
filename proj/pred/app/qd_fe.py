@@ -677,7 +677,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 webcom.loginfo("Failed to access %s"%(wsdl_url), gen_errfile)
                 break
 
-            [cnt, maxnum] = cntSubmitJobDict[node]
+            [cnt, maxnum, queue_method] = cntSubmitJobDict[node]
             cnttry = 0
             while cnt < maxnum and iToRun < numToRun:
                 origIndex = int(toRunIndexList[iToRun])
@@ -726,6 +726,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
                     query_para = {}
                     query_para['name_software'] = "topcons2"
+                    query_para['queue_method'] = queue_method
                     para_str = json.dumps(query_para, sort_keys=True)
 
                     try:
@@ -1870,9 +1871,9 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
-        g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
-        num_avail_node = len(avail_computenode_list)
+        avail_computenode = webcom.ReadComputeNode(computenodefile) # return value is a dict
+        g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
+        num_avail_node = len(avail_computenode)
 
         webcom.loginfo("loop %d"%(loop), gen_logfile)
 
@@ -1883,7 +1884,7 @@ def main(g_params):#{{{
         # runjoblogfile
         runjobidlist = myfunc.ReadIDList2(runjoblogfile,0)
         remotequeueDict = {}
-        for node in avail_computenode_list:
+        for node in avail_computenode:
             remotequeueDict[node] = []
         for jobid in runjobidlist:
             rstdir = "%s/%s"%(path_result, jobid)
@@ -1910,14 +1911,15 @@ def main(g_params):#{{{
         # For finished jobs, clean data not used for caching
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
-        for node in avail_computenode_list:
+        for node in avail_computenode:
+            queue_method = avail_computenode[node]['queue_method']
             num_queue_job = len(remotequeueDict[node])
             if num_queue_job >= 0:
                 cntSubmitJobDict[node] = [num_queue_job,
-                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
+                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
             else:
                 cntSubmitJobDict[node] = [g_params['MAX_SUBMIT_JOB_PER_NODE'],
-                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
+                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
 
 # entries in runjoblogfile includes jobs in queue or running
         hdl = myfunc.ReadLineByBlock(runjoblogfile)
