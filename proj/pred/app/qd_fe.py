@@ -1905,7 +1905,7 @@ def main(g_params):#{{{
             RunStatistics(path_result, path_log)
             webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
-            webcom.CleanCachedResult(gen_logfile, gen_errfile)
+            webcom.CleanCachedResult(path_static, gen_logfile, gen_errfile)
 
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
         # For finished jobs, clean data not used for caching
