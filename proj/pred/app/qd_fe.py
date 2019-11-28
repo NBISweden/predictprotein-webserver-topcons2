@@ -775,7 +775,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                     if g_params['DEBUG']:
                         webcom.loginfo("DEBUG: jobid %s processedIndexSet.add(str(%d))\n"%(jobid, origIndex), gen_logfile)
             # update cntSubmitJobDict for this node
-            cntSubmitJobDict[node] = [cnt, maxnum]
+            cntSubmitJobDict[node][0] = cnt
 
     # finally, append submitted_loginfo_list to remotequeue_idx_file 
     if g_params['DEBUG']:
