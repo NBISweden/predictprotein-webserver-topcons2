@@ -11,6 +11,7 @@ use File::Temp;
 use Cwd 'abs_path';
 use File::Basename;
 use POSIX qw(strftime);
+use Data::Dump qw(dump);
 
 use LWP::Simple qw($ua head);
 $ua->timeout(10);
@@ -37,16 +38,19 @@ my $output = "";
 my @to_email_list = ReadList($alert_emaillist_file);
 my @urllist = ReadList($base_www_url_file);
 
-my %computenodelist = ();
+my %computenodelist ;
 open(IN, "<", $computenodelistfile) or die;
 while(<IN>) {
     chomp;
-    if (substr($_, 0, 1) ne '#'){
+    if ($_ && substr($_, 0, 1) ne '#'){
         my @items = split(' ', $_);
-        $computenodelist{$items[0]} = $items[1];
+        $computenodelist{$items[0]}{"numprocess"} = $items[1];
+        $computenodelist{$items[0]}{"queue_method"} = $items[2];
     }
 }
 close IN;
+
+print(dump( %computenodelist)."\n");
 
 foreach $url (@urllist){ 
 # First: check if the $url is accessable
@@ -75,14 +79,19 @@ foreach $url (@urllist){
 # it if blocked
 foreach (sort keys %computenodelist){
     my $computenode = $_;
-    my $max_parallel_job = $computenodelist{$_};
-    print "curl http://$computenode/cgi-bin/clean_blocked_suq.cgi 2>&1 | html2text\n";
-    $output=`curl http://$computenode/cgi-bin/clean_blocked_suq.cgi 2>&1 | html2text`;
-    `curl http://$computenode/cgi-bin/set_suqntask.cgi?ntask=$max_parallel_job `;
-    if ($output =~ /Try to clean the queue/){
-        $title = "[$servername] Cleaning the queue at $computenode";
-        foreach my $to_email(@to_email_list) {
-            sendmail($to_email, $from_email, $title, $output);
+    my $max_parallel_job= $computenodelist{$_}{"numprocess"};
+    my $queue_method=  $computenodelist{$_}{"queue_method"};
+    if ($queue_method eq 'suq'){
+        print "curl http://$computenode/cgi-bin/clean_blocked_suq.cgi 2>&1 | html2text\n";
+        $output=`curl http://$computenode/cgi-bin/clean_blocked_suq.cgi 2>&1 | html2text`;
+        `curl http://$computenode/cgi-bin/set_suqntask.cgi?ntask=$max_parallel_job `;
+        if ($output =~ /Try to clean the queue/){
+            $title = "[$servername] Cleaning the queue at $computenode";
+            foreach my $to_email(@to_email_list) {
+                sendmail($to_email, $from_email, $title, $output);
+            }
         }
+    }else{
+        print("$computenode has slurm queue, no need to clean.\n");
     }
 }
