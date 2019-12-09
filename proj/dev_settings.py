@@ -30,7 +30,7 @@ allowed_host_file = "%s/allowed_host_dev.txt"%(BASE_DIR)
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
 for f in [allowed_host_file, computenodefile]:
     if os.path.exists(f):
-        ALLOWED_HOSTS +=  myfunc.ReadIDList2(computenodefile,col=0)
+        ALLOWED_HOSTS +=  myfunc.ReadIDList2(f,col=0)
 
 # add also the host ip address
 hostip = webcom.get_external_ip()
