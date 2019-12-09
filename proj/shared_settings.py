@@ -130,5 +130,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
 SUPER_USER_LIST = ["admin","nanjiang", "njshu"]
 
