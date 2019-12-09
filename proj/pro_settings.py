@@ -13,6 +13,7 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 
 try:
     from .shared_settings import *
@@ -25,16 +26,13 @@ with open('/etc/django_pro_secret_key.txt') as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-
-ALLOWED_HOSTS = ['localhost', 'topcons.net', 'www.topcons.net', 'topcons.cbr.su.se',  'dev.topcons.net', 'v2.topcons.net', 'beta.topcons.net', '90.147.102.171']
-
+allowed_host_file = "%s/allowd_host_pro.txt"%(BASE_DIR)
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
-if os.path.exists(computenodefile):
-    nodelist = []
-    try:
-        nodelist = myfunc.ReadIDList2(computenodefile,col=0)
-    except:
-        pass
-    ALLOWED_HOSTS += nodelist
+for f in [allowd_host_pro, computenodefile]:
+    if os.path.exists(f):
+        ALLOWED_HOSTS +=  myfunc.ReadIDList2(computenodefile,col=0)
 
+# add also the host ip address
+hostip = webcom.get_external_ip()
+ALLOWED_HOSTS.append(hostip)
 

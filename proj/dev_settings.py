@@ -26,8 +26,15 @@ SECRET_KEY = '5&!cq9#+(_=!ou=mco0=-qrmn6h66o(f)h$ho4+0vo1#d24xdy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
-ALLOWED_HOSTS = [u'localhost', 'dev.topcons.net']
-
 STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
+
+allowed_host_file = "%s/allowd_host_dev.txt"%(BASE_DIR)
+computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
+for f in [allowd_host_pro, computenodefile]:
+    if os.path.exists(f):
+        ALLOWED_HOSTS +=  myfunc.ReadIDList2(computenodefile,col=0)
+
+# add also the host ip address
+hostip = webcom.get_external_ip()
+ALLOWED_HOSTS.append(hostip)
 
