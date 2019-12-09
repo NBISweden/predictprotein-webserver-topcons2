@@ -28,9 +28,9 @@ DEBUG = True
 
 STATIC_ROOT = "%s/pred/static"%(BASE_DIR)
 
-allowed_host_file = "%s/allowd_host_dev.txt"%(BASE_DIR)
+allowed_host_file = "%s/allowed_host_dev.txt"%(BASE_DIR)
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
-for f in [allowd_host_pro, computenodefile]:
+for f in [allowed_host_file, computenodefile]:
     if os.path.exists(f):
         ALLOWED_HOSTS +=  myfunc.ReadIDList2(computenodefile,col=0)
 
