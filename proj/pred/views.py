@@ -105,17 +105,7 @@ g_params['MAX_NUMSEQ_PER_JOB'] = 50000
 g_params['MAX_ALLOWD_NUMSEQ'] = 50000
 g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
 
-
-
-
-
-
 suq_basedir = "/tmp"
-if os.path.exists("/scratch"):
-    suq_basedir = "/scratch"
-elif os.path.exists("/tmp"):
-    suq_basedir = "/tmp"
-rundir = SITE_ROOT
 suq_exec = "/usr/bin/suq";
 
 qd_fe_scriptfile = "%s/qd_fe.py"%(path_app)
@@ -1033,7 +1023,7 @@ def get_serverstatus(request):#{{{
     cmd = [suq_exec, "-b", suq_basedir, "ls"]
     cmdline = " ".join(cmd)
     try:
-        suq_ls_content =  myfunc.check_output(cmd, encoding='UTF-8', stderr=subprocess.STDOUT)
+        suq_ls_content =  subprocess.check_output(cmd, encoding='UTF-8', stderr=subprocess.STDOUT)
         lines = suq_ls_content.split('\n')
         cntjob = 0
         for line in lines:
@@ -1041,8 +1031,7 @@ def get_serverstatus(request):#{{{
                 cntjob += 1
         num_seq_in_local_queue = cntjob
     except subprocess.CalledProcessError as e:
-        date_str = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        myfunc.WriteFile("[%s] %s\n"%(date_str, str(e)), gen_errfile, "a", True)
+        webcom.loginfo("Run '%s' exit with error message: %s"%(cmdline, str(e)), gen_errfile)
 
 # get jobs queued remotely ()
     runjob_dict = {}
