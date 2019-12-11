@@ -32,7 +32,7 @@
 
 <br>
 <p>Predicted signal peptide and TM-helix positions (position starting from 1):</p>
-<div id="tm_list_table" style="width:600;overflow:auto">
+<div id="tm_list_table" style="width:100%;overflow:auto">
 <table cellpadding=2 cellspacing=0 border=0 style="table-layout:fixed; overflow:scroll;">
     {% for method, color, posSP_str, posTM in TMlist %}
         {% if posTM.0 == "***No signal peptide nor TM-regions predicted***" or posTM.0 == "***No homologous TM proteins detected***" %}
