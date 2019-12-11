@@ -1221,9 +1221,10 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         # send the result to email
         if webcom.IsFrontEndNode(base_www_url) and myfunc.IsValidEmailAddress(email):
-            webcom.SendEmail_TOPCONS2(jobid, base_www_url,
-                    finish_status, email, contact_email,
-                    runjob_logfile, runjob_errfile)
+            webcom.SendEmail_on_finish(jobid, base_www_url,
+                    finish_status, name_server="TOPCONS2", from_email="no-reply.topcons@topcons.net",
+                    to_email=email, contact_email=contact_email,
+                    logfile=runjob_logfile, errfile=runjob_errfile)
         webcom.CleanJobFolder_TOPCONS2(rstdir)
 #}}}
 def RunStatistics(path_result, path_log):#{{{
