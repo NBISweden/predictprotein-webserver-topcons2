@@ -388,9 +388,10 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             finish_status = "success"
         else:
             finish_status = "failed"
-        webcom.SendEmail_TOPCONS2(jobid, g_params['base_www_url'],
-                finish_status, email, contact_email,
-                runjob_logfile, runjob_errfile)
+        webcom.SendEmail_on_finish(jobid, g_params['base_www_url'],
+                finish_status, name_server="TOPCONS2", from_email="no-reply.TOPCONS@topcons.net",
+                to_email=email, contact_email=contact_email,
+                logfile=runjob_logfile, errfile=runjob_errfile)
 
     if os.path.exists(runjob_errfile) and os.path.getsize(runjob_errfile) > 1:
         return 1
