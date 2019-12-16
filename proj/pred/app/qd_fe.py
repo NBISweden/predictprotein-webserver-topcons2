@@ -839,7 +839,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         else:
                             date_str = time.strftime(g_params['FORMAT_DATETIME'])
                             msg = "bad wsdl return value"
-                            myfunc.WriteFile("[%s] %s\n"%(date_str), gen_errfile, "a", True)
+                            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded on node %s\n"%(node), gen_logfile, "a", True)
