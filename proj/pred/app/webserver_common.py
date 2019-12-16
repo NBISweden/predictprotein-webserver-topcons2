@@ -1006,3 +1006,8 @@ def CleanCachedResult(logfile, errfile):#{{{
     cmd = [python_exec, "%s/clean_cached_result.py"%(rundir), "-max-keep-day", "480"]
     RunCmd(cmd, logfile, errfile)
 #}}}
+def loginfo(msg, outfile):# {{{
+    """Write loginfo to outfile, appending current time"""
+    date_str = time.strftime(FORMAT_DATETIME)
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), outfile, "a", True)
+# }}}
