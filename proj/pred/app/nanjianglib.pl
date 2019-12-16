@@ -6,12 +6,12 @@ use Time::Local;
 use POSIX qw(strftime);
 $ENV{'TZ'} = 'Europe/Stockholm';
 
-my $rundir = dirname(abs_path( __FILE__ ));
-my $progname = basename(__FILE__);
+my $FORMAT_DATETIME = '%Y-%m-%d %H:%M:%S %Z';
+
 
 sub exec_cmd{#{{{ #debug nanjiang
     # write the date and content of the command and then execute the command
-    my $date = strftime "%Y-%m-%d %H:%M:%S", localtime;
+    my $date = strftime "$FORMAT_DATETIME", localtime;
     print "[$date] @_"."\n";
     system( "@_");
 }#}}}
@@ -45,10 +45,29 @@ sub WriteFile{ #content, outfile#{{{
     print OUT $content;
     close(OUT);
 }#}}}
+sub ReadList{ #infile#{{{
+    #Description: Read content of file into list, line by line
+    #usage: my @mylist = ReadList(infile);
+    my $infile = shift;
+    my @list=();
+    if (-e $infile && -r _ ){
+        open (IN, "<", "$infile");
+        while (<IN>){
+            chomp;
+            if ($_){
+                push @list, $_;
+            }
+        }
+        close(IN);
+    }else{
+        print("File '$infile' does not exists or not readable. return empty list.\n");
+    }
+    return @list;
+}#}}}
 sub WriteDateTagFile{ #outfile #{{{
     # Write the current date to outfile
     my $outfile = shift;
-    my $date = strftime "%Y-%m-%d %H:%M:%S", localtime;
+    my $date = strftime "$FORMAT_DATETIME", localtime;
     WriteFile($date, $outfile);
 }#}}}
 sub ReadContent{#infile#{{{

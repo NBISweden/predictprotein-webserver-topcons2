@@ -745,7 +745,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_errfile, "a", True)
                 break
 
-            [cnt, maxnum] = cntSubmitJobDict[node]
+            [cnt, maxnum, queue_method] = cntSubmitJobDict[node]
             cnttry = 0
             while cnt < maxnum and iToRun < numToRun:
                 origIndex = int(toRunIndexList[iToRun])
@@ -797,6 +797,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
                     query_para = {}
                     query_para['name_software'] = "topcons2"
+                    query_para['queue_method'] = queue_method
+                    if (queue_method == 'slurm'):
+                        query_para['name_software'] = "singularity_topcons2"
                     para_str = json.dumps(query_para, sort_keys=True)
 
                     try:
@@ -849,7 +852,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                     if g_params['DEBUG']:
                         myfunc.WriteFile("g_params['DEBUG']: jobid %s processedIndexSet.add(str(%d))\n"%(jobid, origIndex), gen_logfile, "a", True)
             # update cntSubmitJobDict for this node
-            cntSubmitJobDict[node] = [cnt, maxnum]
+            cntSubmitJobDict[node][0] = cnt
 
     # finally, append submitted_loginfo_list to remotequeue_idx_file 
     if g_params['DEBUG']:
@@ -1973,9 +1976,9 @@ def main(g_params):#{{{
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
-        avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
+        avail_computenode = webcom.ReadComputeNode(computenodefile) # return value is a dict
         g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
-        num_avail_node = len(avail_computenode_list)
+        num_avail_node = len(avail_computenode)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
         else:
@@ -1988,7 +1991,7 @@ def main(g_params):#{{{
         # runjoblogfile
         runjobidlist = myfunc.ReadIDList2(runjoblogfile,0)
         remotequeueDict = {}
-        for node in avail_computenode_list:
+        for node in avail_computenode:
             remotequeueDict[node] = []
         for jobid in runjobidlist:
             rstdir = "%s/%s"%(path_result, jobid)
@@ -2017,13 +2020,14 @@ def main(g_params):#{{{
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
         for node in avail_computenode_list:
             #num_queue_job = GetNumSuqJob(node)
+            queue_method = avail_computenode[node]['queue_method']
             num_queue_job = len(remotequeueDict[node])
             if num_queue_job >= 0:
                 cntSubmitJobDict[node] = [num_queue_job,
-                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
+                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
             else:
                 cntSubmitJobDict[node] = [g_params['MAX_SUBMIT_JOB_PER_NODE'],
-                        g_params['MAX_SUBMIT_JOB_PER_NODE']] #[num_queue_job, max_allowed_job]
+                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
 
 # entries in runjoblogfile includes jobs in queue or running
         hdl = myfunc.ReadLineByBlock(runjoblogfile)
