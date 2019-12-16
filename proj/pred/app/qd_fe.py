@@ -2018,7 +2018,7 @@ def main(g_params):#{{{
         # For finished jobs, clean data not used for caching
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
-        for node in avail_computenode_list:
+        for node in avail_computenode:
             #num_queue_job = GetNumSuqJob(node)
             queue_method = avail_computenode[node]['queue_method']
             num_queue_job = len(remotequeueDict[node])
