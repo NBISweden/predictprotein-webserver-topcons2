@@ -174,7 +174,7 @@ def GetNumSuqJob(node):#{{{
 #}}}
 def IsHaveAvailNode(cntSubmitJobDict):#{{{
     for node in cntSubmitJobDict:
-        [num_queue_job, max_allowed_job] = cntSubmitJobDict[node]
+        [num_queue_job, max_allowed_job, queue_method] = cntSubmitJobDict[node]
         if num_queue_job < max_allowed_job:
             return True
     return False
