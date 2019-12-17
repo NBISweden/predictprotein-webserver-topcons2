@@ -28,6 +28,7 @@ cd $path_result
 rstdirlist=$(find . -maxdepth 1 -type d   -name "rst_*" )
 
 for rstdir in $rstdirlist; do
+    rstdir=`basename $rstdir`
     seqfolderlist=$(find $rstdir/$rstdir -maxdepth 3 -name "seq_*" -type d )
     for seqfolder in $seqfolderlist; do
         topfile=$seqfolder/Topcons/topcons.top
