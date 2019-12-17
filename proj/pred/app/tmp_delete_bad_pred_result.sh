@@ -35,11 +35,11 @@ for rstdir in $rstdirlist; do
         fafile=$seqfolder/seq.fa
         if [  ! -s $topfile ];then
             echo "rm -rf $seqfolder"
+            md5key=`awk '/^[^>]/ {printf ("%s", $1)}' $fafile | md5sum | awk '{print $1}'`
+            sizekey=${#md5key}
             if [ $isDryRun -eq 0 ];then
                 rm -rf $seqfolder
             fi
-            md5key=`awk '/^[^>]/ {printf ("%s", $1)}' $fafile | md5sum | awk '{print $1}'`
-            sizekey=${#md5key}
             if [ $sizekey -gt 2 ];then
                 cachefile=$path_cache/${md5key:0:2}/$md5key.zip
                 echo "rm -f $cachefile"
