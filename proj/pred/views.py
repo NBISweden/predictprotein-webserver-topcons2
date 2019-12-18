@@ -842,7 +842,7 @@ def download(request):#{{{
 
 def get_results(request, jobid="1"):#{{{
     resultdict = {}
-    set_basic_config(request, resultdict)
+    webcom.set_basic_config(request, resultdict, g_params)
 
     #img1 = "%s/%s/%s/%s"%(SITE_ROOT, "result", jobid, "PconsC2.s400.jpg")
     #url_img1 =  serve(request, os.path.basename(img1), os.path.dirname(img1))
@@ -1194,7 +1194,7 @@ def get_results(request, jobid="1"):#{{{
 #}}}
 def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict = {}
-    set_basic_config(request, resultdict)
+    webcom.set_basic_config(request, resultdict, g_params)
 
     resultdict['isAllNonTM'] = True
 
