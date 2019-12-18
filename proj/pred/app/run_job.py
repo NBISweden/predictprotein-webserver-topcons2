@@ -205,7 +205,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                         checkfile = "%s/Topcons/topcons.png"%(outpath_this_seq)
                         fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
                         if os.path.exists(outpath_this_seq) and os.path.exists(checkfile):
-                            myfunc.WriteFile('>%s\n%s\n'%(rd.description, rd.seq, fafile_this_seq, 'w', True))
+                            myfunc.WriteFile('>%s\n%s\n'%(rd.description, rd.seq), fafile_this_seq, 'w', True)
                             info_finish = webcom.GetInfoFinish_TOPCONS2(outpath_this_seq,
                                     cnt, len(rd.seq), rd.description,
                                     source_result="cached", runtime=0.0)
