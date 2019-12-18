@@ -1075,8 +1075,11 @@ def GetResult(jobid):#{{{
                             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
                             checkfile = "%s/Topcons/topcons.png"%(outpath_this_seq)
+                            fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
                             if os.path.exists(outpath_this_seq) and os.path.exists(checkfile):
                                 isSuccess = True
+                                # relpace the seq.fa with original description
+                                myfunc.WriteFile('>%s\n%s\n'%(description, seq), fafile_this_seq, 'w', True)
 
                             if isSuccess:
                                 # delete the data on the remote server
