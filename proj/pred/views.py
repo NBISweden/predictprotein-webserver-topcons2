@@ -363,11 +363,10 @@ def RunQuery(request, query):#{{{
 
 
     # for single sequence job submitted via web interface, submit to local
-    # queue
+    # queue, but only for getting cached result
     if query['numseq'] <= 1:
-# Note 2015-06-05, suq ls failed randomly if called frequently, disable it
         query['numseq_this_user'] = 1
-        SubmitQueryToLocalQueue(query, tmpdir, rstdir)
+        SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=True)
 
     forceruntagfile = "%s/forcerun"%(rstdir)
     if query['isForceRun']:
@@ -438,7 +437,7 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
     else:
         return jobid
 #}}}
-def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
+def SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=False):#{{{
     scriptfile = "%s/app/submit_job_to_queue.py"%(SITE_ROOT)
     rstdir = "%s/%s"%(path_result, query['jobid'])
     debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
@@ -457,6 +456,8 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
         cmd += ["-host", query['client_ip']]
     if query['isForceRun']:
         cmd += ["-force"]
+    if isOnlyGetCache:
+        cmd += ["-only-get-cache"]
 
     (isSuccess, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
     if not isSuccess:
@@ -464,7 +465,6 @@ def SubmitQueryToLocalQueue(query, tmpdir, rstdir):#{{{
         return 1
     else:
         return 0
-
 #}}}
 
 def thanks(request):#{{{
