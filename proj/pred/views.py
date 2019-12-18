@@ -109,6 +109,7 @@ g_params['STATIC_URL'] = settings.STATIC_URL
 g_params['SUPER_USER_LIST'] = settings.SUPER_USER_LIST
 g_params['path_static'] = path_static
 g_params['path_stat'] = path_stat
+g_params['SITE_ROOT'] = SITE_ROOT
 
 suq_basedir = "/tmp"
 suq_exec = "/usr/bin/suq";
@@ -444,27 +445,15 @@ def get_failed_job(request):# {{{
     return render(request, 'pred/failed_job.html', info)
 # }}}
 
-def get_help(request):#{{{
-    info = {}
-    webcom.set_basic_config(request, info, g_params)
-    configfile = "%s/config/config.json"%(SITE_ROOT)
-    config = {}
-    if os.path.exists(configfile):
-        text = myfunc.ReadFile(configfile)
-        config = json.loads(text)
-    try:
-        MAX_KEEP_DAYS = config['qd_fe']['MAX_KEEP_DAYS']
-    except KeyError:
-        MAX_KEEP_DAYS = 30
-        pass
-    info['MAX_KEEP_DAYS'] = MAX_KEEP_DAYS
-    info['jobcounter'] = webcom.GetJobCounter(info)
-    return render(request, 'pred/help.html', info)
-#}}}
 def get_countjob_country(request):# {{{
     info = webcom.get_countjob_country(request, g_params)
     return render(request, 'pred/countjob_country.html', info)
 # }}}
+def get_help(request):# {{{
+    info = webcom.get_help(request, g_params)
+    return render(request, 'pred/help.html', info)
+# }}}
+
 def get_news(request):#{{{
     info = {}
     webcom.set_basic_config(request, info, g_params)
