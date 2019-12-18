@@ -320,7 +320,7 @@ def RunQuery(request, query):#{{{
 
     # for single sequence job submitted via web interface, submit to local
     # queue
-    if query['numseq'] <= 1:
+    if query['numseq'] <= 5:
 # Note 2015-06-05, suq ls failed randomly if called frequently, disable it
         query['numseq_this_user'] = 1
         SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=True)
