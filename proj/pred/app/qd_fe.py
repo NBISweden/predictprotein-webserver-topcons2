@@ -973,8 +973,8 @@ def GetResult(jobid):#{{{
                     isFinish_remote = True
                     outfile_zip = "%s/%s.zip"%(tmpdir, remote_jobid)
                     isRetrieveSuccess = False
-                    myfunc.WriteFile("\tFetching result for %s "%(result_url),
-                            gen_logfile, "a", True)
+                    myfunc.WriteFile("\tFetching result for seq %d from %s "%(
+                        origIndex,result_url), gen_logfile, "a", True)
                     if myfunc.IsURLExist(result_url,timeout=5):
                         try:
                             urllib.request.urlretrieve (result_url, outfile_zip)
