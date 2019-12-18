@@ -461,40 +461,10 @@ def get_help(request):#{{{
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/help.html', info)
 #}}}
-def get_countjob_country(request):#{{{
-    info = {}
-    webcom.set_basic_config(request, info, g_params)
-
-    countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
-    lines = myfunc.ReadFile(countjob_by_country).split("\n")
-    li_countjob_country = []
-    for line in lines: 
-        if not line or line[0]=="#":
-            continue
-        strs = line.split("\t")
-        if len(strs) >= 4:
-            country = strs[0]
-            try:
-                numseq = int(strs[1])
-            except:
-                numseq = 0
-            try:
-                numjob = int(strs[2])
-            except:
-                numjob = 0
-            try:
-                numip = int(strs[3])
-            except:
-                numip = 0
-            li_countjob_country.append([country, numseq, numjob, numip])
-    li_countjob_country_header = ["Country", "Numseq", "Numjob", "NumIP"]
-
-    info['li_countjob_country'] = li_countjob_country
-    info['li_countjob_country_header'] = li_countjob_country_header
-
-    info['jobcounter'] = webcom.GetJobCounter(info)
+def get_countjob_country(request):# {{{
+    info = webcom.get_countjob_country(request, g_params)
     return render(request, 'pred/countjob_country.html', info)
-#}}}
+# }}}
 def get_news(request):#{{{
     info = {}
     webcom.set_basic_config(request, info, g_params)
