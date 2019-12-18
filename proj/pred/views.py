@@ -46,6 +46,7 @@ rootname_progname = os.path.splitext(progname)[0]
 path_app = "%s/app"%(SITE_ROOT)
 if not path_app in sys.path:
     sys.path.append(path_app)
+path_static = "%s/static"%(SITE_ROOT)
 path_log = "%s/static/log"%(SITE_ROOT)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
@@ -104,6 +105,10 @@ g_params['MAXSIZE_UPLOAD_FILE_IN_BYTE']  = g_params['MAXSIZE_UPLOAD_FILE_IN_MB']
 g_params['MAX_NUMSEQ_PER_JOB'] = 50000
 g_params['MAX_ALLOWD_NUMSEQ'] = 50000
 g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+g_params['STATIC_URL'] = settings.STATIC_URL
+g_params['SUPER_USER_LIST'] = settings.SUPER_USER_LIST
+g_params['path_static'] = path_static
+g_params['path_stat'] = path_stat
 
 suq_basedir = "/tmp"
 suq_exec = "/usr/bin/suq";
