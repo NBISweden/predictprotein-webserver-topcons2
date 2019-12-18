@@ -1073,7 +1073,8 @@ def GetResult(jobid):#{{{
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
                             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
-                            if os.path.exists(outpath_this_seq):
+                            checkfile = "%s/Topcons/topcons.png"%(outpath_this_seq)
+                            if os.path.exists(outpath_this_seq) and os.path.exists(checkfile):
                                 isSuccess = True
 
                             if isSuccess:
