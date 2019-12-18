@@ -106,6 +106,7 @@ path_log = "%s/static/log"%(basedir)
 path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(basedir)
 path_cache = "%s/static/result/cache"%(basedir)
+name_cachedir = 'cache'
 computenodefile = "%s/config/computenode.txt"%(basedir)
 vip_email_file = "%s/config/vip_email.txt"%(basedir) 
 blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
@@ -1915,7 +1916,7 @@ def main(g_params):#{{{
             RunStatistics(path_result, path_log)
             webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
-            webcom.CleanCachedResult(path_static, gen_logfile, gen_errfile)
+            webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
 
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
         # For finished jobs, clean data not used for caching
