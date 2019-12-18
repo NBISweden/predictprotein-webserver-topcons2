@@ -129,49 +129,6 @@ from proj.pred.models import SubmissionForm
 from proj.pred.models import FieldContainer
 from django.template import Context, loader
 
-def set_basic_config(request, info):# {{{
-    """Set basic configurations for the template dict"""
-    username = request.user.username
-    client_ip = request.META['REMOTE_ADDR']
-    if username in settings.SUPER_USER_LIST:
-        isSuperUser = True
-        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log", "submitted_seq.log")
-        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log", "failed_job.log")
-    else:
-        isSuperUser = False
-        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log/divided", "%s_submitted_seq.log"%(client_ip))
-        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
-                "static/log/divided", "%s_failed_job.log"%(client_ip))
-
-    if isSuperUser:
-        info['MAX_DAYS_TO_SHOW'] = g_params['BIG_NUMBER']
-    else:
-        info['MAX_DAYS_TO_SHOW'] = g_params['MAX_DAYS_TO_SHOW']
-
-
-    info['username'] = username
-    info['isSuperUser'] = isSuperUser
-    info['divided_logfile_query'] = divided_logfile_query
-    info['divided_logfile_finished_jobid'] = divided_logfile_finished_jobid
-    info['client_ip'] = client_ip
-    info['BASEURL'] = g_params['BASEURL']
-    info['STATIC_URL'] = settings.STATIC_URL
-    info['path_result'] = path_result
-# }}}
-def SetColorStatus(status):#{{{
-    if status == "Finished":
-        return "green"
-    elif status == "Failed":
-        return "red"
-    elif status == "Running":
-        return "blue"
-    else:
-        return "black"
-#}}}
-
 def index(request):#{{{
     if not os.path.exists(path_result):
         os.mkdir(path_result, 0o755)
@@ -199,7 +156,7 @@ def index(request):#{{{
 #}}}
 def submit_seq(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -324,7 +281,7 @@ def submit_seq(request):#{{{
 def login(request):#{{{
     #logout(request)
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/login.html', info)
 #}}}
@@ -489,7 +446,7 @@ def get_failed_job(request):# {{{
 
 def get_help(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     configfile = "%s/config/config.json"%(SITE_ROOT)
     config = {}
     if os.path.exists(configfile):
@@ -506,7 +463,7 @@ def get_help(request):#{{{
 #}}}
 def get_countjob_country(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
     lines = myfunc.ReadFile(countjob_by_country).split("\n")
@@ -540,7 +497,7 @@ def get_countjob_country(request):#{{{
 #}}}
 def get_news(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     newsfile = "%s/%s/%s"%(SITE_ROOT, "static/doc", "news.txt")
     newsList = []
@@ -553,13 +510,13 @@ def get_news(request):#{{{
 #}}}
 def get_reference(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/reference.html', info)
 #}}}
 def get_serverstatus(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     logfile_finished =  "%s/%s/%s"%(SITE_ROOT, "static/log", "finished_job.log")
     logfile_runjob =  "%s/%s/%s"%(SITE_ROOT, "static/log", "runjob_log.log")
@@ -818,7 +775,7 @@ def get_serverstatus(request):#{{{
 #}}}
 def get_example(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/example.html', info)
 #}}}
@@ -828,7 +785,7 @@ def oldtopcons(request):#{{{
 #}}}
 def help_wsdl_api(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
     info['jobcounter'] = webcom.GetJobCounter(info)
     api_script_rtname =  "topcons2_wsdl"
     extlist = [".py"]
@@ -855,7 +812,7 @@ def help_wsdl_api(request):#{{{
 #}}}
 def download(request):#{{{
     info = {}
-    set_basic_config(request, info)
+    webcom.set_basic_config(request, info, g_params)
 
     info['zipfile_wholepackage'] = ""
     info['zipfile_database'] = ""
@@ -1012,7 +969,7 @@ def get_results(request, jobid="1"):#{{{
                 if isValidSubmitDate:
                     queuetime = myfunc.date_diff(submit_date, current_time)
 
-    color_status = SetColorStatus(status)
+    color_status = webcom.SetColorStatus(status)
 
     file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
     seqwarninfo = ""
