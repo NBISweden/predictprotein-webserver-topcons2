@@ -638,6 +638,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
 
                     if os.path.exists(outpath_this_seq):
+                        fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
+                        myfunc.WriteFile('>%s\n%s\n'%(seqAnnoList[i], seqList[i]), fafile_this_seq, 'w', True)
                         if not os.path.exists(starttagfile): #write start tagfile
                             webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 
