@@ -571,8 +571,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             shutil.rmtree(outpath_this_seq)
                         shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
 
-
-                    if os.path.exists(outpath_this_seq):
+                    checkfile = "%s/Topcons/topcons.png"%(outpath_this_seq)
+                    fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
+                    if os.path.exists(outpath_this_seq) and os.path.exists(checkfile)::
+                        myfunc.WriteFile('>%s\n%s\n'%(seqAnnoList[i], seqList[i]), fafile_this_seq, 'w', True)
                         if not os.path.exists(starttagfile): #write start tagfile
                             webcom.WriteDateTimeTagFile(starttagfile, runjob_logfile, runjob_errfile)
 
@@ -994,7 +996,11 @@ def GetResult(jobid):#{{{
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
                             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
-                            if os.path.exists(outpath_this_seq):
+                            checkfile = "%s/Topcons/topcons.png"%(outpath_this_seq)
+                            fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
+                            if os.path.exists(outpath_this_seq) and os.path.exists(checkfile):
+                                # relpace the seq.fa with original description
+                                myfunc.WriteFile('>%s\n%s\n'%(description, seq), fafile_this_seq, 'w', True)
                                 isSuccess = True
 
                             if isSuccess:
