@@ -778,12 +778,13 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         seqid = allseqidlist[origIndex]
                         seqanno = allannolist[origIndex]
                         seq = allseqlist[origIndex]
-                        fastaseq = ">%s\n%s\n"%(seqanno, seq)
+                        #fastaseq = ">%s\n%s\n"%(seqanno, seq)
+                        fastaseq = ">%s\n%s\n"%('query', seq)
                     except:
                         pass
                 else:
-                    fastaseq = myfunc.ReadFile(seqfile_this_seq)#seq text in fasta format
                     (seqid, seqanno, seq) = myfunc.ReadSingleFasta(seqfile_this_seq)
+                    fastaseq = ">%s\n%s\n"%('query', seq)
 
 
                 isSubmitSuccess = False
