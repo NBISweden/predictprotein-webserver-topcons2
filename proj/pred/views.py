@@ -453,20 +453,11 @@ def get_help(request):# {{{
     info = webcom.get_help(request, g_params)
     return render(request, 'pred/help.html', info)
 # }}}
-
-def get_news(request):#{{{
-    info = {}
-    webcom.set_basic_config(request, info, g_params)
-
-    newsfile = "%s/%s/%s"%(SITE_ROOT, "static/doc", "news.txt")
-    newsList = []
-    if os.path.exists(newsfile):
-        newsList = myfunc.ReadNews(newsfile)
-    info['newsList'] = newsList
-    info['newsfile'] = newsfile
-    info['jobcounter'] = webcom.GetJobCounter(info)
+def get_news(request):# {{{
+    info = webcom.get_news(request, g_params)
     return render(request, 'pred/news.html', info)
-#}}}
+# }}}
+
 def get_reference(request):#{{{
     info = {}
     webcom.set_basic_config(request, info, g_params)
