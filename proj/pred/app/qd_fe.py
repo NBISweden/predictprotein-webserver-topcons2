@@ -1933,48 +1933,34 @@ def main(g_params):#{{{
                         g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
 
 # entries in runjoblogfile includes jobs in queue or running
-        hdl = myfunc.ReadLineByBlock(runjoblogfile)
-        if not hdl.failure:
-            lines = hdl.readlines()
-            while lines != None:
-                for line in lines:
-                    strs = line.split("\t")
-                    if len(strs) >= 11:
-                        jobid = strs[0]
-                        email = strs[4]
-                        try:
-                            numseq = int(strs[5])
-                        except:
-                            numseq = 1
-                            pass
-                        try:
-                            numseq_this_user = int(strs[10])
-                        except:
-                            numseq_this_user = 1
-                            pass
-                        method_submission = strs[6]
-                        rstdir = "%s/%s"%(path_result, jobid)
-                        status = strs[1]
-                        webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
+        dt_runjoblog = myfunc.ReadRunJobLog(runjoblogfile)
+        reordered_runjobidlist = runjobidlist
+        # randomize the order of runjob some time, give some big jobs also a
+        # chance to run
+        if (loop % g_params['RAND_RUNJOB_ORDER_FREQ'][0] == g_params['RAND_RUNJOB_ORDER_FREQ'][1]):
+            random.shuffle(reordered_runjobidlist)
 
-                        runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
-                        if os.path.exists(runjob_lockfile):
-                            msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
-                            webcom.loginfo(msg, gen_logfile)
-                            continue
+        for jobid in reordered_runjobidlist:
+            [status_this_job, jobname, ip, email, numseq, method_submission,
+                    submit_date_str, start_date_str, finish_date_str,
+                    total_numseq_of_user, priority] = dt_runjoblog[jobid]
+            rstdir = "%s/%s"%(path_result, jobid)
+            webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
+            runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
+            if os.path.exists(runjob_lockfile):
+                msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
+                webcom.loginfo(msg, gen_logfile)
+                continue
+            if (webcom.IsHaveAvailNode(cntSubmitJobDict) 
+                    or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
+                        and method_submission == "web")
+                    or not webcom.IsCacheProcessingFinished(rstdir)
+                    ):
+                if not g_params['DEBUG_NO_SUBMIT']:
+                    SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
+            GetResult(jobid) # the start tagfile is written when got the first result
+            CheckIfJobFinished(jobid, numseq, email)
 
-                        if (webcom.IsHaveAvailNode(cntSubmitJobDict) 
-                                or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
-                                    and method_submission == "web")
-                                or not webcom.IsCacheProcessingFinished(rstdir)
-                                ):
-                            if not g_params['DEBUG_NO_SUBMIT']:
-                                SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
-                        GetResult(jobid) # the start tagfile is written when got the first result
-                        CheckIfJobFinished(jobid, numseq, email)
-
-                lines = hdl.readlines()
-            hdl.close()
 
         webcom.loginfo("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile)
         time.sleep(g_params['SLEEP_INTERVAL'])
@@ -1999,6 +1985,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
     g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     g_params['STATUS_UPDATE_FREQUENCY'] = [800, 50]  # updated by if loop%$1 == $2
+    g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     return g_params
 #}}}
