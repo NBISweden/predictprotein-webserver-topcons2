@@ -1944,6 +1944,7 @@ def main(g_params):#{{{
             [status_this_job, jobname, ip, email, numseq, method_submission,
                     submit_date_str, start_date_str, finish_date_str,
                     total_numseq_of_user, priority] = dt_runjoblog[jobid]
+            numseq_this_user = total_numseq_of_user
             rstdir = "%s/%s"%(path_result, jobid)
             webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
             runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
