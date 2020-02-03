@@ -14,6 +14,13 @@
 # <TITLE>  Tab news added
 # <CONTENT>  Now you can browse statistics of jobs
 
+<DATE>  2020-02-03
+<TITLE>  Topcons2 database updated
+<CONTENT>  The topcons2 database has been updated to Pfam32.0. Please use the
+latestd TOPCONS2 software or docker/singularity containers to run with the
+updated database. The updated database is about 30% in size compared to the
+old database.
+
 <DATE>  2018-09-13
 <TITLE>  Set the maximum number of sequences per query
 <CONTENT>  To avoid the problem of extremely large jobs, we have set the
