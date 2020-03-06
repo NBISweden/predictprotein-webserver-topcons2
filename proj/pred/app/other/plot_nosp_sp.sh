@@ -1,12 +1,12 @@
 #!/bin/bash
-# draw histogram of numjob vs numseq_of_job
+# draw histogram of noSP and withSP
 # #
 progname=`basename $0`
 usage="
 Usage: $progname datafile
 
 Description:
-    Draw histogram of numjob vs numseq_of_job (X axis)
+    Draw histogram of predictions without SP and with SP
 
 Options:
     -format  STR     Set the format of output, (default: eps)
@@ -62,7 +62,7 @@ set output '$outfile'
     esac
 
 
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
 set style line 2 lt 1 pt 7 ps 1 lc rgb "blue" lw 1
@@ -73,19 +73,23 @@ set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 
 
 set title ""
-set xlabel "Number of sequences of jobs" 
-set ylabel "Number of jobs"
-set style data linespoints
-set logscale x
-set logscale y
-plot "$dataFile" using 1:2 ls $linestyle1 title "$keytitle"
+set xlabel "" 
+set ylabel "Number of sequences"
+set y2label "Percentages"
+set y2tics 20 nomirror
+set style data histograms
+set style fill solid 0.9 border -1
+set yrange[0:$totalcount]
+set y2range[0:100]
+set grid y
+plot "$dataFile" using 2:xtic(1) ls 2 notitle
 
 EOF
 
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
@@ -129,9 +133,10 @@ if [ ! -f "$dataFile" ]; then
 fi
 
 osname=`uname -s`
-eps2pdf=eps2pdf
+eps2pdf=epstopdf
 case $osname in 
     *Darwin*) eps2pdf=epstopdf;;
-    *Linux*) eps2pdf=eps2pdf;;
+    *Linux*) eps2pdf=epstopdf;;
 esac
+totalcount=`awk -F "\t" 'BEGIN{sum=0} {sum+=$2}END{print sum}' $dataFile`
 Makeplot $dataFile

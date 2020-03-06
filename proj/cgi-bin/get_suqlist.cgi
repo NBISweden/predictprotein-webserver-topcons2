@@ -15,7 +15,7 @@ my $logpath = "$basedir/static/log";
 my $errfile = "$logpath/$progname.err";
 my $auth_ip_file = "$basedir/config/auth_iplist.txt";#ip address which allows to run cgi script
 my $suq = "/usr/bin/suq";
-my $suqbase = "/scratch";
+my $suqbase = "/tmp";
 
 print header();
 print start_html(-title => "get suq list",

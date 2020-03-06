@@ -1,12 +1,12 @@
 #!/bin/bash
-# draw histogram of noSP and withSP
+# plot average waittime (finish time) vs numseq_in_job
 # #
 progname=`basename $0`
 usage="
 Usage: $progname datafile
 
 Description:
-    Draw histogram of predictions without SP and with SP
+plot average (or median) waiting time (or finish time) vs numseq_in_job
 
 Options:
     -format  STR     Set the format of output, (default: eps)
@@ -26,8 +26,8 @@ if [ $# -lt 1 ]; then
     exit
 fi
 
+
 Makeplot(){ #dataFile#{{{
-    local dataFile=$1
     local basename=`basename "$dataFile"` 
     local outputSetting=
     case $outputStyle in
@@ -50,53 +50,44 @@ set output '$outfile'
         "
         ;;
     esac
-    case $dataFile in
-        *web*)
-            linestyle1=1
-            keytitle=Web
-            ;;
-        *wsdl*)
-            linestyle1=2
-            keytitle=WSDL
-            ;;
-    esac
 
 
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
-set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
-set style line 2 lt 1 pt 7 ps 1 lc rgb "blue" lw 1
-set style line 3 lt 1 pt 7 ps 1 lc rgb "green" lw 1
+set style line 1 lt 1 pt 0 ps 0 lc rgb "red" lw 2
+set style line 2 lt 1 pt 0 ps 0 lc rgb "blue" lw 2
+set style line 3 lt 1 pt 0 ps 0 lc rgb "green" lw 2
 set style line 11 lt 1 pt 7 ps 2 lc rgb "red" lw 1
 set style line 12 lt 1 pt 7 ps 2 lc rgb "blue" lw 1
 set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
+set style line 21 lt 1 pt 7 ps 2 lc rgb "grey10" lw 2
+set style line 22 lt 1 pt 7 ps 2 lc rgb "grey30" lw 2
+set style line 33 lt 1 pt 7 ps 2 lc rgb "grey50" lw 2
+
+set key autotitle columnhead
 
 
 set title ""
-set xlabel "" 
-set ylabel "Number of sequences"
-set y2label "Percentages"
-set y2tics 20 nomirror
-set style data histograms
-set style fill solid 0.9 border -1
-set yrange[0:$totalcount]
-set y2range[0:100]
-set grid y
-plot "$dataFile" using 2:xtic(1) ls 2 notitle
+set xlabel "Number of sequences of jobs"
+set ylabel "$ylabel"
+set key left spacing 1.25
+set style data points
+set logscale x
+set logscale y
+plot "$dataFile"   using 1:2 ls $linestyle title "$keytitle" with lines
 
 EOF
 
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
     esac
 }
 #}}}
-
 
 outputStyle=eps
 outpath=
@@ -133,10 +124,29 @@ if [ ! -f "$dataFile" ]; then
 fi
 
 osname=`uname -s`
-eps2pdf=eps2pdf
+eps2pdf=epstopdf
 case $osname in 
     *Darwin*) eps2pdf=epstopdf;;
-    *Linux*) eps2pdf=eps2pdf;;
+    *Linux*) eps2pdf=epstopdf;;
 esac
-totalcount=`awk -F "\t" 'BEGIN{sum=0} {sum+=$2}END{print sum}' $dataFile`
+
+case $dataFile in 
+    *waittime*)
+        ylabel="Waiting time (s)"
+        linestyle=1
+        ;;
+    *finishtime*)
+        ylabel="Total time to finish the job (s)"
+        linestyle=2
+        ;;
+esac
+case $dataFile in 
+    *avg*)
+        keytitle=Average
+        ;;
+    *median*)
+        keytitle=Median
+        ;;
+esac
+
 Makeplot $dataFile

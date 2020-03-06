@@ -11,7 +11,7 @@ import subprocess
 import platform
 import pwd
 import grp
-import myfunc
+from libpredweb import myfunc
 import hashlib
 
 usage="""
@@ -25,12 +25,12 @@ MODE is md5, result, all
 """%(sys.argv[0])
 
 if len(sys.argv) < 2:
-    print usage
+    print(usage)
     sys.exit(1)
 
 mode = sys.argv[1]
 
-print "Running mode = ",mode
+print("Running mode = ",mode)
 
 
 basedir = "/var/www/html/topcons2/proj/pred/"
@@ -84,10 +84,10 @@ def MoveCache_mode_md5(md5_key, sub_md5_name):#{{{
             try:
                 subprocess.check_call(cmd)
                 isMoveSuccess = True
-            except subprocess.CalledProcessError,e:
-                print e
+            except subprocess.CalledProcessError as e:
+                print(e)
             if VERBOSE>0:
-                print cmdline
+                print(cmdline)
 
             if isMoveSuccess:
                 # then change the symbolic link
@@ -100,7 +100,7 @@ def MoveCache_mode_md5(md5_key, sub_md5_name):#{{{
                 except:
                     pass
                 if VERBOSE > 0:
-                    print dirname_realpath, "os.symlink(", rela_path, ",", basename_realpath,")"
+                    print(dirname_realpath, "os.symlink(", rela_path, ",", basename_realpath,")")
 
                 # then change the symbolic link of md5_link to cachedir
                 if os.path.lexists(md5_link):
@@ -118,7 +118,7 @@ def MoveCache_mode_md5(md5_key, sub_md5_name):#{{{
                     except:
                         pass
                 if VERBOSE > 0:
-                    print sub_md5dir, "os.symlink(", rela_path, ",", md5_key,")"
+                    print(sub_md5dir, "os.symlink(", rela_path, ",", md5_key,")")
 
 #}}}
 def MoveCache_mode_result(outpath_this_seq):#{{{
@@ -128,7 +128,7 @@ def MoveCache_mode_result(outpath_this_seq):#{{{
     fafile = "%s/seq.fa"%(outpath_this_seq)
     if os.path.exists(fafile):
         (seqid, seqanno,seq) = myfunc.ReadSingleFasta(fafile)
-        md5_key = hashlib.md5(seq).hexdigest()
+        md5_key = hashlib.md5(seq.encode('utf-8')).hexdigest()
         sub_md5_name = md5_key[:2]
         sub_cachedir = "%s/%s"%(path_cache, sub_md5_name)
         cachedir = "%s/%s/%s"%(path_cache, sub_md5_name, md5_key)
@@ -141,22 +141,22 @@ def MoveCache_mode_result(outpath_this_seq):#{{{
             cmdline = " ".join(cmd)
             try:
                 subprocess.check_call(cmd)
-            except CalledProcessError,e:
-                print e
+            except CalledProcessError as e:
+                print(e)
                 pass
             if VERBOSE>0:
-                print cmdline
+                print(cmdline)
         else:
-            print "cachedir %s already exists for %s"%(cachedir, outpath_this_seq)
+            print("cachedir %s already exists for %s"%(cachedir, outpath_this_seq))
             cmd = ["rm","-rf", outpath_this_seq]
             cmdline = " ".join(cmd)
             try:
                 subprocess.check_call(cmd)
-            except CalledProcessError,e:
-                print e
+            except CalledProcessError as e:
+                print(e)
                 pass
             if VERBOSE>0:
-                print cmdline
+                print(cmdline)
 
         # create symbolic link to the cache
         if not os.path.exists(outpath_this_seq) and os.path.exists(cachedir):
@@ -169,9 +169,9 @@ def MoveCache_mode_result(outpath_this_seq):#{{{
             except:
                 pass
             if VERBOSE > 0:
-                print outpath_result, "os.symlink(", rela_path, ",", subfoldername_this_seq,")"
+                print(outpath_result, "os.symlink(", rela_path, ",", subfoldername_this_seq,")")
     else:
-        print "fafile %s does not exist"%(fafile)
+        print("fafile %s does not exist"%(fafile))
 #}}}
 
 

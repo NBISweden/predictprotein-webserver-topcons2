@@ -55,7 +55,8 @@ function example_fill(){
 var ImgArraySubmitNumJob = [
     "{% static "log/stat/submit_day.stat.txt.numjob.png" %}" ,
     "{% static "log/stat/submit_week.stat.txt.numjob.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numjob.png" %}" 
+    "{% static "log/stat/submit_month.stat.txt.numjob.png" %}" ,
+    "{% static "log/stat/submit_year.stat.txt.numjob.png" %}",
 ];
 function ChangeImgSubmitNumJob(imgPtr) {
     document.getElementById('imgNumJobSubmit').src = ImgArraySubmitNumJob[imgPtr];
@@ -63,7 +64,8 @@ function ChangeImgSubmitNumJob(imgPtr) {
 var ImgArraySubmitNumSeq = [
     "{% static "log/stat/submit_day.stat.txt.numseq.png" %}" ,
     "{% static "log/stat/submit_week.stat.txt.numseq.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numseq.png" %}" 
+    "{% static "log/stat/submit_month.stat.txt.numseq.png" %}",
+    "{% static "log/stat/submit_year.stat.txt.numseq.png" %}",
 ];
 function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
@@ -87,7 +89,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
 
 <body>
 <!-- TOP panel begins-->
-<table width="900" height=134 border="0" cellspacing="0" cellpadding="0" align="center">
+<table width="950" height=134 border="0" cellspacing="0" cellpadding="0" align="center">
 
   <!--
   <tr>
@@ -101,7 +103,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
   -->
 
   <tr>
-    <td width="100%" height="124" colspan="100%" align="right" valign="top" background="{% static "images/header_topcons_w900.png" %}" >
+    <td width="100%" height="124" colspan="100%" align="right" valign="top" background="{% static "images/topcons2_w950.png" %}" >
     </td>
 
   </tr>
@@ -109,7 +111,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
 <!-- TOP panel ends-->
 
 <!-- Main part begins-->
-<table width="900" height="80%" border="0" align="center" cellpadding="5" cellspacing="0" bgcolor="#FFFFFF">
+<table width="950" height="80%" border="0" align="center" cellpadding="5" cellspacing="0" bgcolor="#FFFFFF">
   <tr>
     <!-- LEFT panel begins -->
     <td width="20%" valign="top" style="background-repeat: repeat-y; background-position: top left;" background="{% static "images/cbr_graymeny160_shadow.png" %}" >
@@ -199,7 +201,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
         <tr>
           <td valign="top">
             <!-- add div to set the fixed width for the table -->
-            <div id="content_right_panel" style=height:100%;width:600;overflow:auto>
+            <div id="content_right_panel" style=height:100%;width:740;overflow:auto>
               <table width="100%"  cellpadding="0" cellspacing="0">
                 <tr>
                   <td valign="top" width="100%">
@@ -226,7 +228,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
 <!-- Add a line separator -->
 <!--<hr>-->
 <!-- BOTTOM panel begins -->
-<table width="900" height=75 border="0" align="center" cellpadding="0" cellspacing="0">
+<table width="950" height=75 border="0" align="center" cellpadding="0" cellspacing="0">
   <tr>
     <td width="23"><img src="{% static "images/cbr_lower_left_gray.png" %}"  alt="" width="23" height="75" border="0" /></td>
 

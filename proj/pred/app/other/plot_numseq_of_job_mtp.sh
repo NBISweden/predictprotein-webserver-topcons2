@@ -52,7 +52,7 @@ set output '$outfile'
     esac
 
 
-/usr/bin/gnuplot -persist<<EOF 
+/usr/bin/env gnuplot -persist<<EOF 
 $outputSetting
 set style line 1 lt 1 pt 7 ps 1 lc rgb "red" lw 1
 set style line 2 lt 1 pt 7 ps 1 lc rgb "blue" lw 1
@@ -61,6 +61,7 @@ set style line 11 lt 1 pt 7 ps 2 lc rgb "red" lw 1
 set style line 12 lt 1 pt 7 ps 2 lc rgb "blue" lw 1
 set style line 13 lt 1 pt 7 ps 2 lc rgb "green" lw 1
 
+set key autotitle columnhead
 
 set title ""
 set xlabel "Number of sequences of jobs" 
@@ -75,7 +76,7 @@ EOF
     case $outputStyle in
         eps)
             $eps2pdf $outfile
-            convert -density 200 -background white $outpath/$basename.eps $outpath/$basename.png
+            convert -density 200 -background white $outpath/$basename.pdf $outpath/$basename.png
             echo "Histogram image output to $pdffile"
             ;;
         *) echo "Histogram image output to $outfile" ;;
@@ -123,9 +124,9 @@ fi
 
 
 osname=`uname -s`
-eps2pdf=eps2pdf
+eps2pdf=epstopdf
 case $osname in 
     *Darwin*) eps2pdf=epstopdf;;
-    *Linux*) eps2pdf=eps2pdf;;
+    *Linux*) eps2pdf=epstopdf;;
 esac
 Makeplot

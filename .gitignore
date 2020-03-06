@@ -8,6 +8,7 @@
 # vim temp files
 .*.swp
 
+*.py.bak
 # backup folder
 bak/
 result/
@@ -22,3 +23,7 @@ proj/settings.py
 
 proj/pred/config/computenode.txt
 proj/pred/config/config.json
+
+
+newproj/
+proj/wsgi.py.test_embedded_or_not.py

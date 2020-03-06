@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -- python2.7+ --
 
 import os
 import sys
-import myfunc
+from libpredweb import myfunc
 import argparse
 import hashlib
 
 
 def OutputRecord(seqnumber, seqid, description, seq, fpout):# {{{
-    md5_key = hashlib.md5(seq).hexdigest()
+    md5_key = hashlib.md5(seq.encode('utf-8')).hexdigest()
     subfoldername = md5_key[:2]
     cachedir = "%s/%s/%s"%(g_params['path_cache'], subfoldername, md5_key)
     if os.path.exists(cachedir):
@@ -78,7 +77,7 @@ def OutputRecord(seqnumber, seqid, description, seq, fpout):# {{{
 
             return 0
     else:
-        print >> sys.stderr, "record not found for %s"%(seqid)
+        print("record not found for %s"%(seqid), file=sys.stderr)
         return 1
 
 # }}}
