@@ -2,7 +2,10 @@
 
 ## Description:
     This is the web-server implementation of the TOPCONS2 workflow.
-    The web-server is developed with Django (>=1.6.4)
+
+    The web-server is developed with Django 2.2.7+ and Python 3.6+
+
+    This software is open source and licensed under the MIT license
 
     TOPCONS2 is an updated version of the widely used TOPCONS for predicting
     membrane protein topologies using consensus prediction.
@@ -10,7 +13,6 @@
     benchmarking. Moreover, it predicts not only the trans-membrane helices,
     but also the location of signal peptide
 
-    This software is open source and licensed under the GPL license
 
     This implementation employs two queuing schemes for small jobs and large
     jobs respectively. For single-sequence jobs submitted via web-page, they
