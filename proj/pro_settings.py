@@ -25,7 +25,7 @@ with open('/etc/django_pro_secret_key.txt') as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['topcons.net']
 allowed_host_file = "%s/allowed_host_pro.txt"%(BASE_DIR)
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
 for f in [allowed_host_file, computenodefile]:
