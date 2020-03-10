@@ -131,6 +131,62 @@ from proj.pred.models import SubmissionForm
 from proj.pred.models import FieldContainer
 from django.template import Context, loader
 
+
+def GetTMListForView_Topcons(resultdict, topfolder_seq0):# {{{
+    """Get TMList and topolist for showing in the result page
+    """
+    methodlist = ['TOPCONS', 'OCTOPUS', 'Philius', 'PolyPhobius', 'SCAMPI', 'SPOCTOPUS', "Homology"]
+    TMlist = []
+    topolist = []
+    for i in range(len(methodlist)):
+        color = "#000000"
+        seqid = ""
+        seqanno = ""
+        top = ""
+        method = methodlist[i]
+        if method == "TOPCONS":
+            topfile = "%s/%s/topcons.top"%(topfolder_seq0, "Topcons")
+            color = "#990000"
+        elif method == "Philius":
+            topfile = "%s/%s/query.top"%(topfolder_seq0, "philius")
+        elif method == "SCAMPI":
+            topfile = "%s/%s/query.top"%(topfolder_seq0, method+"_MSA")
+        elif method == "Homology":
+            topfile = "%s/%s/query.top"%(topfolder_seq0, method)
+            color = "#0000FF"
+        else:
+            topfile = "%s/%s/query.top"%(topfolder_seq0, method)
+        if os.path.exists(topfile):
+            (seqid, seqanno, top) = myfunc.ReadSingleFasta(topfile)
+        else:
+            top = ""
+
+        if method == "Homology":
+            if seqid != "":
+                resultdict['showtext_homo'] = seqid
+                resultdict['pdbcode_homo'] = seqid[:4].lower()
+            else:
+                resultdict['showtext_homo'] = "PDB-homology"
+                resultdict['pdbcode_homo'] = ""
+
+        posTM = myfunc.GetTMPosition(top.replace('u', 'i'))
+        posSP = myfunc.GetSPPosition(top)
+        if len(posSP) > 0:
+            posSP_str = "%d-%d"%(posSP[0][0]+1, posSP[0][1])
+        else:
+            posSP_str = ""
+        topolist.append([method, top])
+        newPosTM = ["%d-%d"%(x+1,y) for x,y in posTM]
+        if posSP_str == "" and len(newPosTM) == 0:
+            if method == "Homology":
+                newPosTM = ["***No homologous TM proteins detected***"]
+            else:
+                newPosTM = ["***No signal peptide nor TM-regions predicted***"]
+        else:
+            resultdict['isAllNonTM'] = False
+        TMlist.append([method, color, posSP_str, newPosTM])
+    return TMlist, topolist
+# }}}
 def index(request):#{{{
     if not os.path.exists(path_result):
         os.mkdir(path_result, 0o755)
@@ -811,58 +867,10 @@ def get_results(request, jobid="1"):#{{{
         resultdict['nicetopfile'] = ""
 #     li_all = os.listdir(topfolder_seq0)
 #     li_folder = [d for d in li_all if os.path.isdir(os.path.join(li_all,d))]
-    topolist = []
-    TMlist = []
-    methodlist = ['TOPCONS', 'OCTOPUS', 'Philius', 'PolyPhobius', 'SCAMPI', 'SPOCTOPUS', "Homology"]
+
     resultdict['isAllNonTM'] = True
-    for i in range(len(methodlist)):
-        method = methodlist[i]
-        color = "#000000"
-        seqid = ""
-        seqanno = ""
-        top = ""
-        if method == "TOPCONS":
-            topfile = "%s/%s/topcons.top"%(topfolder_seq0, "Topcons")
-            color = "#990000"
-        elif method == "Philius":
-            topfile = "%s/%s/query.top"%(topfolder_seq0, "philius")
-        elif method == "SCAMPI":
-            topfile = "%s/%s/query.top"%(topfolder_seq0, method+"_MSA")
-        elif method == "Homology":
-            topfile = "%s/%s/query.top"%(topfolder_seq0, method)
-            color = "#0000FF"
-        else:
-            topfile = "%s/%s/query.top"%(topfolder_seq0, method)
-        if os.path.exists(topfile):
-            (seqid, seqanno, top) = myfunc.ReadSingleFasta(topfile)
-        else:
-            top = ""
 
-        if method == "Homology":
-            if seqid != "":
-                resultdict['showtext_homo'] = seqid
-                resultdict['pdbcode_homo'] = seqid[:4].lower()
-            else:
-                resultdict['showtext_homo'] = "PDB-homology"
-                resultdict['pdbcode_homo'] = ""
-
-        posTM = myfunc.GetTMPosition(top.replace('u', 'i'))
-        posSP = myfunc.GetSPPosition(top)
-        if len(posSP) > 0:
-            posSP_str = "%d-%d"%(posSP[0][0]+1, posSP[0][1]+1)
-        else:
-            posSP_str = ""
-        topolist.append([method, top])
-        newPosTM = ["%d-%d"%(x+1,y) for x,y in posTM]
-        if posSP_str == "" and len(newPosTM) == 0:
-            if method == "Homology":
-                newPosTM = ["***No homologous TM proteins detected***"]
-            else:
-                newPosTM = ["***No signal peptide nor TM-regions predicted***"]
-
-        else:
-            resultdict['isAllNonTM'] = False
-        TMlist.append([method, color, posSP_str, newPosTM])
+    TMlist, topolist = GetTMListForView_Topcons(resultdict, topfolder_seq0)
 
     resultdict['topolist'] = topolist
     resultdict['TMlist'] = TMlist
@@ -875,7 +883,6 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict = {}
     webcom.set_basic_config(request, resultdict, g_params)
 
-    resultdict['isAllNonTM'] = True
 
     rstdir = "%s/%s"%(path_result, jobid)
     outpathname = jobid
@@ -905,6 +912,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['status'] = status
     resultdict['numseq'] = numseq
     base_www_url = "http://" + request.META['HTTP_HOST']
+    resultdict['isAllNonTM'] = True
 
     resultfile = "%s/%s/%s/%s"%(rstdir, outpathname, seqindex, "query.result.txt")
     if os.path.exists(resultfile):
@@ -927,56 +935,8 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['isResultFolderExist'] = False
     if os.path.exists(topfolder_seq0):
         resultdict['isResultFolderExist'] = True
-        topolist = []
-        TMlist = []
-        methodlist = ['TOPCONS', 'OCTOPUS', 'Philius', 'PolyPhobius', 'SCAMPI', 'SPOCTOPUS', "Homology"]
-        for i in range(len(methodlist)):
-            color = "#000000"
-            seqid = ""
-            seqanno = ""
-            top = ""
-            method = methodlist[i]
-            if method == "TOPCONS":
-                topfile = "%s/%s/topcons.top"%(topfolder_seq0, "Topcons")
-                color = "#990000"
-            elif method == "Philius":
-                topfile = "%s/%s/query.top"%(topfolder_seq0, "philius")
-            elif method == "SCAMPI":
-                topfile = "%s/%s/query.top"%(topfolder_seq0, method+"_MSA")
-            elif method == "Homology":
-                topfile = "%s/%s/query.top"%(topfolder_seq0, method)
-                color = "#0000FF"
-            else:
-                topfile = "%s/%s/query.top"%(topfolder_seq0, method)
-            if os.path.exists(topfile):
-                (seqid, seqanno, top) = myfunc.ReadSingleFasta(topfile)
-            else:
-                top = ""
 
-            if method == "Homology":
-                if seqid != "":
-                    resultdict['showtext_homo'] = seqid
-                    resultdict['pdbcode_homo'] = seqid[:4].lower()
-                else:
-                    resultdict['showtext_homo'] = "PDB-homology"
-                    resultdict['pdbcode_homo'] = ""
-
-            posTM = myfunc.GetTMPosition(top.replace('u','i'))
-            posSP = myfunc.GetSPPosition(top)
-            if len(posSP) > 0:
-                posSP_str = "%d-%d"%(posSP[0][0]+1, posSP[0][1]+1)
-            else:
-                posSP_str = ""
-            topolist.append([method, top])
-            newPosTM = ["%d-%d"%(x+1,y) for x,y in posTM]
-            if posSP_str == "" and len(newPosTM) == 0:
-                if method == "Homology":
-                    newPosTM = ["***No homologous TM proteins detected***"]
-                else:
-                    newPosTM = ["***No signal peptide nor TM-regions predicted***"]
-            else:
-                resultdict['isAllNonTM'] = False
-            TMlist.append([method, color, posSP_str, newPosTM])
+        TMlist, topolist = GetTMListForView_Topcons(resultdict, topfolder_seq0)
 
         resultdict['topolist'] = topolist
         resultdict['TMlist'] = TMlist
