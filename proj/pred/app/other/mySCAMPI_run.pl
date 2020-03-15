@@ -216,9 +216,9 @@ for ($i = 1; $i <= $numSNFFile; $i ++)
     system("$modhmm_bin/modhmms_scampi -f fa -s $snfFile -m $scampi_dir/DGHMM_KR_21.txt -o $tmpdir -r $scampi_dir/replacement_letter_multi.rpl  --viterbi -u --labeloddsout --labelllout --labelrevout --nopostout -g --alignlabelout  $modhmms_options > $tmpXMLFile");
     system("$modhmm_bin/modhmmxml2res < $tmpXMLFile > $tmpResFile");
     system("/usr/bin/perl $scampi_dir/res2compacttopo.pl $tmpResFile $tmpdir/sequences >> $outpath/$infile_basename.res");
-    system("python $programpath/scampiXML2TXT.py -m 1 -i $tmpXMLFile -aapath $tmpdir/sequences >> $outpath/$infile_basename.xml.res ");
+    system("python2 $programpath/scampiXML2TXT.py -m 1 -i $tmpXMLFile -aapath $tmpdir/sequences >> $outpath/$infile_basename.xml.res ");
 }
-system("python $scampi_dir/compacttopo2top.py $outpath/$infile_basename.res > $outpath/$infile_basename.topo" );
+system("python2 $scampi_dir/compacttopo2top.py $outpath/$infile_basename.res > $outpath/$infile_basename.topo" );
 
 if ($isClean == 1)
 {
