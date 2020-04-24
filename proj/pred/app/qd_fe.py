@@ -2033,7 +2033,7 @@ def main(g_params):#{{{
                 cntSubmitJobDict[node] = [num_queue_job,
                         g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
             else:
-                cntSubmitJobDict[node] = [g_params['MAX_SUBMIT_JOB_PER_NODE'],
+                cntSubmitJobDict[node] = [0,
                         g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
 
 # entries in runjoblogfile includes jobs in queue or running
