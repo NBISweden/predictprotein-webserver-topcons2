@@ -1021,6 +1021,7 @@ def GetResult(jobid):#{{{
         except KeyError:
             if g_params['DEBUG']:
                 myfunc.WriteFile("node (%s) not found in myclientDict, ignore\n"%(node), gen_logfile, "a", True)
+            keep_queueline_list.append(line)
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
@@ -1217,6 +1218,7 @@ def GetResult(jobid):#{{{
         myfunc.WriteFile("len(keep_queueline_list)=%d\n"%(len(keep_queueline_list)), gen_logfile, "a", True)
 
     if len(keep_queueline_list)>0:
+        keep_queueline_list = list(set(keep_queueline_list))
         myfunc.WriteFile("\n".join(keep_queueline_list)+"\n", remotequeue_idx_file, "w", True);
     else:
         myfunc.WriteFile("", remotequeue_idx_file, "w", True);
