@@ -1964,6 +1964,8 @@ def check_output(*popenargs, **kwargs):#{{{
 #}}}
 
 def IsURLExist(url, timeout=2):#{{{
+    """Check if url is accessible
+    """
     try:
         response = requests.get(url,timeout=timeout)
         if response.status_code < 400:
@@ -1973,6 +1975,18 @@ def IsURLExist(url, timeout=2):#{{{
     except:
         return False
 #}}}
+def urlretrieve(url, outfile, timeout=600):# {{{
+    """Retrieve the file from url and save in outfile
+    Default timeout is 600 seconds
+    """
+    request = requests.get(url, timeout=timeout)
+    # Open the output file and make sure we write in binary mode
+    with open(outfile, 'wb') as fh:
+        # Walk through the request response in chunks of 1024 * 1024 bytes, so 1MiB
+        for chunk in request.iter_content(1024 * 1024):
+            # Write the chunk to the file
+            fh.write(chunk)
+# }}}
 def Size_human2byte(s):#{{{
     if s.isdigit():
         return int(s)

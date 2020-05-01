@@ -3,7 +3,7 @@
 import os
 import sys
 import myfunc
-import webserver_common
+import webserver_common as webcom
 
 rundir = os.path.dirname(__file__)
 basedir = os.path.realpath("%s/../"%(rundir))
@@ -21,12 +21,12 @@ TESTMODE=sys.argv[1]
 
 
 
-if 0:#{{{
-    infile = sys.argv[1]
+if TESTMODE == "readidlist2":#{{{
+    infile = sys.argv[2]
     li = myfunc.ReadIDList2(infile, 2, None)
     print li
 #}}}
-if 0:#{{{
+if TESTMODE == "readfastafrombuffer" :#{{{
    rawseq = ">1\nseqAAAAAAAAAAAAAAAAAAAAAAAAA\n    \n>2  dad\ndfasdf  "
    #rawseq = "  >1\nskdfaskldgasdk\nf\ndadfa\n\n\nadsad   \n"
    #rawseq = ">sadjfasdkjfsalkdfsadfjasdfk"
@@ -37,21 +37,20 @@ if 0:#{{{
    print seqRecordList
 #}}}
 
-if 0:#{{{
-    size = float(sys.argv[1])
+if TESTMODE == "byte2human":#{{{
+    size = float(sys.argv[2])
     print "size=",size
     print "humansize=", myfunc.Size_byte2human(size)#}}}
 
-if 0:#{{{
+if TESTMODE == "readnews":#{{{
     newsfile = "%s/static/doc/news.txt"%(basedir)
     newsList = myfunc.ReadNews(newsfile)
     print newsList#}}}
 
-if 0:#{{{
+if TESTMODE == "replacedesp":#{{{
     seqfile="/data3/tmp/t3.seq"
     desp = "new description"
-    webserver_common.ReplaceDescriptionSingleFastaFile(seqfile, desp)#}}}
-
+    webcom.ReplaceDescriptionSingleFastaFile(seqfile, desp)#}}}
 
 if TESTMODE in ['writehtmltopcons']:#{{{
     try: 
@@ -60,6 +59,14 @@ if TESTMODE in ['writehtmltopcons']:#{{{
     except IndexError:
         print "usage: %s %s finished_seq outfile"%(sys.argv[0], TESTMODE)
         sys.exit(1)
+    webcom.WriteHTMLResultTable_TOPCONS(outfile, infile) #}}}
 
-    webserver_common.WriteHTMLResultTable_TOPCONS(outfile, infile)
-    
+if TESTMODE == "urlretrieve":
+    url = sys.argv[2]
+    outfile = sys.argv[3]
+    timeout = int(sys.argv[4])
+    try:
+        myfunc.urlretrieve(url, outfile, timeout)
+    except Exception as e:
+        print("retrieve %s failed with errmsg=%s"%(url, str(e)) )
+
