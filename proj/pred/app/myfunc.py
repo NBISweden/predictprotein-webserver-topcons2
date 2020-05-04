@@ -1975,9 +1975,9 @@ def IsURLExist(url, timeout=2):#{{{
     except:
         return False
 #}}}
-def urlretrieve(url, outfile, timeout=600):# {{{
+def urlretrieve(url, outfile, timeout=10):# {{{
     """Retrieve the file from url and save in outfile
-    Default timeout is 600 seconds
+    Default timeout is 10 seconds
     """
     request = requests.get(url, timeout=timeout)
     # Open the output file and make sure we write in binary mode
