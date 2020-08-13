@@ -97,4 +97,14 @@ sub sendmail{ #{{{
     close(MAIL);
     #print "Email Sent Successfully\n";
 } #}}}
+# sub sendmailHTML{#{{{
+#     my $msg = MIME::Lite->new(
+#         To      => $to,
+#         Subject => $subject,
+#         Type    => 'text/html',
+#         Data    => $message
+#     );
+#     $msg->send();
+# }
+#}}}
 1;
