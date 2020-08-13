@@ -19,7 +19,7 @@ require "$rundir/nanjianglib.pl";
 my $FORMAT_DATETIME = '%Y-%m-%d %H:%M:%S %Z';
 
 my $date = strftime "$FORMAT_DATETIME", localtime;
-print "Date: $date\n";
+print "\n#===================\nDate: $date\n";
 my $servername = "TOPCONS2";
 my $target_qd_script_name = "qd_fe.py";
 my $computenodelistfile = "$basedir/config/computenode.txt";
