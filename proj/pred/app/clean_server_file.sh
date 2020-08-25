@@ -19,6 +19,7 @@ qd_fe.py.log
 qd_fe.py.err
 debug.log
 restart_qd_fe.cgi.log
+clean_cached_result.py.log
 "
 
 for file in $filelist; do
