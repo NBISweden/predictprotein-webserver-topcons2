@@ -987,6 +987,28 @@ def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
                     myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
+def get_job_status(jobid, numseq, path_result):#{{{
+    status = "";
+    rstdir = "%s/%s"%(path_result, jobid)
+    starttagfile = "%s/%s"%(rstdir, "runjob.start")
+    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
+    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
+    remotequeue_idx_file = "%s/remotequeue_seqindex.txt"%(rstdir)
+    torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # ordered seq index to run
+    num_torun = len(myfunc.ReadIDList(torun_idx_file))
+    if os.path.exists(failedtagfile):
+        status = "Failed"
+    elif os.path.exists(finishtagfile):
+        status = "Finished"
+    elif os.path.exists(starttagfile):
+        if num_torun < numseq:
+            status = "Running"
+        else:
+            status = "Wait"
+    elif os.path.exists(rstdir):
+        status = "Wait"
+    return status
+#}}}
 @timeit
 def CleanServerFile(logfile, errfile):#{{{
     """Clean old files on the server"""

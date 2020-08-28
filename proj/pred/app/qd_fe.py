@@ -124,28 +124,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_ext
     print >> fpout, usage_exp#}}}
 
-def get_job_status(jobid, numseq):#{{{
-    status = "";
-    rstdir = "%s/%s"%(path_result, jobid)
-    starttagfile = "%s/%s"%(rstdir, "runjob.start")
-    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
-    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
-    remotequeue_idx_file = "%s/remotequeue_seqindex.txt"%(rstdir)
-    torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # ordered seq index to run
-    num_torun = len(myfunc.ReadIDList(torun_idx_file))
-    if os.path.exists(failedtagfile):
-        status = "Failed"
-    elif os.path.exists(finishtagfile):
-        status = "Finished"
-    elif os.path.exists(starttagfile):
-        if num_torun < numseq:
-            status = "Running"
-        else:
-            status = "Wait"
-    elif os.path.exists(rstdir):
-        status = "Wait"
-    return status
-#}}}
 def get_total_seconds(td): #{{{
     """
     return the total_seconds for the timedate.timedelta object
@@ -286,7 +264,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 continue
 
 
-            status = get_job_status(jobid, numseq)
+            status = webcom.get_job_status(jobid, numseq, path_result)
 
             starttagfile = "%s/%s"%(rstdir, "runjob.start")
             finishtagfile = "%s/%s"%(rstdir, "runjob.finish")

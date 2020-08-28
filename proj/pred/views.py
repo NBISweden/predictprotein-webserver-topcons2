@@ -1360,6 +1360,8 @@ def get_results(request, jobid="1"):#{{{
     finished_seq_file = "%s/%s/finished_seqs.txt"%(rstdir, jobid)
     statfile = "%s/%s/stat.txt"%(rstdir, jobid)
     method_submission = "web"
+    torun_idx_file = "%s/torun_seqindex.txt"%(rstdir) # ordered seq index to run
+    num_torun = len(myfunc.ReadIDList(torun_idx_file))
 
     jobinfofile = "%s/jobinfo"%(rstdir)
     jobinfo = myfunc.ReadFile(jobinfofile).strip()
@@ -1389,7 +1391,7 @@ def get_results(request, jobid="1"):#{{{
     if os.path.exists(errfile):
         resultdict['errinfo'] = myfunc.ReadFile(errfile)
 
-    status = ""
+    status = webcom.get_job_status(jobid, numseq, path_result)
     queuetime = ""
     runtime = ""
     if not os.path.exists(rstdir):
@@ -1401,7 +1403,6 @@ def get_results(request, jobid="1"):#{{{
         resultdict['isFinished'] = False
         resultdict['isFailed'] = True
         resultdict['isStarted'] = True
-        status = "Failed"
         start_date_str = ""
         if os.path.exists(starttagfile):
             start_date_str = myfunc.ReadFile(starttagfile).strip()
@@ -1425,7 +1426,6 @@ def get_results(request, jobid="1"):#{{{
         if os.path.exists(finishtagfile):
             resultdict['isFinished'] = True
             resultdict['isStarted'] = True
-            status = "Finished"
             isValidStartDate = True
             isValidFinishDate = True
             if os.path.exists(starttagfile):
@@ -1457,16 +1457,19 @@ def get_results(request, jobid="1"):#{{{
                 except ValueError:
                     isValidStartDate = False
                 resultdict['isStarted'] = True
-                status = "Running"
                 if isValidSubmitDate and isValidStartDate:
                     queuetime = myfunc.date_diff(submit_date, start_date)
                 if isValidStartDate:
                     runtime = myfunc.date_diff(start_date, current_time)
             else:
                 resultdict['isStarted'] = False
-                status = "Wait"
                 if isValidSubmitDate:
                     queuetime = myfunc.date_diff(submit_date, current_time)
+
+    if status = "Wait":
+        resultdict['isStarted'] = False
+    else:
+        resultdict['isStarted'] = True
 
     color_status = SetColorStatus(status)
 
