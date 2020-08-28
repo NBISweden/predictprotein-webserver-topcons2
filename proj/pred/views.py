@@ -1466,7 +1466,7 @@ def get_results(request, jobid="1"):#{{{
                 if isValidSubmitDate:
                     queuetime = myfunc.date_diff(submit_date, current_time)
 
-    if status = "Wait":
+    if status == "Wait":
         resultdict['isStarted'] = False
     else:
         resultdict['isStarted'] = True
