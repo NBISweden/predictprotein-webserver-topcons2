@@ -862,6 +862,10 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     return 0
 #}}}
 def GetResult(jobid):#{{{
+    """
+    Retrieve result from the remote server
+    return number of retrieve records from the remote server, return 
+    """
     # retrieving result from the remote server for this job
     myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
     rstdir = "%s/%s"%(path_result, jobid)
@@ -887,6 +891,8 @@ def GetResult(jobid):#{{{
     keep_queueline_list = [] # [line] still in queue
     runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
     runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
+
+    cnt_retrived = 0 # count for the number of retrieved jobs from the remote server
 
     cntTryDict = {}
     if os.path.exists(cnttry_idx_file):
@@ -950,7 +956,7 @@ def GetResult(jobid):#{{{
     if os.path.exists(remotequeue_idx_file):
         text = myfunc.ReadFile(remotequeue_idx_file)
     if text == "":
-        return 1
+        return 0
     lines = text.split("\n")
 
     nodeSet = set([])
@@ -1172,6 +1178,7 @@ def GetResult(jobid):#{{{
                     runtime=runtime)
             myfunc.WriteFile("\t".join(info_finish)+"\n", finished_seq_file, "a", True)
             myfunc.WriteFile("%d\n"%(origIndex), finished_idx_file, "a", True)
+            cnt_retrived += 1
 
             #}}}
 
@@ -1210,7 +1217,7 @@ def GetResult(jobid):#{{{
     with open(cnttry_idx_file, 'w') as fpout:
         json.dump(cntTryDict, fpout)
 
-    return 0
+    return cnt_retrived
 #}}}
 
 def CheckIfJobFinished(jobid, numseq, email):#{{{
@@ -2051,8 +2058,11 @@ def main(g_params):#{{{
                     ):
                 if not g_params['DEBUG_NO_SUBMIT']:
                     SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
-            GetResult(jobid) # the start tagfile is written when got the first result
-            CheckIfJobFinished(jobid, numseq, email)
+            remotequeue_idx_file = "%s/remotequeue_seqindex.txt"%(rstdir)
+            if (not g_params['isFastLoopMode'] or (os.path.exists(remotequeue_idx_file) and os.path.getsize(remotequeue_idx_file)>1)):
+                num_retrieved = GetResult(jobid) # the start tagfile is written when got the first result
+                if (not g_params['isFastLoopMode'] or num_retrieved > 0):
+                    CheckIfJobFinished(jobid, numseq, email)
 
 
         webcom.loginfo("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile)
@@ -2080,6 +2090,7 @@ def InitGlobalParameter():#{{{
     g_params['STATUS_UPDATE_FREQUENCY'] = [800, 750]  # updated by if loop%$1 == $2
     g_params['CLEAN_SERVER_FREQUENCY'] = [10, 0]  # updated by if loop%$1 == $2
     g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
+    g_params['isFastLoopMode'] = False # when it is true, loop faster, some broken cases is not handled
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     return g_params
 #}}}
