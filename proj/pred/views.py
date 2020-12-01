@@ -112,8 +112,6 @@ g_params['path_stat'] = path_stat
 g_params['SITE_ROOT'] = SITE_ROOT
 g_params['path_result'] = path_result
 g_params['MAX_ACTIVE_USER'] = 10
-g_params['suq_basedir'] = "/tmp"
-g_params['suq_exec'] = "/usr/bin/suq";
 
 qd_fe_scriptfile = "%s/qd_fe.py"%(path_app)
 gen_errfile = "%s/static/log/%s.err"%(SITE_ROOT, progname)
@@ -378,7 +376,6 @@ def RunQuery(request, query):#{{{
     # for single sequence job submitted via web interface, submit to local
     # queue
     if query['numseq'] <= 5:
-# Note 2015-06-05, suq ls failed randomly if called frequently, disable it
         query['numseq_this_user'] = 1
         SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=True)
 
