@@ -111,6 +111,8 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
 
     webcom.loginfo("priority=%d"%(priority), g_params['debugfile'])
 
+    query_para['queue_method'] = "slurm" # 2020-12-01, since suq is not working on CentOS8, change to slurm
+
     if 'queue_method' in query_para and query_para['queue_method'] == 'slurm':
         st1 = SubmitSlurmJob(datapath, outpath, priority, scriptfile)
     else:
