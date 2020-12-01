@@ -233,7 +233,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                     new_finished_list.append(li)
                 continue
 
-            status = webcom.get_job_status(jobid, path_result)
+            status = webcom.get_job_status(jobid, numseq, path_result)
 
             starttagfile = "%s/%s"%(rstdir, "runjob.start")
             finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
