@@ -520,7 +520,7 @@ def help_wsdl_api(request):# {{{
 # }}}
 
 def get_serverstatus(request):# {{{
-    g_params['isShowLocalQueue'] = True
+    g_params['isShowLocalQueue'] = False
     info = webcom.get_serverstatus(request, g_params)
     return render(request, 'pred/serverstatus.html', info)
 # }}}
