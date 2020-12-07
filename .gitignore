@@ -17,12 +17,17 @@ log/
 md5/
 env/
 bak.env/
+envpy2*
+envpy3*
+env_py3
 
 proj/pred/static/css/my_sortable.css
 proj/settings.py
 
 proj/pred/config/computenode.txt
 proj/pred/config/config.json
+proj/pred/config/*.txt
+proj/pred/config/*.txt.bak*
 
 
 newproj/
