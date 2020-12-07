@@ -18,6 +18,7 @@ md5/
 env/
 bak.env/
 envpy2*
+env_py2
 envpy3*
 env_py3
 
