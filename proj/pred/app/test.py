@@ -3,7 +3,7 @@
 import os
 import sys
 from libpredweb import myfunc
-from libpredweb import webserver_common
+from libpredweb import webserver_common as webcom
 
 rundir = os.path.dirname(__file__)
 basedir = os.path.realpath("%s/../"%(rundir))
@@ -50,7 +50,7 @@ if 0:#{{{
 if 0:#{{{
     seqfile="/data3/tmp/t3.seq"
     desp = "new description"
-    webserver_common.ReplaceDescriptionSingleFastaFile(seqfile, desp)#}}}
+    webcom.ReplaceDescriptionSingleFastaFile(seqfile, desp)#}}}
 
 
 if TESTMODE in ['writehtmltopcons']:#{{{
@@ -61,5 +61,28 @@ if TESTMODE in ['writehtmltopcons']:#{{{
         print("usage: %s %s finished_seq outfile"%(sys.argv[0], TESTMODE))
         sys.exit(1)
 
-    webserver_common.WriteHTMLResultTable_TOPCONS(outfile, infile)
+    webcom.WriteHTMLResultTable_TOPCONS(outfile, infile)
+    #}}}
+
+if TESTMODE in ['sendmail']:#{{{
+    try: 
+        to_email = sys.argv[2]
+        from_email = "noreply-TOPCONS@topcons.cbr.su.se"
+        subject = "Result from TOPCONS2"
+        bodytext = """This is the result from topcons2.
+        The result can be found at https://topcons.net/result
+
+        --
+        Citation: 
+        Please cite this paper if you find TOPCONS useful in your research
+        The TOPCONS web server for combined membrane protein topology and signal peptide prediction.
+        Tsirigos KD*, Peters C*, Shu N*, Käll L and Elofsson A (2015) Nucleic Acids Research 43 (Webserver issue), W401-W407.
+        """
+
+    except IndexError:
+        print("usage: %s %s to_email"%(sys.argv[0], TESTMODE))
+        sys.exit(1)
+
+    myfunc.Sendmail(from_email, to_email, subject, bodytext)
+
     
