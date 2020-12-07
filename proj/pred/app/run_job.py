@@ -40,6 +40,7 @@ import hashlib
 import shutil
 import site
 import fcntl
+import json
 progname =  os.path.basename(sys.argv[0])
 rootname_progname = os.path.splitext(progname)[0]
 wspace = ''.join([" "]*len(progname))
