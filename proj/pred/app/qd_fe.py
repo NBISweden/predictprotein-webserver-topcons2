@@ -1229,7 +1229,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         # send the result to email
         if webcom.IsFrontEndNode(base_www_url) and myfunc.IsValidEmailAddress(email):
             webcom.SendEmail_on_finish(jobid, base_www_url,
-                    finish_status, name_server="TOPCONS2", from_email="no-reply.TOPCONS@topcons.net",
+                    finish_status, name_server="TOPCONS2", from_email=g_params['from_email'],
                     to_email=email, contact_email=contact_email,
                     logfile=runjob_logfile, errfile=runjob_errfile)
         webcom.CleanJobFolder_TOPCONS2(rstdir)
@@ -1988,6 +1988,7 @@ def InitGlobalParameter():#{{{
     g_params['STATUS_UPDATE_FREQUENCY'] = [800, 50]  # updated by if loop%$1 == $2
     g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+    g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     return g_params
 #}}}
 if __name__ == '__main__' :

@@ -41,6 +41,7 @@ import shutil
 import site
 import fcntl
 progname =  os.path.basename(sys.argv[0])
+rootname_progname = os.path.splitext(progname)[0]
 wspace = ''.join([" "]*len(progname))
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
@@ -381,7 +382,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             else:
                 finish_status = "failed"
             webcom.SendEmail_on_finish(jobid, g_params['base_www_url'],
-                    finish_status, name_server="TOPCONS2", from_email="no-reply.TOPCONS@topcons.net",
+                    finish_status, name_server="TOPCONS2", from_email=g_params['from_email'],
                     to_email=email, contact_email=contact_email,
                     logfile=runjob_logfile, errfile=runjob_errfile)
 
@@ -502,10 +503,19 @@ def InitGlobalParameter():#{{{
     g_params['jobid'] = ""
     g_params['isOnlyGetCache'] = False
     g_params['lockfile'] = ""
+    g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     return g_params
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
+    configfile = "%s/config/config.json"%(basedir)
+    config = {}
+    if os.path.exists(configfile):
+        text = myfunc.ReadFile(configfile)
+        config = json.loads(text)
+    if rootname_progname in config:
+        g_params.update(config[rootname_progname])
+
     status = main(g_params)
     if os.path.exists(g_params['lockfile']):
         try:
