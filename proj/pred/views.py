@@ -694,11 +694,13 @@ def get_results(request, jobid="1"):#{{{
                 if isValidSubmitDate and isValidStartDate:
                     queuetime = myfunc.date_diff(submit_date, start_date)
                 if isValidStartDate:
+                    current_time = datetime.now(start_date.tzinfo)
                     runtime = myfunc.date_diff(start_date, current_time)
             else:
                 resultdict['isStarted'] = False
                 status = "Wait"
                 if isValidSubmitDate:
+                    current_time = datetime.now(submit_date.tzinfo)
                     queuetime = myfunc.date_diff(submit_date, current_time)
 
     color_status = webcom.SetColorStatus(status)
