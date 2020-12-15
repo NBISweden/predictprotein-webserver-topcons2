@@ -949,6 +949,7 @@ def GetResult(jobid):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except Exception as e:
+            msg = "checkjob(%s) at node %s failed with errmsg %s"%(remote_jobid, node, str(e))
             webcom.loginfo(msg, gen_logfile)
             rtValue = []
             pass
