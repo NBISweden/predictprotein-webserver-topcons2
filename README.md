@@ -45,7 +45,9 @@ peptides. Nucleic Acids Res. 43, W401-W407 (*Co-first authors)
     * Apache
     * mod\_wsgi
 
-2. Install the virtual environments by 
+2. Install the virtual environments by running the following command. Please
+   make sure that the executable `virtualenv` for Python3 and the same version
+   for which mod\_wsgi is installed.
 
     $ bash setup_virtualenv.sh
 
