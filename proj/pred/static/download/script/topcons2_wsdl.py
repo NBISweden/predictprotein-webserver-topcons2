@@ -41,9 +41,9 @@ def ReadFile(infile, mode="r"):#{{{
 #}}}
 
 def main(g_params):#{{{
-    wsdl_url = "http://topcons.net/pred/api_submitseq/?wsdl"
+    wsdl_url = "https://topcons.net/pred/api_submitseq/?wsdl"
     parser = argparse.ArgumentParser(
-            description='Access topcons2 web-server (http://topcons.net) through WSDL service ',
+            description='Access topcons2 web-server (https://topcons.net) through WSDL service ',
             #formatter_class=argparse.RawDescriptionHelpFormatter,
             formatter_class=argparse.RawTextHelpFormatter,
             epilog='''\
