@@ -1918,8 +1918,9 @@ def main(g_params):#{{{
         if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
             RunStatistics(path_result, path_log)
             webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
-            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
             webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
+        if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
+            webcom.CleanServerFile(gen_logfile, gen_errfile)
 
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
         # For finished jobs, clean data not used for caching
@@ -1990,6 +1991,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     g_params['STATUS_UPDATE_FREQUENCY'] = [800, 50]  # updated by if loop%$1 == $2
     g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
+    g_params['CLEAN_SERVER_FREQUENCY'] = [50, 0]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     return g_params
