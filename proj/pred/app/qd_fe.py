@@ -945,6 +945,7 @@ def GetResult(jobid):#{{{
         except KeyError:
             if g_params['DEBUG']:
                 webcom.loginfo("DEBUG: node (%s) not found in myclientDict, ignore"%(node), gen_logfile)
+            keep_queueline_list.append(line)
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
@@ -1123,6 +1124,7 @@ def GetResult(jobid):#{{{
         webcom.loginfo("DEBUG: len(keep_queueline_list)=%d\n"%(len(keep_queueline_list)), gen_logfile)
 
     if len(keep_queueline_list)>0:
+        keep_queueline_list = list(set(keep_queueline_list))
         myfunc.WriteFile("\n".join(keep_queueline_list)+"\n", remotequeue_idx_file, "w", True);
     else:
         myfunc.WriteFile("", remotequeue_idx_file, "w", True);
