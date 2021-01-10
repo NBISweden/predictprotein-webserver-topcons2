@@ -1920,7 +1920,7 @@ def main(g_params):#{{{
             webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
         if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
-            webcom.CleanServerFile(gen_logfile, gen_errfile)
+            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
 
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
         # For finished jobs, clean data not used for caching
