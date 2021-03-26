@@ -89,19 +89,19 @@ def count_users(request):# {{{
     return JsonResponse(usercount_dict)# }}}
 
 def count_users_with_start_date(request, startdate_str=""):
-    job_dict = GetData()
     usercount_dict = {}
     start_date = webcom.datetime_str_to_time(startdate_str, isSetDefault=False)
-    if start_date is None:
-        usercount_dict = {"Wrong startdate"}
+    if len(startdate_str.split()) <2 or start_date is None:
+        usercount_dict = {"error": "Wrong startdate"}
     else:
+        job_dict = GetData()
         for method in job_dict.keys():
             usercount_dict[method] = {}
             ipList = []
             submitdateList = []
             for jobid in job_dict[method].keys():
                 submit_date = job_dict[method][jobid][1]
-                if submit_date >= startdate:
+                if submit_date >= start_date:
                     ipList.append(job_dict[method][jobid][0])
                     submitdateList.append(submit_date)
             submitdateList.sort()
