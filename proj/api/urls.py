@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from django.urls import path, include
-from rest_framework import routers
 
 #import modules for authentication
 from django.contrib.auth.decorators import login_required
