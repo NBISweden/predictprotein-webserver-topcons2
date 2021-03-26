@@ -67,8 +67,6 @@ def check_job_dict():# {{{
             submitdateList.append(job_dict[method][jobid][1])
         submitdateList.sort()
         usercount_dict[method]['total'] = len(set(ipList))
-        usercount_dict[method]['start'] = submitdateList[0]
-        usercount_dict[method]['end'] = submitdateList[-1]
         usercount_dict[method]['start'] = sortedSubmitDateList[0].strftime(webcom.FORMAT_DATETIME)
         usercount_dict[method]['end'] = sortedSubmitDateList[-1].strftime(webcom.FORMAT_DATETIME)
 # }}}
@@ -90,12 +88,27 @@ def count_users(request):# {{{
 
     return JsonResponse(usercount_dict)# }}}
 
-def count_users_with_start_date(request, startdate=""):
-    dt = {}
-    dt['total'] = 1000
-    dt['start'] = startdate
-    dt['end'] = time.strftime(webcom.FORMAT_DATETIME)
-    return JsonResponse(dt)
+def count_users_with_start_date(request, startdate_str=""):
+    job_dict = GetData()
+    usercount_dict = {}
+    start_date = webcom.datetime_str_to_time(startdate_str, isSetDefault=False)
+    if start_date is None:
+        usercount_dict = {"Wrong startdate"}
+    else:
+        for method in job_dict.keys():
+            usercount_dict[method] = {}
+            ipList = []
+            submitdateList = []
+            for jobid in job_dict[method].keys():
+                submit_date = job_dict[method][jobid][1]
+                if submit_date >= startdate:
+                    ipList.append(job_dict[method][jobid][0])
+                    submitdateList.append(submit_date)
+            submitdateList.sort()
+            usercount_dict[method]['total'] = len(set(ipList))
+            usercount_dict[method]['start'] = submitdateList[0].strftime(webcom.FORMAT_DATETIME)
+            usercount_dict[method]['end'] = submitdateList[-1].strftime(webcom.FORMAT_DATETIME)
+    return JsonResponse(usercount_dict)
 
 def count_users_with_start_end_date(request, startdate="", enddate=""):
     dt = {}
