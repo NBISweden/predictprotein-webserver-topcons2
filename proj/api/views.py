@@ -40,6 +40,8 @@ def GetData():# {{{
             submit_date_str = dt[jobid][0]
             client_ip = dt[jobid][2]
             submit_date = webcom.datetime_str_to_time(submit_date_str)
+#             li = submit_date_str.split()[:2]
+#             submit_date = "".join(li).replace('-','').replace(':','')
             newdt[jobid] = [client_ip, submit_date, submit_date_str]
         job_dict[method] = newdt
 
@@ -47,7 +49,7 @@ def GetData():# {{{
 # }}}
 
 
-def check_job_dict():
+def check_job_dict():# {{{
     """debugging function, check the content of the job_dict
     """
     job_dict = GetData()
@@ -63,11 +65,13 @@ def check_job_dict():
                 print(job_dict[method][jobid])
             ipList.append(job_dict[method][jobid][0])
             submitdateList.append(job_dict[method][jobid][1])
-        sortedSubmitDateList = submitdateList.sort()
+        submitdateList.sort()
         usercount_dict[method]['total'] = len(set(ipList))
+        usercount_dict[method]['start'] = submitdateList[0]
+        usercount_dict[method]['end'] = submitdateList[-1]
         usercount_dict[method]['start'] = sortedSubmitDateList[0].strftime(webcom.FORMAT_DATETIME)
         usercount_dict[method]['end'] = sortedSubmitDateList[-1].strftime(webcom.FORMAT_DATETIME)
-
+# }}}
 
 def count_users(request):# {{{
     job_dict = GetData()
@@ -79,10 +83,10 @@ def count_users(request):# {{{
         for jobid in job_dict[method].keys():
             ipList.append(job_dict[method][jobid][0])
             submitdateList.append(job_dict[method][jobid][1])
-        sortedSubmitDateList = submitdateList.sort()
+        submitdateList.sort()
         usercount_dict[method]['total'] = len(set(ipList))
-        usercount_dict[method]['start'] = sortedSubmitDateList[0].strftime(webcom.FORMAT_DATETIME)
-        usercount_dict[method]['end'] = sortedSubmitDateList[-1].strftime(webcom.FORMAT_DATETIME)
+        usercount_dict[method]['start'] = submitdateList[0].strftime(webcom.FORMAT_DATETIME)
+        usercount_dict[method]['end'] = submitdateList[-1].strftime(webcom.FORMAT_DATETIME)
 
     return JsonResponse(usercount_dict)# }}}
 

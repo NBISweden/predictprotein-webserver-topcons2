@@ -6,9 +6,6 @@ from rest_framework import routers
 from django.contrib.auth.decorators import login_required
 from . import views
 
-router = routers.DefaultRouter()
-router.register(r'entries', views.EntryViewSet)
-
 urlpatterns = [
     url(r'^$', views.index, name='api.index'),
     url(r'^egi_reporting/users/$', views.count_users, name='api.count_users'),
