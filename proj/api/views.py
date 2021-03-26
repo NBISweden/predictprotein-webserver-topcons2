@@ -16,7 +16,14 @@ import json
 
 # Create your views here.
 def index(request):#{{{
-    return HttpResponse("Thanks")
+    text = """<h2>API for epi_reporting</h2><br>
+    Endpoints:
+    <ul>
+    <li>/egi_reporting/users</li>
+    <li>/egi_reporting/users/startdate</li>
+    <li>/egi_reporting/users/startdate/enddate</li>
+    </ul>"""
+    return HttpResponse(text)
 #}}}
 
 def GetData():# {{{
@@ -88,7 +95,7 @@ def count_users(request):# {{{
 
     return JsonResponse(usercount_dict)# }}}
 
-def count_users_with_start_date(request, startdate_str=""):
+def count_users_with_start_date(request, startdate_str=""):# {{{
     usercount_dict = {}
     start_date = webcom.datetime_str_to_time(startdate_str, isSetDefault=False)
     if len(startdate_str.split()) <2 or start_date is None:
@@ -109,11 +116,30 @@ def count_users_with_start_date(request, startdate_str=""):
             usercount_dict[method]['start'] = submitdateList[0].strftime(webcom.FORMAT_DATETIME)
             usercount_dict[method]['end'] = submitdateList[-1].strftime(webcom.FORMAT_DATETIME)
     return JsonResponse(usercount_dict)
-
-def count_users_with_start_end_date(request, startdate="", enddate=""):
-    dt = {}
-    dt['total'] = 1000
-    dt['start'] = startdate
-    dt['end'] = enddate
-    return JsonResponse(dt)
-
+# }}}
+def count_users_with_start_end_date(request, startdate_str="", enddate_str=""):# {{{
+    usercount_dict = {}
+    start_date = webcom.datetime_str_to_time(startdate_str, isSetDefault=False)
+    end_date = webcom.datetime_str_to_time(enddate_str, isSetDefault=False)
+    if len(startdate_str.split()) <2 or start_date is None or len(enddate_str.split()) <2 or end_date is None:
+        if  len(startdate_str.split()) <2 or start_date is None:
+            usercount_dict = {"error": "Wrong startdate"}
+        elif len(enddate_str.split()) <2 or end_date is None:
+            usercount_dict = {"error": "Wrong enddate"}
+    else:
+        job_dict = GetData()
+        for method in job_dict.keys():
+            usercount_dict[method] = {}
+            ipList = []
+            submitdateList = []
+            for jobid in job_dict[method].keys():
+                submit_date = job_dict[method][jobid][1]
+                if submit_date >= start_date and submit_date <= end_date:
+                    ipList.append(job_dict[method][jobid][0])
+                    submitdateList.append(submit_date)
+            submitdateList.sort()
+            usercount_dict[method]['total'] = len(set(ipList))
+            usercount_dict[method]['start'] = submitdateList[0].strftime(webcom.FORMAT_DATETIME)
+            usercount_dict[method]['end'] = submitdateList[-1].strftime(webcom.FORMAT_DATETIME)
+    return JsonResponse(usercount_dict)
+# }}}
