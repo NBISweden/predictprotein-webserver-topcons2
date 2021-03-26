@@ -16,8 +16,8 @@ function readfile() {
 {% if not isFinished  and not isFailed %}
     setInterval(function(){$("#content_right_panel").load("{{url_result}}")},1000);
 {%endif%}
-{% endblock %}
 #}
+{% endblock %}
 
 {# url: '{% url "pred.views.get_results"  jobid %}',#}
 
