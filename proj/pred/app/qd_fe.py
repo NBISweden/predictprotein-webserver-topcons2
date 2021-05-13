@@ -728,7 +728,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         useemail = email
 
                     query_para = {}
-                    query_para['name_software'] = "topcons2"
+                    query_para['name_software'] = "docker_topcons2"
                     query_para['queue_method'] = queue_method
                     if (queue_method == 'slurm'):
                         query_para['name_software'] = "singularity_topcons2"
