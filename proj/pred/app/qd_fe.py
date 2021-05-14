@@ -250,7 +250,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
 
             # single-sequence job submitted from the web-page will be
             # submmitted by suq
-            UPPER_WAIT_TIME_IN_SEC = 60
+            UPPER_WAIT_TIME_IN_SEC = 0
             isValidSubmitDate = True
             try:
                 submit_date = webcom.datetime_str_to_time(submit_date_str)
