@@ -77,17 +77,13 @@ a:hover {
   color: #555555;
 }
 
-hr, hr.separator {
-  height : 1px;
-  width : 100%;
-  border-top-width: 1px;
-  border-bottom-width: 1px;
-  border-top-style: solid;
-  border-bottom-style: solid;
-  border-top-color: #D9D0BD;
-  border-bottom-color: #EFEBE2;
-}
 
+hr, hr.separator {
+  height: 2px;
+  border-width: 0;
+  color: gray;
+  background-color: gray;
+}
 
 /* Mambo Menu Styling
  * ------------*/
