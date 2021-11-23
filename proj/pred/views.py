@@ -369,7 +369,7 @@ def RunQuery(request, query):#{{{
     errmsg.append(myfunc.WriteFile(query['rawseq'], rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_r, "w"))
-    base_www_url = webcom.get_url_scheme(result) + request.META['HTTP_HOST']
+    base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
 
