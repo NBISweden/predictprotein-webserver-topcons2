@@ -16,7 +16,7 @@ import json
 
 # Create your views here.
 def index(request):#{{{
-    text = """<h2>API for epi_reporting</h2><br>
+    text = """<h2>API for egi_reporting</h2><br>
     Endpoints:
     <ul>
     <li>/egi_reporting/users</li>
