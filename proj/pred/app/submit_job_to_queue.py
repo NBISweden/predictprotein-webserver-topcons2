@@ -20,7 +20,7 @@ vip_email_file = "%s/config/vip_email.txt"%(basedir)
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/../"%(rundir))
-python_exec = os.path.realpath("%s/../../env/bin/python"%(basedir))
+python_exec = "python"
 suq_basedir = "/tmp"
 gen_errfile = "%s/static/log/%s.log"%(basedir, progname)
 

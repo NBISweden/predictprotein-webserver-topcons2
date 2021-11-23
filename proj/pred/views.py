@@ -52,7 +52,7 @@ path_stat = "%s/stat"%(path_log)
 path_result = "%s/static/result"%(SITE_ROOT)
 path_tmp = "%s/static/tmp"%(SITE_ROOT)
 path_md5 = "%s/static/md5"%(SITE_ROOT)
-python_exec = os.path.realpath("%s/../../env/bin/python"%(SITE_ROOT))
+python_exec = "python"
 
 from libpredweb import myfunc
 from libpredweb import webserver_common as webcom
@@ -194,7 +194,7 @@ def index(request):#{{{
         os.mkdir(path_md5, 0o755)
     base_www_url_file = "%s/static/log/base_www_url.txt"%(SITE_ROOT)
     if not os.path.exists(base_www_url_file):
-        base_www_url = "https://" + request.META['HTTP_HOST']
+        base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
         myfunc.WriteFile(base_www_url, base_www_url_file, "w", True)
 
     # read the local config file if exists
@@ -308,7 +308,7 @@ def submit_seq(request):#{{{
 
                 # start the qd_fe if not, in the background
 #                 cmd = [qd_fe_scriptfile]
-                base_www_url = "https://" + request.META['HTTP_HOST']
+                base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
                 if webcom.IsFrontEndNode(base_www_url): #run the daemon only at the frontend
                     cmd = "nohup %s %s &"%(python_exec, qd_fe_scriptfile)
                     os.system(cmd)
@@ -369,7 +369,7 @@ def RunQuery(request, query):#{{{
     errmsg.append(myfunc.WriteFile(query['rawseq'], rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(query['filtered_seq'], seqfile_r, "w"))
-    base_www_url = "https://" + request.META['HTTP_HOST']
+    base_www_url = webcom.get_url_scheme(result) + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
 
@@ -408,7 +408,7 @@ def RunQuery_wsdl(rawseq, filtered_seq, seqinfo):#{{{
     errmsg.append(myfunc.WriteFile(rawseq, rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_r, "w"))
-    base_www_url = "https://" + seqinfo['hostname']
+    base_www_url = seqinfo['url_scheme'] + seqinfo['hostname']
     seqinfo['base_www_url'] = base_www_url
 
     # changed 2015-03-26, any jobs submitted via wsdl is hadndel
@@ -439,7 +439,7 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
     errmsg.append(myfunc.WriteFile(rawseq, rawseqfile, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_t, "w"))
     errmsg.append(myfunc.WriteFile(filtered_seq, seqfile_r, "w"))
-    base_www_url = "https://" + seqinfo['hostname']
+    base_www_url = seqinfo['url_scheme'] + seqinfo['hostname']
     seqinfo['base_www_url'] = base_www_url
 
     rtvalue = SubmitQueryToLocalQueue(seqinfo, tmpdir, rstdir)
@@ -728,8 +728,7 @@ def get_results(request, jobid="1"):#{{{
     resultdict['numseq'] = numseq
     resultdict['query_seqfile'] = os.path.basename(query_seqfile)
     resultdict['raw_query_seqfile'] = os.path.basename(raw_query_seqfile)
-    base_www_url = "https://" + request.META['HTTP_HOST']
-#   note that here one must add https:// in front of the url
+    base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
     resultdict['url_result'] = "%s/pred/result/%s"%(base_www_url, jobid)
 
     sum_run_time = 0.0
@@ -910,7 +909,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['BASEURL'] = g_params['BASEURL']
     resultdict['status'] = status
     resultdict['numseq'] = numseq
-    base_www_url = "https://" + request.META['HTTP_HOST']
+    base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
     resultdict['isAllNonTM'] = True
 
     resultfile = "%s/%s/%s/%s"%(rstdir, outpathname, seqindex, "query.result.txt")
@@ -981,8 +980,7 @@ class Service_submitseq(ServiceBase):
                 hostname = soap_req.META['HTTP_HOST']
             except:
                 hostname = ""
-#             print client_ip
-#             print hostname
+            url_scheme = webcom.get_url_scheme(soap_req)
             seqinfo['jobname'] = jobname
             seqinfo['email'] = email
             seqinfo['fixtop'] = fixtop
@@ -990,6 +988,7 @@ class Service_submitseq(ServiceBase):
             seqinfo['client_ip'] = client_ip
             seqinfo['hostname'] = hostname
             seqinfo['method_submission'] = "wsdl"
+            seqinfo['url_scheme'] = url_scheme
             seqinfo['isForceRun'] = False  # disable isForceRun if submitted by WSDL
             jobid = RunQuery_wsdl(seq, filtered_seq, seqinfo)
             if jobid == "":
@@ -1007,7 +1006,7 @@ class Service_submitseq(ServiceBase):
                 if seqinfo['client_ip'] != "":
                     myfunc.WriteFile(log_record, divided_logfile_query, "a")
 
-                url = "https://" + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
+                url = url_scheme + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 if seqinfo['warninfo'] != "":
@@ -1054,15 +1053,15 @@ class Service_submitseq(ServiceBase):
                 hostname = soap_req.META['HTTP_HOST']
             except:
                 hostname = ""
-#             print client_ip
-#             print hostname
+            url_scheme = webcom.get_url_scheme(soap_req)
             seqinfo['jobname'] = jobname
             seqinfo['email'] = email
             seqinfo['fixtop'] = fixtop
-            seqinfo['date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+            seqinfo['date'] = time.strftime(g_params['FORMAT_DATETIME'])
             seqinfo['client_ip'] = client_ip
             seqinfo['hostname'] = hostname
             seqinfo['method_submission'] = "wsdl"
+            seqinfo['url_scheme'] = url_scheme
             # for this method, wsdl is called only by the daemon script, isForceRun can be
             # set by the argument
             if isforcerun.upper()[:1] == "T":
@@ -1085,7 +1084,7 @@ class Service_submitseq(ServiceBase):
                 if seqinfo['client_ip'] != "":
                     myfunc.WriteFile(log_record, divided_logfile_query, "a")
 
-                url = "https://" + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
+                url = url_scheme + hostname + g_params['BASEURL'] + "result/%s"%(jobid)
 
                 file_seq_warning = "%s/%s/%s/%s"%(SITE_ROOT, "static/result", jobid, "query.warn.txt")
                 if seqinfo['warninfo'] != "":
@@ -1100,8 +1099,9 @@ class Service_submitseq(ServiceBase):
     def checkjob(ctx, jobid=""):#{{{
         rstdir = "%s/%s"%(path_result, jobid)
         soap_req = ctx.transport.req
+        url_scheme = webcom.get_url_scheme(soap_req)
         hostname = soap_req.META['HTTP_HOST']
-        result_url = "https://" + hostname + "/static/" + "result/%s/%s.zip"%(jobid, jobid)
+        result_url = url_scheme + hostname + "/static/" + "result/%s/%s.zip"%(jobid, jobid)
         status = "None"
         url = ""
         errinfo = ""
