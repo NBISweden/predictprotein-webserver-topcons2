@@ -35,8 +35,6 @@ webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
 #Add the site-packages of the virtualenv
-site.addsitedir("%s/env/lib/python3.7/site-packages/"%(webserver_root))
-sys.path.append("%s/env/lib/python3.7/site-packages/"%(webserver_root))
 
 import math
 from libpredweb import myfunc
@@ -79,8 +77,6 @@ except IOError:
     sys.exit(1)
 
 contact_email = "nanjiang.shu@scilifelab.se"
-
-threshold_logfilesize = 20*1024*1024
 
 usage_short="""
 Usage: %s
@@ -1922,7 +1918,7 @@ def main(g_params):#{{{
         if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
 
-        webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
+        webcom.ArchiveLogFile(path_log, g_params['threshold_logfilesize'], g_params)
         # For finished jobs, clean data not used for caching
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
@@ -1993,6 +1989,7 @@ def InitGlobalParameter():#{{{
     g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
     g_params['CLEAN_SERVER_FREQUENCY'] = [50, 0]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+    g_params['threshold_logfilesize'] = 20*1024*1024
     g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     return g_params
 #}}}
