@@ -111,7 +111,7 @@ LOGGING = {
     },
 }
 logging.basicConfig(level=logging.INFO)
-logging.getLogger('spyne.protocol.xml').setLevel(logging.info)
+logging.getLogger('spyne.protocol.xml').setLevel(logging.INFO)
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
