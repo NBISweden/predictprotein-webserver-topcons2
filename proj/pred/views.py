@@ -451,10 +451,10 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
 def SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=False):#{{{
     scriptfile = "%s/app/submit_job_to_queue.py"%(SITE_ROOT)
     rstdir = "%s/%s"%(path_result, query['jobid'])
-    debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
+    debugfile = "%s/debug.log"%(rstdir) #this log file is only for checking
     runjob_logfile = "%s/runjob.log"%(rstdir)
     runjob_errfile = "%s/runjob.err"%(rstdir)
-    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
+    failedtagfile = "%s/%s"%(rstdir, "submit_job_to_queue.py.failed")
     rmsg = ""
 
     cmd = [python_exec, scriptfile, "-nseq", "%d"%query['numseq'], "-nseq-this-user",
