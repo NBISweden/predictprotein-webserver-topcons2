@@ -277,5 +277,8 @@ def InitGlobalParameter():#{{{
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
-    sys.exit(main(g_params))
+    try:
+        sys.exit(main(g_params))
+    except:
+        raise
 
