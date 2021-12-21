@@ -26,13 +26,16 @@ if(!param())
 {
     my $remote_host = $ENV{'REMOTE_ADDR'};
     my @auth_iplist = ();
-    open(IN, "<", $auth_ip_file) or die;
-    while(<IN>) {
-        chomp;
-        push @auth_iplist, $_;
+    if (open(IN, "<", $auth_ip_file)){
+        while(<IN>) {
+            chomp;
+            push @auth_iplist, $_;
+        }
+    } else {
+        close IN;
     }
-    close IN;
 
+    print "Host IP: $remote_host\n\n";
     if (grep { $_ eq $remote_host } @auth_iplist) {
         print "<pre>";
         print "Host IP: $remote_host\n\n";
@@ -70,7 +73,7 @@ if(!param())
 
         print "</pre>";
     }else{
-        print "Permission denied!\n";
+        print "Permission denied for the host $remote_host!\n";
     }
 
     print '<br>';
