@@ -40,6 +40,7 @@ import math
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
+from libpredweb import qd_fe_common as qdcom
 import time
 from datetime import datetime
 from dateutil import parser as dtparser
@@ -111,7 +112,6 @@ os.environ['MODHMM_BIN'] = "/server/modhmm/bin"
 os.environ['BLASTMAT'] = "%s/data"%(blastdir)
 os.environ['BLASTBIN'] = "%s/bin"%(blastdir)
 os.environ['BLASTDB'] = "%s/%s"%(rundir, "soft/topcons2_webserver/database/blast/")
-script_scampi = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
 black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
@@ -443,7 +443,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         myfunc.WriteFile("", runjoblogfile, "w", True)
 
 #}}}
-def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
+def SubmitJob_obselete(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 # for each job rstdir, keep three log files, 
 # 1.seqs finished, finished_seq log keeps all information, finished_index_log
 #   can be very compact to speed up reading, e.g.
@@ -1958,7 +1958,7 @@ def main(g_params):#{{{
                     or not webcom.IsCacheProcessingFinished(rstdir)
                     ):
                 if not g_params['DEBUG_NO_SUBMIT']:
-                    SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
+                    qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
             GetResult(jobid) # the start tagfile is written when got the first result
             CheckIfJobFinished(jobid, numseq, email)
 
@@ -1991,6 +1991,16 @@ def InitGlobalParameter():#{{{
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     g_params['threshold_logfilesize'] = 20*1024*1024
     g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
+    g_params['script_scampi'] = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
+    g_params['name_server'] = "topcons2"
+    g_params['path_static'] = path_static
+    g_params['path_result'] = path_result
+    g_params['path_log'] = path_log
+    g_params['path_cache'] = path_cache
+    g_params['gen_logfile'] = gen_logfile
+    g_params['gen_errfile'] = gen_errfile
+    g_params['contact_email'] = contact_email
+    g_params['vip_email_file'] = vip_email_file
     return g_params
 #}}}
 if __name__ == '__main__' :
