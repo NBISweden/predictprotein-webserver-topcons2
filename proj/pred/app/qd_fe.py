@@ -40,6 +40,7 @@ import math
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
+from libpredweb import qd_fe_common as qdcom
 import time
 from datetime import datetime
 from dateutil import parser as dtparser
@@ -1957,7 +1958,7 @@ def main(g_params):#{{{
                     or not webcom.IsCacheProcessingFinished(rstdir)
                     ):
                 if not g_params['DEBUG_NO_SUBMIT']:
-                    webcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
+                    qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
             GetResult(jobid) # the start tagfile is written when got the first result
             CheckIfJobFinished(jobid, numseq, email)
 
@@ -1992,6 +1993,14 @@ def InitGlobalParameter():#{{{
     g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     g_params['script_scampi'] = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
     g_params['name_server'] = "topcons2"
+    g_params['path_static'] = path_static
+    g_params['path_result'] = path_result
+    g_params['path_log'] = path_log
+    g_params['path_cache'] = path_cache
+    g_params['gen_logfile'] = gen_logfile
+    g_params['gen_errfile'] = gen_errfile
+    g_params['contact_email'] = contact_email
+    g_params['vip_email_file'] = vip_email_file
     return g_params
 #}}}
 if __name__ == '__main__' :
