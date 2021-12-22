@@ -775,108 +775,6 @@ def GetResult(jobid):#{{{
     return 0
 #}}}
 
-def CheckIfJobFinished(jobid, numseq, email):#{{{
-    # check if the job is finished and write tagfiles
-    webcom.loginfo("CheckIfJobFinished for %s.\n" %(jobid), gen_logfile)
-    rstdir = "%s/%s"%(path_result, jobid)
-    tmpdir = "%s/tmpdir"%(rstdir)
-    outpath_result = "%s/%s"%(rstdir, jobid)
-    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
-    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
-    finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
-    failed_idx_file = "%s/failed_seqindex.txt"%(rstdir)
-    seqfile = "%s/query.fa"%(rstdir)
-
-    base_www_url_file = "%s/static/log/base_www_url.txt"%(basedir)
-    base_www_url = ""
-
-    finished_idx_list = []
-    failed_idx_list = []
-    if os.path.exists(finished_idx_file):
-        finished_idx_list = myfunc.ReadIDList(finished_idx_file)
-        finished_idx_list = list(set(finished_idx_list))
-    if os.path.exists(failed_idx_file):
-        failed_idx_list = myfunc.ReadIDList(failed_idx_file)
-        failed_idx_list = list(set(failed_idx_list))
-
-    finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
-    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
-    starttagfile = "%s/%s"%(rstdir, "runjob.start")
-
-    num_processed = len(finished_idx_list)+len(failed_idx_list)
-    finish_status = "" #["success", "failed", "partly_failed"]
-    if num_processed >= numseq:# finished
-        if len(failed_idx_list) == 0:
-            finish_status = "success"
-        elif len(failed_idx_list) >= numseq:
-            finish_status = "failed"
-        else:
-            finish_status = "partly_failed"
-
-        if os.path.exists(base_www_url_file):
-            base_www_url = myfunc.ReadFile(base_www_url_file).strip()
-        if base_www_url == "":
-            base_www_url = "http://topcons.net"
-
-        date_str_epoch_now = time.time()
-
-        # Now write the text output to a single file
-        statfile = "%s/%s"%(outpath_result, "stat.txt")
-        finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
-        resultfile_text = "%s/%s"%(outpath_result, "query.result.txt")
-        resultfile_html = "%s/%s"%(outpath_result, "query.result.html")
-        (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
-        maplist = []
-        for i in range(len(seqIDList)):
-            maplist.append("%s\t%d\t%s\t%s"%("seq_%d"%i, len(seqList[i]),
-                seqAnnoList[i].replace('\t', ' '), seqList[i]))
-        start_date_str = myfunc.ReadFile(starttagfile).strip()
-        start_date_epoch = webcom.datetime_str_to_epoch(start_date_str)
-        all_runtime_in_sec = float(date_str_epoch_now) - float(start_date_epoch)
-
-        finishtagfile_result = "%s/%s"%(rstdir, "write_result_finish.tag")
-        if not os.path.exists(finishtagfile_result):
-            msg =  "Dump result to file %s ..."%(resultfile_text)
-            webcom.loginfo(msg, gen_logfile)
-            webcom.WriteTOPCONSTextResultFile(resultfile_text, outpath_result, maplist,
-                    all_runtime_in_sec, base_www_url, statfile=statfile)
-
-        finishtagfile_resulthtml = "%s/%s"%(rstdir, "write_htmlresult_finish.tag")
-        if not os.path.exists(finishtagfile_resulthtml):
-            webcom.loginfo("Write HTML table to %s ..."%(resultfile_html), gen_logfile)
-            webcom.WriteHTMLResultTable_TOPCONS(resultfile_html, finished_seq_file)
-
-        # now making zip instead (for windows users)
-        # note that zip rq will zip the real data for symbolic links
-        zipfile = "%s.zip"%(jobid)
-        zipfile_fullpath = "%s/%s"%(rstdir, zipfile)
-        os.chdir(rstdir)
-        is_zip_success = True
-        cmd = ["zip", "-rq", zipfile, jobid]
-
-        finishtagfile_zipfile = "%s/%s"%(rstdir, "write_zipfile_finish.tag")
-        if not os.path.exists(finishtagfile_zipfile):
-            (is_zip_success, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-            if is_zip_success:
-                webcom.WriteDateTimeTagFile(finishtagfile_zipfile, runjob_logfile, runjob_errfile)
-
-        if len(failed_idx_list)>0:
-            webcom.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
-
-        if is_zip_success:
-            webcom.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
-
-        if finish_status == "success":
-            shutil.rmtree(tmpdir)
-
-        # send the result to email
-        if webcom.IsFrontEndNode(base_www_url) and myfunc.IsValidEmailAddress(email):
-            webcom.SendEmail_on_finish(jobid, base_www_url,
-                    finish_status, name_server="TOPCONS2", from_email=g_params['from_email'],
-                    to_email=email, contact_email=contact_email,
-                    logfile=runjob_logfile, errfile=runjob_errfile)
-        webcom.CleanJobFolder_TOPCONS2(rstdir)
-#}}}
 def RunStatistics(path_result, path_log):#{{{
 # 1. calculate average running time, only for those sequences with time.txt
 # show also runtime of type and runtime -vs- seqlength
@@ -1604,7 +1502,7 @@ def main(g_params):#{{{
                 if not g_params['DEBUG_NO_SUBMIT']:
                     qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
             GetResult(jobid) # the start tagfile is written when got the first result
-            CheckIfJobFinished(jobid, numseq, email)
+            qdcom.CheckIfJobFinished(jobid, numseq, email, g_params)
 
 
         webcom.loginfo("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile)
@@ -1636,7 +1534,7 @@ def InitGlobalParameter():#{{{
     g_params['threshold_logfilesize'] = 20*1024*1024
     g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     g_params['script_scampi'] = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
-    g_params['name_server'] = "topcons2"
+    g_params['name_server'] = "TOPCONS2"
     g_params['path_static'] = path_static
     g_params['path_result'] = path_result
     g_params['path_log'] = path_log
