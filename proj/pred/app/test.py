@@ -67,7 +67,7 @@ if TESTMODE in ['writehtmltopcons']:#{{{
 if TESTMODE in ['sendmail']:#{{{
     try: 
         to_email = sys.argv[2]
-        from_email = "noreply-TOPCONS@topcons.cbr.su.se"
+        from_email = "noreply-TOPCONS@topcons.net"
         subject = "Result from TOPCONS2"
         bodytext = """This is the result from topcons2.
         The result can be found at https://topcons.net/result
