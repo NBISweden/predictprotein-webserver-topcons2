@@ -1220,7 +1220,7 @@ def InitGlobalParameter():#{{{
     g_params['gen_errfile'] = gen_errfile
     g_params['contact_email'] = contact_email
     g_params['vip_email_file'] = vip_email_file
-    g_params['UPPER_WAIT_TIME_IN_SEC'] = 2 #wait time before it will be handled by qd_fe
+    g_params['UPPER_WAIT_TIME_IN_SEC'] = 0 #wait time before it will be handled by qd_fe
     return g_params
 #}}}
 if __name__ == '__main__' :
