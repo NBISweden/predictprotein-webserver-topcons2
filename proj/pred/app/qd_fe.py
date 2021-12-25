@@ -36,7 +36,6 @@ activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
 #Add the site-packages of the virtualenv
 
-import math
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
@@ -120,282 +119,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print(usage_ext, file=fpout)
     print(usage_exp, file=fpout)#}}}
 
-def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
-        finishedjoblogfile, loop):
-    webcom.loginfo("CreateRunJoblog...\n", gen_logfile)
-    # Read entries from submitjoblogfile, checking in the result folder and
-    # generate two logfiles: 
-    #   1. runjoblogfile 
-    #   2. finishedjoblogfile
-    # when loop == 0, for unfinished jobs, re-generate finished_seqs.txt
-    hdl = myfunc.ReadLineByBlock(submitjoblogfile)
-    if hdl.failure:
-        return 1
-
-    finished_jobid_list = []
-    finished_job_dict = {}
-    if os.path.exists(finishedjoblogfile):
-        finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
-
-    # these two list try to update the finished list and submitted list so that
-    # deleted jobs will not be included, there is a separate list started with
-    # all_xxx which keeps also the historical jobs
-    new_finished_list = []  # Finished or Failed
-    new_submitted_list = []  # 
-
-    new_runjob_list = []    # Running
-    new_waitjob_list = []    # Queued
-    lines = hdl.readlines()
-    while lines != None:
-        for line in lines:
-            strs = line.split("\t")
-            if len(strs) < 8:
-                continue
-            submit_date_str = strs[0]
-            jobid = strs[1]
-            ip = strs[2]
-            numseq_str = strs[3]
-            jobname = strs[5]
-            email = strs[6].strip()
-            method_submission = strs[7]
-            start_date_str = ""
-            finish_date_str = ""
-            rstdir = "%s/%s"%(path_result, jobid)
-
-            numseq = 1
-            try:
-                numseq = int(numseq_str)
-            except:
-                pass
-
-            isRstFolderExist = False
-            if os.path.exists(rstdir):
-                isRstFolderExist = True
-
-
-            if isRstFolderExist:
-                new_submitted_list.append([jobid,line])
-
-            if jobid in finished_job_dict:
-                if isRstFolderExist:
-                    li = [jobid] + finished_job_dict[jobid]
-                    new_finished_list.append(li)
-                continue
-
-            status = webcom.get_job_status(jobid, numseq, path_result)
-
-            starttagfile = "%s/%s"%(rstdir, "runjob.start")
-            finishtagfile = "%s/%s"%(rstdir, "runjob.finish")
-            if os.path.exists(starttagfile):
-                start_date_str = myfunc.ReadFile(starttagfile).strip()
-            if os.path.exists(finishtagfile):
-                finish_date_str = myfunc.ReadFile(finishtagfile).strip()
-
-            li = [jobid, status, jobname, ip, email, numseq_str,
-                    method_submission, submit_date_str, start_date_str,
-                    finish_date_str]
-            if status in ["Finished", "Failed"]:
-                new_finished_list.append(li)
-
-            # single-sequence job submitted from the web-page will be
-            # submmitted by suq
-            UPPER_WAIT_TIME_IN_SEC = 0
-            isValidSubmitDate = True
-            try:
-                submit_date = webcom.datetime_str_to_time(submit_date_str)
-            except ValueError:
-                isValidSubmitDate = False
-
-            if isValidSubmitDate:
-                current_time = datetime.now(timezone(TZ))
-                timeDiff = current_time - submit_date
-                queuetime_in_sec = timeDiff.seconds
-            else:
-                queuetime_in_sec = UPPER_WAIT_TIME_IN_SEC + 1
-
-            if numseq > 1 or method_submission == "wsdl" or queuetime_in_sec > UPPER_WAIT_TIME_IN_SEC:
-                if status == "Running":
-                    new_runjob_list.append(li)
-                elif status == "Wait":
-                    new_waitjob_list.append(li)
-        lines = hdl.readlines()
-    hdl.close()
-
-# re-write logs of submitted jobs
-    li_str = []
-    for li in new_submitted_list:
-        li_str.append(li[1])
-    if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", submitjoblogfile, "w", True)
-    else:
-        myfunc.WriteFile("", submitjoblogfile, "w", True)
-
-# re-write logs of finished jobs
-    li_str = []
-    for li in new_finished_list:
-        li = [str(x) for x in li]
-        li_str.append("\t".join(li))
-    if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", finishedjoblogfile, "w", True)
-    else:
-        myfunc.WriteFile("", finishedjoblogfile, "w", True)
-# re-write logs of finished jobs for each IP
-    new_finished_dict = {}
-    for li in new_finished_list:
-        ip = li[3]
-        if not ip in new_finished_dict:
-            new_finished_dict[ip] = []
-        new_finished_dict[ip].append(li)
-    for ip in new_finished_dict:
-        finished_list_for_this_ip = new_finished_dict[ip]
-        divide_finishedjoblogfile = "%s/divided/%s_finished_job.log"%(path_log,
-                ip)
-        li_str = []
-        for li in finished_list_for_this_ip:
-            li = [str(x) for x in li]
-            li_str.append("\t".join(li))
-        if len(li_str)>0:
-            myfunc.WriteFile("\n".join(li_str)+"\n", divide_finishedjoblogfile, "w", True)
-        else:
-            myfunc.WriteFile("", divide_finishedjoblogfile, "w", True)
-
-# update allfinished jobs
-    allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
-    allfinished_jobid_set = set(myfunc.ReadIDList2(allfinishedjoblogfile, col=0, delim="\t"))
-    li_str = []
-    for li in new_finished_list:
-        li = [str(x) for x in li]
-        jobid = li[0]
-        if not jobid in allfinished_jobid_set:
-            li_str.append("\t".join(li))
-    if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", allfinishedjoblogfile, "a", True)
-
-# update all_submitted jobs
-    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
-    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmitjoblogfile, col=1, delim="\t"))
-    li_str = []
-    for li in new_submitted_list:
-        jobid = li[0]
-        if not jobid in allsubmitted_jobid_set:
-            li_str.append(li[1])
-    if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmitjoblogfile, "a", True)
-
-# write logs of running and queuing jobs
-# the queuing jobs are sorted in descending order by the suq priority
-# frist get numseq_this_user for each jobs
-# format of numseq_this_user: {'jobid': numseq_this_user}
-    numseq_user_dict = webcom.GetNumSeqSameUserDict(new_runjob_list + new_waitjob_list)
-
-# now append numseq_this_user and priority score to new_waitjob_list and
-# new_runjob_list
-
-    for joblist in [new_waitjob_list, new_runjob_list]:
-        for li in joblist:
-            jobid = li[0]
-            ip = li[3]
-            email = li[4].strip()
-            rstdir = "%s/%s"%(path_result, jobid)
-            outpath_result = "%s/%s"%(rstdir, jobid)
-
-            # if loop == 0 , for new_waitjob_list and new_runjob_list
-            # re-generate finished_seqs.txt
-            if loop == 0 and os.path.exists(outpath_result):#{{{
-                finished_seq_file = "%s/finished_seqs.txt"%(outpath_result)
-                finished_idx_file = "%s/finished_seqindex.txt"%(rstdir)
-                finished_idx_set = set([])
-
-                finished_seqs_idlist = []
-                if os.path.exists(finished_seq_file):
-                    finished_seqs_idlist = myfunc.ReadIDList2(finished_seq_file, col=0, delim="\t")
-                finished_seqs_idset = set(finished_seqs_idlist)
-                finished_info_list = []
-                queryfile = "%s/query.fa"%(rstdir)
-                (seqidlist, seqannolist, seqlist) = myfunc.ReadFasta(queryfile)
-                try:
-                    dirlist = os.listdir(outpath_result)
-                except:
-                    webcom.loginfo("Failed to os.listdir(%s)"%(outpath_result), gen_errfile)
-                for dd in dirlist:
-                    if dd.find("seq_") == 0:
-                        origIndex_str = dd.split("_")[1]
-                        finished_idx_set.add(origIndex_str)
-
-                    if dd.find("seq_") == 0 and dd not in finished_seqs_idset:
-                        origIndex = int(dd.split("_")[1])
-                        outpath_this_seq = "%s/%s"%(outpath_result, dd)
-                        timefile = "%s/time.txt"%(outpath_this_seq)
-                        runtime = webcom.ReadRuntimeFromFile(timefile, default_runtime=0.0)
-# get origIndex and then read description the description list
-                        try:
-                            description = seqannolist[origIndex].replace('\t', ' ')
-                        except:
-                            description = "seq_%d"%(origIndex)
-                        try:
-                            seq = seqlist[origIndex]
-                        except:
-                            seq = ""
-                        info_finish = webcom.GetInfoFinish_TOPCONS2(outpath_this_seq,
-                                origIndex, len(seq), description,
-                                source_result="newrun", runtime=runtime)
-                        finished_info_list.append("\t".join(info_finish))
-                if len(finished_info_list)>0:
-                    myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
-                if len(finished_idx_set) > 0:
-                    myfunc.WriteFile("\n".join(list(finished_idx_set))+"\n", finished_idx_file, "w", True)
-                else:
-                    myfunc.WriteFile("", finished_idx_file, "w", True)
-
-
-            #}}}
-
-            try:
-                numseq = int(li[5])
-            except:
-                numseq = 1
-                pass
-            try:
-                numseq_this_user = numseq_user_dict[jobid]
-            except:
-                numseq_this_user = numseq
-                pass
-            # note that the priority is deducted by numseq so that for jobs
-            # from the same user, jobs with fewer sequences are placed with
-            # higher priority
-            priority = myfunc.FloatDivision(myfunc.GetSuqPriority(numseq_this_user) - numseq, 
-                    math.sqrt(numseq))
-
-            if ip in g_params['blackiplist']:
-                priority = priority/1000.0
-
-            if email in g_params['vip_user_list']:
-                numseq_this_user = 1
-                priority = 999999999.0
-                myfunc.WriteFile("email %s in vip_user_list\n"%(email), gen_logfile, "a", True)
-
-            li.append(numseq_this_user)
-            li.append(priority)
-
-
-    # sort the new_waitjob_list in descending order by priority
-    new_waitjob_list = sorted(new_waitjob_list, key=lambda x:x[11], reverse=True)
-    new_runjob_list = sorted(new_runjob_list, key=lambda x:x[11], reverse=True)
-
-    # write to runjoblogfile
-    li_str = []
-    for joblist in [new_waitjob_list, new_runjob_list]:
-        for li in joblist:
-            li2 = li[:10]+[str(li[10]), str(li[11])]
-            li_str.append("\t".join(li2))
-#     print "write to", runjoblogfile
-#     print "\n".join(li_str)
-    if len(li_str)>0:
-        myfunc.WriteFile("\n".join(li_str)+"\n", runjoblogfile, "w", True)
-    else:
-        myfunc.WriteFile("", runjoblogfile, "w", True)
-
-#}}}
 def GetResult(jobid):#{{{
     # retrieving result from the remote server for this job
     webcom.loginfo("GetResult for %s.\n" %(jobid), gen_logfile)
@@ -1382,8 +1105,21 @@ def main(g_params):#{{{
 
         webcom.loginfo("loop %d"%(loop), gen_logfile)
 
-        CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
-                finishedjoblogfile, loop)
+        isOldRstdirDeleted = False
+        if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
+            RunStatistics(path_result, path_log)
+            isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log,
+                    gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
+            webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
+        if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
+            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
+
+        if 'DEBUG_ARCHIVE' in g_params and g_params['DEBUG_ARCHIVE']:
+            webcom.loginfo("Run ArchiveLogFile, path_log=%s, threshold_logfilesize=%d"%(path_log, threshold_logfilesize), gen_logfile)
+        webcom.ArchiveLogFile(path_log, g_params['threshold_logfilesize'], g_params)
+
+        qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
+        # CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile, finishedjoblogfile, loop)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
@@ -1404,17 +1140,6 @@ def main(g_params):#{{{
                         remotejobid = strs[2]
                         if node in remotequeueDict:
                             remotequeueDict[node].append(remotejobid)
-
-
-        if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
-            RunStatistics(path_result, path_log)
-            webcom.DeleteOldResult(path_result, path_log, gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
-            webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
-        if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
-            webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
-
-        webcom.ArchiveLogFile(path_log, g_params['threshold_logfilesize'], g_params)
-        # For finished jobs, clean data not used for caching
 
         cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
         for node in avail_computenode:
@@ -1495,6 +1220,7 @@ def InitGlobalParameter():#{{{
     g_params['gen_errfile'] = gen_errfile
     g_params['contact_email'] = contact_email
     g_params['vip_email_file'] = vip_email_file
+    g_params['UPPER_WAIT_TIME_IN_SEC'] = 2 #wait time before it will be handled by qd_fe
     return g_params
 #}}}
 if __name__ == '__main__' :
