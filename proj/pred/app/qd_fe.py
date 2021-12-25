@@ -1485,7 +1485,6 @@ def InitGlobalParameter():#{{{
     g_params['CLEAN_SERVER_FREQUENCY'] = [50, 0]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     g_params['threshold_logfilesize'] = 20*1024*1024
-    g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
     g_params['script_scampi'] = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
     g_params['name_server'] = "TOPCONS2"
     g_params['path_static'] = path_static

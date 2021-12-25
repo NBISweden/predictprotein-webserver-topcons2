@@ -377,13 +377,14 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
 
         # send the result to email
         # do not sendmail at the cloud VM
+        from_email = webcom.get_email_address_outsending(g_params['name_server'])
         if webcom.IsFrontEndNode(g_params['base_www_url']) and myfunc.IsValidEmailAddress(email):
             if isSuccess:
                 finish_status = "success"
             else:
                 finish_status = "failed"
             webcom.SendEmail_on_finish(jobid, g_params['base_www_url'],
-                    finish_status, name_server="TOPCONS2", from_email=g_params['from_email'],
+                    finish_status, name_server=g_params['name_server'], from_email=from_email,
                     to_email=email, contact_email=contact_email,
                     logfile=runjob_logfile, errfile=runjob_errfile)
 
@@ -504,7 +505,7 @@ def InitGlobalParameter():#{{{
     g_params['jobid'] = ""
     g_params['isOnlyGetCache'] = False
     g_params['lockfile'] = ""
-    g_params['from_email'] = "no-reply.TOPCONS@topcons.cbr.su.se"
+    g_params['name_server'] = "TOPCONS2"
     return g_params
 #}}}
 if __name__ == '__main__' :
