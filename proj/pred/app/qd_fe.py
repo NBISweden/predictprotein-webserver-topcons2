@@ -61,8 +61,6 @@ TZ = webcom.TZ
 os.environ['TZ'] = TZ
 time.tzset()
 
-
-
 # make sure that only one instance of the script is running
 # this code is working 
 progname = os.path.basename(__file__)
@@ -122,13 +120,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print(usage_ext, file=fpout)
     print(usage_exp, file=fpout)#}}}
 
-def get_total_seconds(td): #{{{
-    """
-    return the total_seconds for the timedate.timedelta object
-    for python version >2.7 this is not needed
-    """
-    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6) / 1e6
-#}}}
 def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         finishedjoblogfile, loop):
     webcom.loginfo("CreateRunJoblog...\n", gen_logfile)
