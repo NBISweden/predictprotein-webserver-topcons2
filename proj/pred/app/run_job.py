@@ -120,9 +120,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
 
     runjob_errfile = "%s/runjob.err"%(outpath)
     runjob_logfile = "%s/runjob.log"%(outpath)
-
-    rmsg = ""
-
+    cache_process_finish_tagfile = "%s/cache_processed.finish"%(outpath)
 
     resultpathname = jobid
 
@@ -231,6 +229,7 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
             recordList = hdl.readseq()
         hdl.close()
     myfunc.WriteFile("\n".join(maplist_simple)+"\n", mapfile)
+    webcom.WriteDateTimeTagFile(cache_process_finish_tagfile, runjob_logfile, runjob_errfile)
 
     if not g_params['isOnlyGetCache']:
         # run scampi single to estimate the number of TM helices and then run
