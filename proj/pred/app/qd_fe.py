@@ -1221,6 +1221,8 @@ def InitGlobalParameter():#{{{
     g_params['contact_email'] = contact_email
     g_params['vip_email_file'] = vip_email_file
     g_params['UPPER_WAIT_TIME_IN_SEC'] = 0 #wait time before it will be handled by qd_fe
+    g_params['webserver_root'] = webserver_root
+    g_params['THRESHOLD_NUMSEQ_CHECK_IF_JOB_FINISH'] = 100 # threshold of numseq for the job to run CheckIfJobFinished in a separate process
     return g_params
 #}}}
 if __name__ == '__main__' :
