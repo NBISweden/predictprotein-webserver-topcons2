@@ -1115,7 +1115,8 @@ def main(g_params):#{{{
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
 
         if 'DEBUG_ARCHIVE' in g_params and g_params['DEBUG_ARCHIVE']:
-            webcom.loginfo("Run ArchiveLogFile, path_log=%s, threshold_logfilesize=%d"%(path_log, threshold_logfilesize), gen_logfile)
+            webcom.loginfo("Run ArchiveLogFile, path_log=%s, threshold_logfilesize=%d"%(
+                path_log, g_params['threshold_logfilesize']), gen_logfile)
         webcom.ArchiveLogFile(path_log, g_params['threshold_logfilesize'], g_params)
 
         qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
