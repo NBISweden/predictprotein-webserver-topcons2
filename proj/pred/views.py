@@ -511,6 +511,13 @@ def get_example(request):#{{{
     return render(request, 'pred/example.html', info)
 #}}}
 
+def privacy(request):#{{{
+    info = {}
+    webcom.set_basic_config(request, info, g_params)
+    info['jobcounter'] = webcom.GetJobCounter(info)
+    return render(request, 'pred/privacy.html', info)
+#}}}
+
 def oldtopcons(request):#{{{
     url_oldtopcons = "https://old.topcons.net"
     return HttpResponseRedirect(url_oldtopcons);
