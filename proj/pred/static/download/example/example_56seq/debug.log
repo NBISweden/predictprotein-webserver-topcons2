@@ -1,0 +1,14 @@
+Entering SubmitJobToQueue()
+suq -b /big/server/web_topcons2/debug/proj/pred/static/log ls
+Entering GetNumSameUserInQueue()
+num_same_user_in_queue=0
+priority=944
+Entering Set_suq_ntask()
+Leaving Set_suq_ntask()
+
+Entering SubmitSuqJob()
+cmdline: suq -b /big/server/web_topcons2/debug/proj/pred/static/log run -d /big/server/web_topcons2/debug/proj/pred/static/tmp/tmp_LUCOtf -p 944 /big/server/web_topcons2/debug/proj/pred/static/tmp/tmp_LUCOtf/runjobSPLITrst_KQXgCMSPLIT130.229.43.197SPLITSPLIT56.sh
+
+Leaving SubmitSuqJob()
+
+st1 = 0, st2 = 0

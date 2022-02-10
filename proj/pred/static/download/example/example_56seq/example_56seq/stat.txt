@@ -1,0 +1,6 @@
+num_TMPro_cons 27
+num_TMPro_any 33
+num_nonTMPro_cons 29
+num_nonTMPro_any 23
+num_SPPro_cons 4
+num_SPPro_any 4

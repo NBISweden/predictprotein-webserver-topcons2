@@ -1,0 +1,267 @@
+##############################################################################
+TOPCONS2 result file
+Generated from http://http://dev.v2.topcons.net at 2015-02-17 12:08:43
+Total request time: 42.1 seconds.
+##############################################################################
+Sequence number: 1
+Sequence name: G9XC52_9FIRM
+Sequence length: 129 aa.
+Sequence:
+MSKVVVRTKEELKIAYAGKVDEIIIEGKLAKQIRDLEKIKLFSPVAIGALTAAGVAFLASTVSGPITGGISYFAAVATLETAAATTGLSVPLIILSCSIGVALLVAIFKEYDMEAVVSGKGIKVILRKR
+
+
+TOPCONS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMooooooooooooooooooooooMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiiii
+
+
+
+OCTOPUS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMooooooooooooooooooooMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiiiii
+
+
+
+Philius predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooMMMMMMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiii
+
+
+PolyPhobius predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooMMMMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiii
+
+
+SCAMPI predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiii
+
+
+
+SPOCTOPUS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooMMMMMMMMMMMMMMMMMMMMMiiiiiiiiiiiiiiiiiiiiii
+
+
+
+
+Predicted Delta-G-values (kcal/mol) (left column=sequence position; right column=Delta-G)
+
+10 9.190
+11 8.949
+12 8.798
+13 8.938
+14 8.822
+15 8.581
+16 8.302
+17 8.850
+18 8.898
+19 8.728
+20 7.506
+21 6.509
+22 6.883
+23 7.228
+24 7.351
+25 7.484
+26 8.184
+27 8.117
+28 8.706
+29 9.409
+30 9.970
+31 10.431
+32 10.249
+33 10.440
+34 10.917
+35 11.143
+36 10.166
+37 9.204
+38 8.236
+39 8.265
+40 7.661
+41 6.563
+42 5.599
+43 5.080
+44 4.412
+45 3.913
+46 3.860
+47 2.812
+48 2.265
+49 1.807
+50 1.433
+51 2.048
+52 2.161
+53 1.751
+54 1.689
+55 2.078
+56 2.534
+57 2.694
+58 2.626
+59 3.140
+60 3.961
+61 3.957
+62 4.446
+63 4.380
+64 3.823
+65 3.840
+66 3.895
+67 4.290
+68 4.667
+69 4.669
+70 3.791
+71 4.228
+72 4.200
+73 3.883
+74 3.465
+75 2.904
+76 2.988
+77 3.074
+78 3.300
+79 2.744
+80 3.393
+81 3.245
+82 3.984
+83 4.043
+84 3.937
+85 3.679
+86 3.023
+87 2.907
+88 2.488
+89 2.873
+90 1.699
+91 1.766
+92 1.617
+93 1.517
+94 1.154
+95 0.658
+96 0.514
+97 0.045
+98 0.192
+99 -0.447
+100 -0.157
+101 0.113
+102 0.760
+103 1.545
+104 2.139
+105 3.780
+106 4.259
+107 5.048
+108 5.320
+109 6.204
+110 6.576
+111 7.067
+112 7.397
+113 7.588
+114 7.871
+115 7.605
+116 7.226
+117 6.791
+118 6.881
+119 6.921
+120 6.526
+
+Predicted TOPCONS reliability (left column=sequence position; right column=reliability)
+
+11	100.00
+12	100.00
+13	100.00
+14	100.00
+15	100.00
+16	100.00
+17	100.00
+18	100.00
+19	100.00
+20	100.00
+21	100.00
+22	100.00
+23	100.00
+24	100.00
+25	100.00
+26	100.00
+27	100.00
+28	100.00
+29	100.00
+30	100.00
+31	99.05
+32	97.14
+33	95.24
+34	93.33
+35	93.33
+36	93.33
+37	93.33
+38	93.33
+39	93.33
+40	93.33
+41	93.33
+42	93.33
+43	93.33
+44	93.33
+45	93.33
+46	93.33
+47	93.33
+48	93.33
+49	93.33
+50	93.33
+51	93.33
+52	94.29
+53	96.19
+54	97.14
+55	96.19
+56	95.24
+57	94.29
+58	94.29
+59	94.29
+60	94.29
+61	94.29
+62	94.29
+63	94.29
+64	94.29
+65	94.29
+66	94.29
+67	94.29
+68	94.29
+69	94.29
+70	94.29
+71	94.29
+72	94.29
+73	93.33
+74	92.38
+75	91.43
+76	91.43
+77	91.43
+78	92.38
+79	92.38
+80	92.38
+81	92.38
+82	92.38
+83	92.38
+84	92.38
+85	92.38
+86	92.38
+87	92.38
+88	92.38
+89	92.38
+90	92.38
+91	92.38
+92	92.38
+93	92.38
+94	93.33
+95	94.29
+96	96.19
+97	98.10
+98	96.19
+99	96.19
+100	96.19
+101	96.19
+102	96.19
+103	96.19
+104	96.19
+105	96.19
+106	96.19
+107	96.19
+108	96.19
+109	96.19
+110	96.19
+111	96.19
+112	96.19
+113	96.19
+114	96.19
+115	96.19
+116	96.19
+117	96.19
+118	97.14
+
+##############################################################################

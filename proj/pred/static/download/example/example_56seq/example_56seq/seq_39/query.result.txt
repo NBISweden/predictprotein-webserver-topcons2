@@ -1,0 +1,460 @@
+##############################################################################
+TOPCONS2 result file
+Generated from http://http://dev.v2.topcons.net at 2015-02-17 12:30:53
+Total request time: 43.1 seconds.
+##############################################################################
+Sequence number: 1
+Sequence name: H4UU15_ECOLX
+Sequence length: 227 aa.
+Sequence:
+MKERGVVFNDDMVRAILEGRKTQTRRPVKNVRADNCLVIRKPTKKRNGVYTHVMDAPEHSLCPFGNVGDRIWVREAWAILGNEDGCSVDWNDNLCRGDEKNAARIYRASCEQKPGDYGLWSIPDDADWKPHTVNEKFDGGWCPSIHMPRWASRILLEITDVRVERLHDMSEADAKAEGASPATYKITQPEAVYRVGFGDIWRGIYGQENWLSNPWVWVIEFKRIQEA
+
+
+TOPCONS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+OCTOPUS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+Philius predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+PolyPhobius predicted topology:
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+
+
+SCAMPI predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+SPOCTOPUS predicted topology:
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+Predicted Delta-G-values (kcal/mol) (left column=sequence position; right column=Delta-G)
+
+10 8.399
+11 8.524
+12 8.768
+13 8.234
+14 8.758
+15 8.651
+16 8.681
+17 8.682
+18 9.302
+19 9.039
+20 9.313
+21 10.054
+22 10.891
+23 11.628
+24 12.145
+25 12.723
+26 13.211
+27 13.135
+28 11.522
+29 10.581
+30 9.935
+31 9.234
+32 9.115
+33 8.743
+34 8.551
+35 8.621
+36 8.923
+37 8.644
+38 9.650
+39 10.503
+40 10.511
+41 11.026
+42 11.328
+43 12.159
+44 11.748
+45 11.174
+46 11.376
+47 11.360
+48 11.046
+49 11.191
+50 11.352
+51 10.970
+52 10.083
+53 9.826
+54 9.816
+55 9.273
+56 9.464
+57 9.569
+58 9.154
+59 9.307
+60 9.633
+61 9.455
+62 8.564
+63 8.247
+64 8.050
+65 7.539
+66 8.162
+67 8.215
+68 7.702
+69 7.305
+70 7.134
+71 6.985
+72 7.199
+73 6.987
+74 7.573
+75 7.415
+76 6.987
+77 6.653
+78 6.299
+79 5.901
+80 6.443
+81 6.527
+82 7.177
+83 7.796
+84 8.829
+85 8.473
+86 9.089
+87 9.758
+88 10.340
+89 10.947
+90 12.174
+91 12.372
+92 12.501
+93 12.431
+94 12.437
+95 12.257
+96 12.182
+97 11.602
+98 11.199
+99 10.403
+100 10.629
+101 10.095
+102 10.616
+103 10.598
+104 11.333
+105 11.870
+106 12.086
+107 11.695
+108 10.911
+109 10.295
+110 9.276
+111 8.273
+112 8.501
+113 8.548
+114 9.273
+115 10.119
+116 10.726
+117 10.784
+118 11.193
+119 10.437
+120 10.384
+121 10.148
+122 10.443
+123 10.375
+124 10.270
+125 11.060
+126 11.917
+127 12.670
+128 12.468
+129 13.341
+130 13.832
+131 13.357
+132 12.718
+133 11.657
+134 11.164
+135 10.849
+136 10.679
+137 11.002
+138 11.061
+139 10.804
+140 10.038
+141 8.607
+142 7.986
+143 7.798
+144 7.013
+145 6.117
+146 5.836
+147 5.972
+148 6.802
+149 6.814
+150 6.908
+151 7.653
+152 7.536
+153 6.803
+154 6.120
+155 6.555
+156 5.587
+157 5.238
+158 5.804
+159 6.697
+160 7.460
+161 8.286
+162 9.360
+163 9.926
+164 10.688
+165 11.105
+166 11.704
+167 10.790
+168 11.233
+169 11.485
+170 11.024
+171 11.316
+172 11.797
+173 11.778
+174 10.940
+175 10.626
+176 10.920
+177 9.813
+178 9.367
+179 9.969
+180 10.111
+181 10.155
+182 10.393
+183 10.167
+184 10.141
+185 9.829
+186 9.603
+187 8.935
+188 8.085
+189 7.968
+190 7.788
+191 6.985
+192 6.699
+193 6.579
+194 6.893
+195 6.418
+196 6.274
+197 6.462
+198 6.325
+199 6.678
+200 7.411
+201 7.716
+202 7.730
+203 8.126
+204 8.684
+205 8.909
+206 8.283
+207 8.245
+208 7.433
+209 6.807
+210 6.723
+211 7.619
+212 7.332
+213 7.201
+214 7.208
+215 6.898
+216 6.594
+217 6.830
+218 6.421
+
+Predicted TOPCONS reliability (left column=sequence position; right column=reliability)
+
+11	80.00
+12	80.00
+13	80.00
+14	80.00
+15	80.00
+16	80.00
+17	80.00
+18	80.00
+19	80.00
+20	80.00
+21	80.00
+22	80.00
+23	80.00
+24	80.00
+25	80.00
+26	80.00
+27	80.00
+28	80.00
+29	80.00
+30	80.00
+31	80.00
+32	80.00
+33	80.00
+34	80.00
+35	80.00
+36	80.00
+37	80.00
+38	80.00
+39	80.00
+40	80.00
+41	80.00
+42	80.00
+43	80.00
+44	80.00
+45	80.00
+46	80.00
+47	80.00
+48	80.00
+49	80.00
+50	80.00
+51	80.00
+52	80.00
+53	80.00
+54	80.00
+55	80.00
+56	80.00
+57	80.00
+58	80.00
+59	80.00
+60	80.00
+61	80.00
+62	80.00
+63	80.00
+64	80.00
+65	80.00
+66	80.00
+67	80.00
+68	80.00
+69	80.00
+70	80.00
+71	80.00
+72	80.00
+73	80.00
+74	80.00
+75	80.00
+76	80.00
+77	80.00
+78	80.00
+79	80.00
+80	80.00
+81	80.00
+82	80.00
+83	80.00
+84	80.00
+85	80.00
+86	80.00
+87	80.00
+88	80.00
+89	80.00
+90	80.00
+91	80.00
+92	80.00
+93	80.00
+94	80.00
+95	80.00
+96	80.00
+97	80.00
+98	80.00
+99	80.00
+100	80.00
+101	80.00
+102	80.00
+103	80.00
+104	80.00
+105	80.00
+106	80.00
+107	80.00
+108	80.00
+109	80.00
+110	80.00
+111	80.00
+112	80.00
+113	80.00
+114	80.00
+115	80.00
+116	80.00
+117	80.00
+118	80.00
+119	80.00
+120	80.00
+121	80.00
+122	80.00
+123	80.00
+124	80.00
+125	80.00
+126	80.00
+127	80.00
+128	80.00
+129	80.00
+130	80.00
+131	80.00
+132	80.00
+133	80.00
+134	80.00
+135	80.00
+136	80.00
+137	80.00
+138	80.00
+139	80.00
+140	80.00
+141	80.00
+142	80.00
+143	80.00
+144	80.00
+145	80.00
+146	80.00
+147	80.00
+148	80.00
+149	80.00
+150	80.00
+151	80.00
+152	80.00
+153	80.00
+154	80.00
+155	80.00
+156	80.00
+157	80.00
+158	80.00
+159	80.00
+160	80.00
+161	80.00
+162	80.00
+163	80.00
+164	80.00
+165	80.00
+166	80.00
+167	80.00
+168	80.00
+169	80.00
+170	80.00
+171	80.00
+172	80.00
+173	80.00
+174	80.00
+175	80.00
+176	80.00
+177	80.00
+178	80.00
+179	80.00
+180	80.00
+181	80.00
+182	80.00
+183	80.00
+184	80.00
+185	80.00
+186	80.00
+187	80.00
+188	80.00
+189	80.00
+190	80.00
+191	80.00
+192	80.00
+193	80.00
+194	80.00
+195	80.00
+196	80.00
+197	80.00
+198	80.00
+199	80.00
+200	80.00
+201	80.00
+202	80.00
+203	80.00
+204	80.00
+205	80.00
+206	80.00
+207	80.00
+208	80.00
+209	80.00
+210	80.00
+211	80.00
+212	80.00
+213	80.00
+214	80.00
+215	80.00
+216	80.00
+
+##############################################################################

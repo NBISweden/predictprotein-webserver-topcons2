@@ -1,0 +1,449 @@
+##############################################################################
+TOPCONS2 result file
+Generated from http://http://dev.v2.topcons.net at 2015-02-17 12:09:24
+Total request time: 41.2 seconds.
+##############################################################################
+Sequence number: 1
+Sequence name: A4IMX2_GEOTN/25-244
+Sequence length: 220 aa.
+Sequence:
+RYEKRQQARVLSREKRKKQYRFIGWLLFAFAVLWGMGALIWSGYGALKTTAGREIAIMRLKGAIEDRNAAALQVMLRVTDETVPLNDQTLTPLFAYFDQHPEAYKMLDEEFARQSEGKQVYIKGLTSHPPVFTIHVFENRYVFEPALYFIHARVADSEATLVVNGVKVKEEETKDPFVKKIGPYLPGAYTVTAVHPDGKKKTARVELFGGARVREVDITK
+
+
+TOPCONS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+OCTOPUS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+Philius predicted topology:
+iiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+PolyPhobius predicted topology:
+iiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+SCAMPI predicted topology:
+iiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+SPOCTOPUS predicted topology:
+iiiiiiiiiiiiiiiiiiiiiMMMMMMMMMMMMMMMMMMMMMoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+
+
+Predicted Delta-G-values (kcal/mol) (left column=sequence position; right column=Delta-G)
+
+10 11.567
+11 11.945
+12 12.445
+13 11.926
+14 12.099
+15 12.808
+16 12.095
+17 11.149
+18 10.412
+19 9.546
+20 8.885
+21 8.199
+22 6.875
+23 5.610
+24 3.213
+25 1.646
+26 0.962
+27 -0.084
+28 -0.519
+29 -0.950
+30 -1.283
+31 -1.309
+32 -1.269
+33 -0.697
+34 -0.653
+35 -0.367
+36 0.361
+37 0.943
+38 1.117
+39 1.537
+40 2.128
+41 2.528
+42 3.024
+43 4.238
+44 4.857
+45 5.316
+46 5.435
+47 5.270
+48 5.355
+49 5.877
+50 6.131
+51 5.894
+52 5.661
+53 5.523
+54 5.413
+55 4.784
+56 5.512
+57 6.511
+58 6.578
+59 7.540
+60 7.900
+61 8.152
+62 8.058
+63 7.729
+64 7.720
+65 8.029
+66 8.093
+67 7.648
+68 7.364
+69 6.886
+70 6.615
+71 6.400
+72 6.487
+73 6.523
+74 6.777
+75 7.107
+76 6.821
+77 7.697
+78 8.044
+79 8.867
+80 9.000
+81 8.672
+82 8.917
+83 8.763
+84 8.594
+85 8.383
+86 8.709
+87 8.437
+88 7.880
+89 7.940
+90 7.916
+91 7.653
+92 8.111
+93 9.012
+94 8.609
+95 8.976
+96 8.828
+97 8.597
+98 7.952
+99 8.565
+100 10.038
+101 10.944
+102 10.637
+103 11.123
+104 11.524
+105 11.857
+106 12.109
+107 12.938
+108 12.575
+109 12.203
+110 12.347
+111 12.026
+112 11.321
+113 11.229
+114 11.406
+115 11.243
+116 10.721
+117 10.643
+118 10.375
+119 9.930
+120 9.674
+121 10.500
+122 10.484
+123 10.168
+124 9.601
+125 8.740
+126 8.016
+127 7.296
+128 6.361
+129 6.317
+130 6.786
+131 6.853
+132 6.781
+133 6.492
+134 5.881
+135 6.847
+136 7.611
+137 7.631
+138 7.175
+139 7.043
+140 6.286
+141 6.135
+142 6.776
+143 6.621
+144 6.504
+145 5.678
+146 5.311
+147 5.728
+148 5.245
+149 5.747
+150 6.211
+151 6.671
+152 6.569
+153 6.725
+154 6.020
+155 6.063
+156 6.287
+157 6.519
+158 6.769
+159 6.923
+160 7.036
+161 7.152
+162 8.026
+163 8.858
+164 9.225
+165 9.888
+166 10.467
+167 11.087
+168 11.084
+169 11.708
+170 12.486
+171 13.532
+172 13.740
+173 14.209
+174 14.022
+175 13.491
+176 12.871
+177 12.847
+178 12.872
+179 12.259
+180 11.290
+181 10.191
+182 8.848
+183 8.327
+184 7.692
+185 6.902
+186 6.549
+187 6.856
+188 7.110
+189 6.991
+190 6.995
+191 7.580
+192 7.815
+193 7.893
+194 8.488
+195 9.420
+196 9.527
+197 10.671
+198 10.946
+199 11.282
+200 11.697
+201 12.023
+202 11.661
+203 11.005
+204 10.080
+205 8.479
+206 7.739
+207 6.682
+208 6.464
+209 6.187
+210 6.326
+211 6.882
+
+Predicted TOPCONS reliability (left column=sequence position; right column=reliability)
+
+11	96.19
+12	96.19
+13	96.19
+14	96.19
+15	96.19
+16	96.19
+17	96.19
+18	96.19
+19	96.19
+20	96.19
+21	96.19
+22	96.19
+23	96.19
+24	96.19
+25	96.19
+26	96.19
+27	96.19
+28	96.19
+29	96.19
+30	96.19
+31	96.19
+32	98.10
+33	96.19
+34	94.29
+35	94.29
+36	94.29
+37	94.29
+38	94.29
+39	94.29
+40	94.29
+41	94.29
+42	94.29
+43	94.29
+44	94.29
+45	94.29
+46	94.29
+47	94.29
+48	94.29
+49	94.29
+50	94.29
+51	94.29
+52	95.24
+53	96.19
+54	98.10
+55	100.00
+56	100.00
+57	100.00
+58	100.00
+59	100.00
+60	100.00
+61	100.00
+62	100.00
+63	100.00
+64	100.00
+65	100.00
+66	100.00
+67	100.00
+68	100.00
+69	100.00
+70	100.00
+71	100.00
+72	100.00
+73	100.00
+74	100.00
+75	100.00
+76	100.00
+77	100.00
+78	100.00
+79	100.00
+80	100.00
+81	100.00
+82	100.00
+83	100.00
+84	100.00
+85	100.00
+86	100.00
+87	100.00
+88	100.00
+89	100.00
+90	100.00
+91	100.00
+92	100.00
+93	100.00
+94	100.00
+95	100.00
+96	100.00
+97	100.00
+98	100.00
+99	100.00
+100	100.00
+101	100.00
+102	100.00
+103	100.00
+104	100.00
+105	100.00
+106	100.00
+107	100.00
+108	100.00
+109	100.00
+110	100.00
+111	100.00
+112	100.00
+113	100.00
+114	100.00
+115	100.00
+116	100.00
+117	100.00
+118	100.00
+119	100.00
+120	100.00
+121	100.00
+122	100.00
+123	100.00
+124	100.00
+125	100.00
+126	100.00
+127	100.00
+128	100.00
+129	100.00
+130	100.00
+131	100.00
+132	100.00
+133	100.00
+134	100.00
+135	100.00
+136	100.00
+137	100.00
+138	100.00
+139	100.00
+140	100.00
+141	100.00
+142	100.00
+143	100.00
+144	100.00
+145	100.00
+146	100.00
+147	100.00
+148	100.00
+149	100.00
+150	100.00
+151	100.00
+152	100.00
+153	100.00
+154	100.00
+155	100.00
+156	100.00
+157	100.00
+158	100.00
+159	100.00
+160	100.00
+161	100.00
+162	100.00
+163	100.00
+164	100.00
+165	100.00
+166	100.00
+167	100.00
+168	100.00
+169	100.00
+170	100.00
+171	100.00
+172	100.00
+173	100.00
+174	100.00
+175	100.00
+176	100.00
+177	100.00
+178	100.00
+179	100.00
+180	100.00
+181	100.00
+182	100.00
+183	100.00
+184	100.00
+185	100.00
+186	100.00
+187	100.00
+188	100.00
+189	100.00
+190	100.00
+191	100.00
+192	100.00
+193	100.00
+194	100.00
+195	100.00
+196	100.00
+197	100.00
+198	100.00
+199	100.00
+200	100.00
+201	100.00
+202	100.00
+203	100.00
+204	100.00
+205	100.00
+206	100.00
+207	100.00
+208	100.00
+209	100.00
+
+##############################################################################
