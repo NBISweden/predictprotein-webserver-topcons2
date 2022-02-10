@@ -29,6 +29,7 @@ proj/pred/config/computenode.txt
 proj/pred/config/config.json
 proj/pred/config/*.txt
 proj/pred/config/*.txt.bak*
+proj/allowed_host*.txt
 
 
 newproj/
