@@ -1,0 +1,2 @@
+tmpdir = /big/server/web_topcons2/debug/proj/pred/static/tmp/tmp__VTMQp
+/big/server/web_topcons2/debug/proj/pred/app/soft/topcons2_webserver/workflow/pfam_workflow.py /big/server/web_topcons2/debug/proj/pred/static/tmp/tmp__VTMQp/query.fa /big/server/web_topcons2/debug/proj/pred/static/tmp/tmp__VTMQp/rst_qYdSyU /big/server/web_topcons2/debug/proj/pred/app/soft/topcons2_webserver/tools/blast-2.2.26 /big/server/web_topcons2/debug/proj/pred/app/soft/topcons2_webserver/database/blast//uniref90.fasta
