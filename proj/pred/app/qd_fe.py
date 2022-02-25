@@ -7,7 +7,6 @@ import time
 import json
 import shutil
 import hashlib
-from suds.client import Client
 import random
 import fcntl
 
@@ -18,6 +17,7 @@ exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file_
 from libpredweb import myfunc
 from libpredweb import webserver_common as webcom
 from libpredweb import qd_fe_common as qdcom
+from suds.client import Client
 
 TZ = webcom.TZ
 os.environ['TZ'] = TZ
@@ -415,24 +415,22 @@ def GetResult(jobid):#{{{
 #}}}
 
 
-def main(g_params):#{{{
+def main(g_params):  # {{{
+    runjoblogfile = f"{path_log}/runjob_log.log"
     if os.path.exists(black_iplist_file):
         g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
-    submitjoblogfile = "%s/submitted_seq.log"%(path_log)
-    runjoblogfile = "%s/runjob_log.log"%(path_log)
-    finishedjoblogfile = "%s/finished_job.log"%(path_log)
 
     if not os.path.exists(path_cache):
         os.mkdir(path_cache)
 
     loop = 0
     while 1:
-        # load the config file if exists
-
-        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):#pause when cache cleaning is in progress
+        # pause when cache cleaning is in progress
+        if os.path.exists(f"{path_result}/CACHE_CLEANING_IN_PROGRESS"):
             continue
 
-        configfile = "%s/config/config.json"%(basedir)
+        # load the config file if exists
+        configfile = f"{basedir}/config/config.json"
         config = {}
         if os.path.exists(configfile):
             text = myfunc.ReadFile(configfile)
@@ -444,16 +442,17 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        avail_computenode = webcom.ReadComputeNode(computenodefile) # return value is a dict
+        # avail_computenode is a dictionary
+        avail_computenode = webcom.ReadComputeNode(computenodefile)
         g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file, col=0)
-        num_avail_node = len(avail_computenode)
 
-        webcom.loginfo("loop %d"%(loop), gen_logfile)
+        webcom.loginfo(f"loop {loop}", gen_logfile)
 
         isOldRstdirDeleted = False
         if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
             qdcom.RunStatistics(g_params)
-            isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log,
+            isOldRstdirDeleted = webcom.DeleteOldResult(
+                    path_result, path_log,
                     gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
         if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
@@ -465,29 +464,28 @@ def main(g_params):#{{{
         webcom.ArchiveLogFile(path_log, g_params['threshold_logfilesize'], g_params)
 
         qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
-        # CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile, finishedjoblogfile, loop)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
-        runjobidlist = myfunc.ReadIDList2(runjoblogfile,0)
+        runjobidlist = myfunc.ReadIDList2(runjoblogfile, 0)
         remotequeueDict = {}
         for node in avail_computenode:
             remotequeueDict[node] = []
         for jobid in runjobidlist:
-            rstdir = "%s/%s"%(path_result, jobid)
-            remotequeue_idx_file = "%s/remotequeue_seqindex.txt"%(rstdir)
+            rstdir = os.path.join(path_result, jobid)
+            remotequeue_idx_file = f"{rstdir}/remotequeue_seqindex.txt"
             if os.path.exists(remotequeue_idx_file):
                 content = myfunc.ReadFile(remotequeue_idx_file)
                 lines = content.split('\n')
                 for line in lines:
                     strs = line.split('\t')
-                    if len(strs)>=5:
+                    if len(strs) >= 5:
                         node = strs[1]
                         remotejobid = strs[2]
                         if node in remotequeueDict:
                             remotequeueDict[node].append(remotejobid)
 
-        cntSubmitJobDict = {} # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
+        cntSubmitJobDict = {}  # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
         for node in avail_computenode:
             queue_method = avail_computenode[node]['queue_method']
             num_queue_job = len(remotequeueDict[node])
@@ -511,15 +509,15 @@ def main(g_params):#{{{
                     submit_date_str, start_date_str, finish_date_str,
                     total_numseq_of_user, priority] = dt_runjoblog[jobid]
             numseq_this_user = total_numseq_of_user
-            rstdir = "%s/%s"%(path_result, jobid)
-            webcom.loginfo("CompNodeStatus: %s\n"%(str(cntSubmitJobDict)), gen_logfile)
+            rstdir = os.path.join(path_result, jobid)
+            webcom.loginfo(f"CompNodeStatus: {cntSubmitJobDict}\n", gen_logfile)
             runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
             if os.path.exists(runjob_lockfile):
                 msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
                 webcom.loginfo(msg, gen_logfile)
                 continue
-            if (webcom.IsHaveAvailNode(cntSubmitJobDict) 
-                    or (numseq <= g_params['THRESHOLD_SMALL_JOB'] 
+            if (webcom.IsHaveAvailNode(cntSubmitJobDict)
+                    or (numseq <= g_params['THRESHOLD_SMALL_JOB']
                         and method_submission == "web")
                     or not webcom.IsCacheProcessingFinished(rstdir)
                     ):
@@ -534,10 +532,10 @@ def main(g_params):#{{{
         loop += 1
 
     return 0
-#}}}
+# }}}
 
 
-def InitGlobalParameter():#{{{
+def InitGlobalParameter():  # {{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
@@ -548,17 +546,17 @@ def InitGlobalParameter():#{{{
     g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
     g_params['MAX_KEEP_DAYS'] = 30
-    g_params['THRESHOLD_SMALL_JOB'] = 10 #max number of sequences to be considered as small job
+    g_params['THRESHOLD_SMALL_JOB'] = 10  # max number of sequences to be considered as small job
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
-    g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
+    g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24  # one day in seconds
     g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     g_params['STATUS_UPDATE_FREQUENCY'] = [800, 50]  # updated by if loop%$1 == $2
     g_params['RAND_RUNJOB_ORDER_FREQ'] = [100, 50]  # updated by if loop%$1 == $2
     g_params['CLEAN_SERVER_FREQUENCY'] = [50, 0]  # updated by if loop%$1 == $2
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     g_params['threshold_logfilesize'] = 20*1024*1024
-    g_params['script_scampi'] = "%s/%s/%s"%(rundir, "other", "mySCAMPI_run.pl")
+    g_params['script_scampi'] = "%s/%s/%s" % (rundir, "other", "mySCAMPI_run.pl")
     g_params['name_server'] = "TOPCONS2"
     g_params['path_static'] = path_static
     g_params['path_result'] = path_result
@@ -568,7 +566,7 @@ def InitGlobalParameter():#{{{
     g_params['gen_errfile'] = gen_errfile
     g_params['contact_email'] = contact_email
     g_params['vip_email_file'] = vip_email_file
-    g_params['UPPER_WAIT_TIME_IN_SEC'] = 0 #wait time before it will be handled by qd_fe
+    g_params['UPPER_WAIT_TIME_IN_SEC'] = 0  # wait time before it will be handled by qd_fe
     g_params['webserver_root'] = webserver_root
     g_params['THRESHOLD_NUMSEQ_CHECK_IF_JOB_FINISH'] = 100 # threshold of numseq for the job to run CheckIfJobFinished in a separate process
     return g_params
@@ -578,6 +576,6 @@ def InitGlobalParameter():#{{{
 if __name__ == '__main__':
     g_params = InitGlobalParameter()
     date_str = time.strftime(g_params['FORMAT_DATETIME'])
-    print("\n#%s#\n[Date: %s] qd_fe.py restarted"%('='*80,date_str))
+    print("\n#%s#\n[Date: %s] qd_fe.py restarted" % ('='*80, date_str))
     sys.stdout.flush()
     sys.exit(main(g_params))
