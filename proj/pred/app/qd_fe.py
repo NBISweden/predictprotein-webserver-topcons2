@@ -1,76 +1,48 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Description: daemon to submit jobs and retrieve results to/from remote
-#              servers
-# 
-# submit job, 
-# get finished jobids 
-# try to retrieve jobs with in finished jobids
-
-# ChangeLog 2015-08-17
-#   The number of jobs submitted to remote servers is calculated based on the
-#   queries in remotequeue_index.txt files instead of using get_suqlist.cgi
-# ChangeLog 2015-08-23 
-#   Fixed the bug for re-creating the torun_idx_file, the code should be before
-#   the return 1
-# ChangeLog 2015-09-07
-#   the torun_idx_file is re-created if remotequeue_idx_file is empty but the
-#   job is not finished
-# ChangeLog 2016-03-04 
-#   fix the bug in re-creation of the torun_idx_file, completed_idx_set is
-#   strings but range(numseq) is list of integer numbers
-# ChangeLog 2016-06-28
-#   move the storage location of results to cache
-#   the results located for each job is a link to cache
-# ChangeLog 2016-07-11
-#   1. do not add deleted jobfolder to finishedjoblogfile
-
+""" daemon to submit jobs and retrieve results to/from remote servers """
 import os
 import sys
-
-
-from libpredweb import myfunc
-from libpredweb import webserver_common as webcom
-from libpredweb import qd_fe_common as qdcom
 import time
 import json
 import shutil
 import hashlib
 from suds.client import Client
 import random
+import fcntl
 
+rundir = os.path.dirname(os.path.realpath(__file__))
+webserver_root = os.path.realpath("%s/../../../" % (rundir))
+activate_env = f"{webserver_root}/env/bin/activate_this.py"
+exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
+from libpredweb import qd_fe_common as qdcom
 
 TZ = webcom.TZ
 os.environ['TZ'] = TZ
 time.tzset()
 
-rundir = os.path.dirname(os.path.realpath(__file__))
-webserver_root = os.path.realpath("%s/../../../" % (rundir))
-
-activate_env="%s/env/bin/activate_this.py"%(webserver_root)
-exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
-
 # make sure that only one instance of the script is running
-# this code is working 
+# this code is working
 progname = os.path.basename(__file__)
 rootname_progname = os.path.splitext(progname)[0]
 lockname = os.path.realpath(__file__).replace(" ", "").replace("/", "-")
-import fcntl
-lock_file = "/tmp/%s.lock"%(lockname)
+lock_file = f"/tmp/{lockname}.lock"
 fp = open(lock_file, 'w')
 try:
     fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except IOError:
-    print("Another instance of %s is running"%(progname), file=sys.stderr)
+    print(f"Another instance of {progname} is running", file=sys.stderr)
     sys.exit(1)
 
 contact_email = "nanjiang.shu@scilifelab.se"
 
-usage_short="""
+usage_short = """
 Usage: %s
-"""%(sys.argv[0])
+""" % (sys.argv[0])
 
-usage_ext="""
+usage_ext = """
 Description:
     Daemon to submit jobs and retrieve results to/from remote servers
     run periodically
@@ -81,7 +53,7 @@ OPTIONS:
 
 Created 2015-03-25, updated 2017-03-01, Nanjiang Shu
 """
-usage_exp="""
+usage_exp = """
 """
 
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
@@ -103,6 +75,7 @@ gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
 black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
 finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
+
 
 def PrintHelp(fpout=sys.stdout):#{{{
     print(usage_short, file=fpout)
