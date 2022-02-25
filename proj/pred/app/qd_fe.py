@@ -523,7 +523,7 @@ def main(g_params):  # {{{
                     ):
                 if not g_params['DEBUG_NO_SUBMIT']:
                     qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
-            GetResult(jobid) # the start tagfile is written when got the first result
+            qdcom.GetResult(jobid, g_params)  # the start tagfile is written when got the first result
             qdcom.CheckIfJobFinished(jobid, numseq, email, g_params)
 
 
