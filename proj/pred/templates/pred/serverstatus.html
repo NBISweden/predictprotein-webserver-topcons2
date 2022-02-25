@@ -16,8 +16,42 @@
             <td><b>{{num_seq_in_remote_queue}}</b></td>
         </tr>
     </table>
-
-
+    <div>
+        <h2> Chart testing </h2>
+        <canvas id="myChart"></canvas>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+        <script>
+            //TODO: make graph functionality for day, week, month, year
+            //TODO: move js code to separate file (base_layout.html)?
+            //TODO: make use of logarithms to make the graph prettier?
+            const graphdata = (data, numtype) => {
+                const pos = numtype === 'job' ? 1 : 2;
+                return data.map(x => {
+                    return {x: x[0], y: x[pos]}
+                })
+            }
+            var data = JSON.parse("{{server_stat_month|escapejs}}");
+            const type = 'seq'
+            const graphd = graphdata(data, type);
+            const ctx = document.getElementById('myChart');
+            const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                datasets: [{
+                    label: `# of ${type}`,
+                    data: graphd,
+                    backgroundColor: ['blue']
+                }]
+        },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
     <p class="section">
     <h2>Statistics (since {{startdate}})</h2>
     <table cellspacing=0 cellpadding=5 border=0>
