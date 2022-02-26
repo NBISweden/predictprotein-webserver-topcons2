@@ -523,7 +523,7 @@ def main(g_params):  # {{{
                     ):
                 if not g_params['DEBUG_NO_SUBMIT']:
                     qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
-            GetResult(jobid) # the start tagfile is written when got the first result
+            qdcom.GetResult(jobid, g_params)  # the start tagfile is written when got the first result
             qdcom.CheckIfJobFinished(jobid, numseq, email, g_params)
 
 
@@ -569,6 +569,7 @@ def InitGlobalParameter():  # {{{
     g_params['UPPER_WAIT_TIME_IN_SEC'] = 0  # wait time before it will be handled by qd_fe
     g_params['webserver_root'] = webserver_root
     g_params['THRESHOLD_NUMSEQ_CHECK_IF_JOB_FINISH'] = 100 # threshold of numseq for the job to run CheckIfJobFinished in a separate process
+    g_params['finished_date_db'] = finished_date_db
     return g_params
 # }}}
 
