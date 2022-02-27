@@ -1,55 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Description: run job
-
-# ChangeLog 
-#
-# ChangeLog 2015-02-12 
-#   submit individual sequences to the workflow, so that the result of each
-#   sequence can be cached and the progress can be shown for a job with many
-#   sequences
-# ChangeLog 2015-03-26
-#   the tmpdir is removed if RunJob is succeeded
-# ChangeLog 2015-04-01 
-#   result from cache just make a soft link, 
-#   zip -rq will replace the symbolic link with the actual data when making the
-#   zip file
-# ChangeLog 2016-06-30
-#   cache results is saved at static/result/cache using md5 keys
-#   the folder static/md5 is not used anymore
-# ChangeLog 2018-09-04
-#   when the cached job is retrieved, the folder is directly copied to the
-#   result folder instead of creating just the symlink. This is because the
-#   size of cached results are too big (>500GB) and it will be difficult to
-#   delete outdated cached result if the result is just symbolically linked
-
-# how to create md5
-# import hashlib
-# md5_key = hashlib.md5(string).hexdigest()
-# subfolder = md5_key[:2]
-
-# 
+"""
+Description: script to run the pipeline locally
+"""
 
 import os
 import sys
-import time
-from libpredweb import myfunc
-from libpredweb import webserver_common as webcom
-import glob
-import hashlib
-import shutil
-import site
-import fcntl
-import json
-progname =  os.path.basename(sys.argv[0])
-rootname_progname = os.path.splitext(progname)[0]
-wspace = ''.join([" "]*len(progname))
+
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
 path_result = "%s/static/result"%(basedir)
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "r").read(), activate_env, 'exec'), dict(__file__=activate_env))
+
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
+
+import time
+import hashlib
+import shutil
+import fcntl
+import json
+progname = os.path.basename(sys.argv[0])
+rootname_progname = os.path.splitext(progname)[0]
+wspace = ''.join([" "]*len(progname))
 
 FORMAT_DATETIME = webcom.FORMAT_DATETIME
 TZ = webcom.TZ
@@ -507,7 +482,9 @@ def InitGlobalParameter():#{{{
     g_params['name_server'] = "TOPCONS2"
     return g_params
 #}}}
-if __name__ == '__main__' :
+
+
+if __name__ == '__main__':
     g_params = InitGlobalParameter()
     configfile = "%s/config/config.json"%(basedir)
     config = {}
@@ -521,7 +498,7 @@ if __name__ == '__main__' :
     if os.path.exists(g_params['lockfile']):
         try:
             os.remove(g_params['lockfile'])
-        except:
+        except OSError:
             myfunc.WriteFile("Failed to delete lockfile %s\n"%(g_params['lockfile']), gen_errfile, "a", True)
 
     sys.exit(status)
