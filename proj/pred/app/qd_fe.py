@@ -5,8 +5,6 @@ import os
 import sys
 import time
 import json
-import shutil
-import hashlib
 import random
 import fcntl
 
@@ -38,49 +36,26 @@ except IOError:
 
 contact_email = "nanjiang.shu@scilifelab.se"
 
-usage_short = """
-Usage: %s
-""" % (sys.argv[0])
-
-usage_ext = """
-Description:
-    Daemon to submit jobs and retrieve results to/from remote servers
-    run periodically
-    At the end of each run generate a runlog file with the status of all jobs
-
-OPTIONS:
-  -h, --help    Print this help message and exit
-
-Created 2015-03-25, updated 2017-03-01, Nanjiang Shu
-"""
-usage_exp = """
-"""
-
-basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
-path_static = "%s/static"%(basedir)
-path_log = "%s/static/log"%(basedir)
-path_stat = "%s/stat"%(path_log)
-path_result = "%s/static/result"%(basedir)
-path_cache = "%s/static/result/cache"%(basedir)
+# basedir is path of the application, i.e. pred/
+basedir = os.path.realpath(f"{rundir}/..")
+path_static = f"{basedir}/static"
+path_log = f"{basedir}/static/log"
+path_stat = f"{path_log}/stat"
+path_result = f"{basedir}/static/result"
+path_cache = f"{basedir}/static/result/cache"
 name_cachedir = 'cache'
-computenodefile = "%s/config/computenode.txt"%(basedir)
-vip_email_file = "%s/config/vip_email.txt"%(basedir) 
-blastdir = "%s/%s"%(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
+computenodefile = f"{basedir}/config/computenode.txt"
+vip_email_file = f"{basedir}/config/vip_email.txt"
+blastdir = os.path.join(rundir, "soft/topcons2_webserver/tools/blast-2.2.26")
 os.environ['SCAMPI_DIR'] = "/server/scampi"
 os.environ['MODHMM_BIN'] = "/server/modhmm/bin"
-os.environ['BLASTMAT'] = "%s/data"%(blastdir)
-os.environ['BLASTBIN'] = "%s/bin"%(blastdir)
-os.environ['BLASTDB'] = "%s/%s"%(rundir, "soft/topcons2_webserver/database/blast/")
-gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
-gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
-black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
-finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
-
-
-def PrintHelp(fpout=sys.stdout):#{{{
-    print(usage_short, file=fpout)
-    print(usage_ext, file=fpout)
-    print(usage_exp, file=fpout)#}}}
+os.environ['BLASTMAT'] = f"{blastdir}/data"
+os.environ['BLASTBIN'] = f"{blastdir}/bin"
+os.environ['BLASTDB'] = os.path.join(rundir, "soft/topcons2_webserver/database/blast/")
+gen_errfile = f"{basedir}/static/log/{progname}.err"
+gen_logfile = f"{basedir}/static/log/{progname}.log"
+black_iplist_file = f"{basedir}/config/black_iplist.txt"
+finished_date_db = f"{path_log}/cached_job_finished_date.sqlite3"
 
 
 def main(g_params):  # {{{
