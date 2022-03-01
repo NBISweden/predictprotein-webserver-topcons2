@@ -495,17 +495,17 @@ def help_wsdl_api(request):# {{{
 def get_serverstatus(request):# {{{
     g_params['isShowLocalQueue'] = False
     info = webcom.get_serverstatus(request, g_params)
-    #TODO: Write function that parse stat file for day, week, month, year
-    file_path = '/software/server/data/topcons_stat_files/stat/submit_month_web.stat.txt'
-    server_stat_data = []
-    with open(file_path) as f:
-        for line in f:
-            if not line.startswith('Date'):
-                sline = line.strip('\n')
-                cols = sline.split('\t')
-                server_stat_data.append(cols)
-    #TODO: Have variable for day, week month and year respectively?
-    info['server_stat_month'] = json.dumps(server_stat_data)
+    stat_types = ['day', 'week', 'month', 'year']
+    for type in stat_types:
+        file_path = f'/software/server/data/topcons_stat_files/stat/submit_{type}_web.stat.txt'
+        server_stat_data = []
+        with open(file_path) as f:
+            for line in f:
+                if not line.startswith('Date'):
+                    sline = line.strip('\n')
+                    cols = sline.split('\t')
+                    server_stat_data.append(cols)
+        info[f'server_stat_{type}'] = json.dumps(server_stat_data)
     return render(request, 'pred/serverstatus.html', info)
 # }}}
 
