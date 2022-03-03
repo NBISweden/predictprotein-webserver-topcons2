@@ -506,6 +506,7 @@ def get_serverstatus(request):# {{{
                     cols = sline.split('\t')
                     server_stat_data.append(cols)
         info[f'server_stat_{type}'] = json.dumps(server_stat_data)
+    info['stat_types'] = stat_types
     return render(request, 'pred/serverstatus.html', info)
 # }}}
 
