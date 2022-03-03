@@ -16,6 +16,7 @@
 
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.js" %}" ></script>
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.dataTables.min.js" %}" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 <script>
 
 $(function(){
@@ -71,6 +72,53 @@ function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
 }
 
+function drawGraph(id) {
+    const graphdata = (data, numtype) => {
+        const pos = numtype === 'job' ? 1 : 2;
+        return data.map(x => {
+            return {x: x[0], y: x[pos]}
+        })
+    }
+    //This is _ugly_ but will look up django ways to do this properly at a later stage
+    let data;
+    let graphType = 'bar';
+    if (id=='day') {
+        data = JSON.parse("{{server_stat_day|escapejs}}");
+        graphType = 'line'
+    } else if (id=='week') {
+        data = JSON.parse("{{server_stat_week|escapejs}}");
+    } else if (id=='month') {
+        data = JSON.parse("{{server_stat_month|escapejs}}");
+    } else {
+        data = JSON.parse("{{server_stat_year|escapejs}}");
+    }
+    const type = 'seq'
+    const graphd = graphdata(data, type);
+    let container = document.getElementById('graph-container');
+    if (!container.firstElementChild || (container.firstElementChild && container.children[0].id != id)) {
+        container.firstElementChild && container.removeChild(container.children[0]);
+        let canvas = document.createElement('canvas');
+        canvas.setAttribute('id',id);
+        container.appendChild(canvas);
+        const chart = new Chart(canvas, {
+            type: graphType,
+            data: {
+                datasets: [{
+                    label: `# of ${type}`,
+                    data: graphd,
+                    backgroundColor: ['blue']
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
 
 {% block javascript_function %}{% endblock %}
 
