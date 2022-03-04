@@ -496,6 +496,7 @@ def get_serverstatus(request):# {{{
     g_params['isShowLocalQueue'] = False
     info = webcom.get_serverstatus(request, g_params)
     stat_types = ['day', 'week', 'month', 'year']
+    server_statistics = {}
     for type in stat_types:
         file_path = f'/software/server/data/topcons_stat_files/stat/submit_{type}_web.stat.txt'
         server_stat_data = []
@@ -505,8 +506,9 @@ def get_serverstatus(request):# {{{
                     sline = line.strip('\n')
                     cols = sline.split('\t')
                     server_stat_data.append(cols)
-        info[f'server_stat_{type}'] = json.dumps(server_stat_data)
+        server_statistics[type] = server_stat_data
     info['stat_types'] = stat_types
+    info['server_statistics'] = json.dumps(server_statistics)
     return render(request, 'pred/serverstatus.html', info)
 # }}}
 

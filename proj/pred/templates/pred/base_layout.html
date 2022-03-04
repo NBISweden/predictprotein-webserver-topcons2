@@ -71,7 +71,7 @@ var ImgArraySubmitNumSeq = [
 function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
 }
-
+const serverStatistics = JSON.parse("{{ server_statistics|escapejs }}")
 function drawGraph(id) {
     const graphdata = (data, numtype) => {
         const pos = numtype === 'job' ? 1 : 2;
@@ -79,19 +79,8 @@ function drawGraph(id) {
             return {x: x[0], y: x[pos]}
         })
     }
-    //This is _ugly_ but will look up django ways to do this properly at a later stage
-    let data;
-    let graphType = 'bar';
-    if (id=='day') {
-        data = JSON.parse("{{server_stat_day|escapejs}}");
-        graphType = 'line'
-    } else if (id=='week') {
-        data = JSON.parse("{{server_stat_week|escapejs}}");
-    } else if (id=='month') {
-        data = JSON.parse("{{server_stat_month|escapejs}}");
-    } else {
-        data = JSON.parse("{{server_stat_year|escapejs}}");
-    }
+    const data = serverStatistics[id]
+    const graphType = id=='day' ? 'line' : 'bar';
     const type = 'seq'
     const graphd = graphdata(data, type);
     let container = document.getElementById('graph-container');
