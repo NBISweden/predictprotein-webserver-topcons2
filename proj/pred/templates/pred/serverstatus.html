@@ -18,8 +18,8 @@
     <div>
         <h2> Chart testing </h2>
         <div class="btn-group">
-            {% for type in stat_types %}
-                <button id="{{type}}" onclick="drawGraph(event.target.id)">{{ type|capfirst }}</button>
+            {% for item in stat_timeline %}
+                <button id="{{item}}" onclick="drawGraph(event.target.id, 'job')">{{ item|capfirst }}</button>
             {% endfor %}
         </div>
         <div id="graph-container">

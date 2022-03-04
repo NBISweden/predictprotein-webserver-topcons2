@@ -72,7 +72,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
 }
 const serverStatistics = JSON.parse("{{ server_statistics|escapejs }}")
-function drawGraph(id) {
+function drawGraph(id, type) {
     const graphdata = (data, numtype) => {
         const pos = numtype === 'job' ? 1 : 2;
         return data.map(x => {
@@ -81,7 +81,6 @@ function drawGraph(id) {
     }
     const data = serverStatistics[id]
     const graphType = id=='day' ? 'line' : 'bar';
-    const type = 'seq'
     const graphd = graphdata(data, type);
     let container = document.getElementById('graph-container');
     if (!container.firstElementChild || (container.firstElementChild && container.children[0].id != id)) {
