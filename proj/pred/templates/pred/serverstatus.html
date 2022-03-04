@@ -17,15 +17,23 @@
     </table>
     <div>
         <h2> Chart testing </h2>
-        <div class="btn-group">
-            {% for item in stat_timeline %}
-                <button id="{{item}}" onclick="drawGraph(event.target.id, 'job')">{{ item|capfirst }}</button>
+        {% with 'job seq' as list %}
+            {% for type in list.split %}
+                <div>
+                    <h2> {{type}} </h2>
+                    <div class="btn-group">
+                        {% for item in stat_timeline %}
+                            <button id="{{item}}" onclick="drawGraph(event.target.id, '{{type}}')">{{ item|capfirst }}</button>
+                        {% endfor %}
+                    </div>
+                    <div id="graph-container-{{type}}">
+                    </div>
+                </div>
             {% endfor %}
-        </div>
-        <div id="graph-container">
-        </div>
+        {% endwith %}
         <script>
-            drawGraph('month');
+            drawGraph('month', 'job');
+            drawGraph('month', 'seq');
         </script>
     <p class="section">
     <h2>Statistics (since {{startdate}})</h2>

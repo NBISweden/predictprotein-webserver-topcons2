@@ -82,7 +82,7 @@ function drawGraph(id, type) {
     const data = serverStatistics[id]
     const graphType = id=='day' ? 'line' : 'bar';
     const graphd = graphdata(data, type);
-    let container = document.getElementById('graph-container');
+    let container = document.getElementById(`graph-container-${type}`);
     if (!container.firstElementChild || (container.firstElementChild && container.children[0].id != id)) {
         container.firstElementChild && container.removeChild(container.children[0]);
         let canvas = document.createElement('canvas');
