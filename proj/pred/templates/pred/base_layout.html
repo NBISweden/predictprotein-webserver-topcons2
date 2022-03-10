@@ -71,7 +71,7 @@ var ImgArraySubmitNumSeq = [
 function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
 }
-const serverStatistics = JSON.parse("{{ server_statistics|escapejs }}")
+const serverStatistics = JSON.parse("{{ statistics_per_timeline|escapejs }}")
 function drawGraph(id, type) {
     const graphdata = (data, numtype) => {
         const pos = numtype === 'job' ? 1 : 2;

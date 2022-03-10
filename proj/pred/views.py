@@ -495,20 +495,6 @@ def help_wsdl_api(request):# {{{
 def get_serverstatus(request):# {{{
     g_params['isShowLocalQueue'] = False
     info = webcom.get_serverstatus(request, g_params)
-    stat_timeline = ['day', 'week', 'month', 'year']
-    server_statistics = {}
-    for item in stat_timeline:
-        file_path = f'/software/server/data/topcons_stat_files/stat/submit_{item}_web.stat.txt'
-        server_stat_data = []
-        with open(file_path) as f:
-            for line in f:
-                if not line.startswith('Date'):
-                    sline = line.strip('\n')
-                    cols = sline.split('\t')
-                    server_stat_data.append(cols)
-        server_statistics[item] = server_stat_data
-    info['stat_timeline'] = stat_timeline
-    info['server_statistics'] = json.dumps(server_statistics)
     return render(request, 'pred/serverstatus.html', info)
 # }}}
 

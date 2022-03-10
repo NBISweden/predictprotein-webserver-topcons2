@@ -22,7 +22,7 @@
                 <div>
                     <h2> {{type}} </h2>
                     <div class="btn-group">
-                        {% for item in stat_timeline %}
+                        {% for item in statistics_timeline %}
                             <button id="{{item}}" onclick="drawGraph(event.target.id, '{{type}}')">{{ item|capfirst }}</button>
                         {% endfor %}
                     </div>
