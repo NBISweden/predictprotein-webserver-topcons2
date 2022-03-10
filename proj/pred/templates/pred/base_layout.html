@@ -74,7 +74,7 @@ function ChangeImgSubmitNumSeq(imgPtr) {
 const serverStatistics = JSON.parse("{{ statistics_per_timeline|escapejs }}")
 function drawGraph(id, type) {
     const graphdata = (data, numtype) => {
-        const pos = numtype === 'job' ? 1 : 2;
+        const pos = numtype === 'jobs' ? 1 : 2;
         return data.map(x => {
             return {x: x[0], y: x[pos]}
         })
