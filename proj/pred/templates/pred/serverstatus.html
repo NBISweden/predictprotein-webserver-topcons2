@@ -19,8 +19,7 @@
         <h2> Chart testing </h2>
         {% with 'jobs sequences' as list %}
             {% for type in list.split %}
-                <div>
-                    <h2> {{type}} </h2>
+                <div class="visual-statistics-container">
                     <div class="btn-group">
                        <span style="margin-right: 5px;"><b> By number of {{type}} </b></span>
                         {% for item in statistics_timeline %}
@@ -235,9 +234,19 @@
     </p>
 
 <style lang="scss">
+.visual-statistics-container {
+    margin-bottom: 30px;
+}
 .btn-group {
     display: flex;
     justify-content: flex-end;
+    text-align: center;
+    align-items: center;
+    color: #6633CC;
+    font-size: 1.1em;
+}
+.btn-group > button {
+    margin: 1px;
 }
 </style>
 {% endblock %}
