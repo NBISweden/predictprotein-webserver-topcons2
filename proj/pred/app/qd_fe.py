@@ -97,7 +97,7 @@ def main(g_params):  # {{{
             isOldRstdirDeleted = webcom.DeleteOldResult(
                     path_result, path_log,
                     gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
-            webcom.CleanCachedResult(path_static, name_cachedir, gen_logfile, gen_errfile)
+            qdcom.CleanCachedResult(g_params)
         if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
 
@@ -188,7 +188,8 @@ def InitGlobalParameter():  # {{{
     g_params['DEBUG_CACHE'] = False
     g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 400
-    g_params['MAX_KEEP_DAYS'] = 30
+    g_params['MAX_KEEP_DAYS'] = 30  # No. of days to store rstdir
+    g_params['MAX_KEEP_DAYS_CACHE'] = 480  # No. of days to store cached result
     g_params['THRESHOLD_SMALL_JOB'] = 10  # max number of sequences to be considered as small job
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
