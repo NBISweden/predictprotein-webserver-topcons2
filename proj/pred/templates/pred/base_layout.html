@@ -72,11 +72,36 @@ function ChangeImgSubmitNumSeq(imgPtr) {
     document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
 }
 const serverStatistics = JSON.parse("{{ statistics_per_timeline|escapejs }}")
+
 function drawGraph(id, type) {
+    const transformDate = (fullDate, id) => {
+        if(id == 'day') {
+            return fullDate
+        } else {
+            const year = fullDate.slice(0,4);
+            if(id == 'week') {
+                Date.prototype.getWeek = function() {
+                    var date = new Date(this.getTime());
+                    date.setHours(0, 0, 0, 0);
+                    // Thursday in current week decides the year.
+                    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+                    // January 4 is always in week 1.
+                    var week1 = new Date(date.getFullYear(), 0, 4);
+                    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+                    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+                }
+                return `${year}-W${new Date(fullDate).getWeek()}`
+            } else if (id == 'month') {
+                return `${year}-${new Date(fullDate).toLocaleString('default', { month: 'short' })}`
+            } else {
+                return year
+            }
+        }
+    }
     const graphdata = (data, numtype) => {
         const pos = numtype === 'jobs' ? 1 : 2;
         return data.map(x => {
-            return {x: x[0], y: x[pos]}
+            return {x: transformDate(x[0], id), y: x[pos]}
         })
     }
     const data = serverStatistics[id]
