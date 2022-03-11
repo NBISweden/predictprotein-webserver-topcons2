@@ -9,7 +9,6 @@ services:
     volumes:
       - .:/topcons
     working_dir: /app
-    command: /topcons/dockerrun.sh
     ports:
       - "8000:8000"
     network_mode: 'host'

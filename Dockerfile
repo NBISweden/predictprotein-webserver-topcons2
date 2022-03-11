@@ -21,3 +21,4 @@ RUN pip3 install -r /requirements.txt
 # hack to make python3 version of geoip working
 RUN pip3 uninstall --yes python-geoip
 RUN pip3 install  python-geoip-python3==1.3
+ENTRYPOINT ["/topcons/dockerrun.sh"]
