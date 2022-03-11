@@ -97,7 +97,7 @@ def main(g_params):  # {{{
             isOldRstdirDeleted = webcom.DeleteOldResult(
                     path_result, path_log,
                     gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
-            webcom.CleanCachedResult(g_params)
+            qdcom.CleanCachedResult(g_params)
         if loop % g_params['CLEAN_SERVER_FREQUENCY'][0] == g_params['CLEAN_SERVER_FREQUENCY'][1]:
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
 
