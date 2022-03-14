@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+
+  topcons:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/topcons
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    network_mode: 'host'
+

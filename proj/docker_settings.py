@@ -25,7 +25,7 @@ SECRET_KEY = '5&!cq9#+(_=!ou=mco0=-qrmn6h66o(f)h$ho4+0vo1#d24xdy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 allowed_host_file = "%s/allowed_host_dev.txt"%(BASE_DIR)
 computenodefile = "%s/pred/config/computenode.txt"%(BASE_DIR)
 for f in [allowed_host_file, computenodefile]:
@@ -36,4 +36,4 @@ for f in [allowed_host_file, computenodefile]:
 hostip = webcom.get_external_ip()
 ALLOWED_HOSTS.append(hostip)
 
-USE_ENV = True
+USE_ENV = False
