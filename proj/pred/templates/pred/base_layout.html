@@ -119,7 +119,7 @@ function drawGraph(id, type) {
                 datasets: [{
                     label: `# of ${type}`,
                     data: graphd,
-                    backgroundColor: ['blue']
+                    backgroundColor: [type === 'jobs' ? 'rgba(127, 127, 255, 1)' : 'rgba(255, 127, 127, 1)']
                 }]
             },
             options: {
