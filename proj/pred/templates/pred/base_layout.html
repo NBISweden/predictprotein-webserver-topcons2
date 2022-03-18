@@ -17,6 +17,9 @@
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.js" %}" ></script>
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.dataTables.min.js" %}" ></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.2.0/chartjs-plugin-zoom.min.js></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+
 <script>
 
 $(function(){
@@ -107,6 +110,13 @@ function drawGraph(id, type) {
     const data = serverStatistics[id]
     const graphType = id=='day' ? 'line' : 'bar';
     const graphd = graphdata(data, type);
+    let xValues = []
+    let yValues = []
+    graphd.forEach(item => {
+        const values = Object.values(item);
+        xValues.push(values[0])
+        yValues.push(values[1])
+        })
     let container = document.getElementById(`graph-container-${type}`);
     if (!container.firstElementChild || (container.firstElementChild && container.children[0].id != id)) {
         container.firstElementChild && container.removeChild(container.children[0]);
@@ -116,21 +126,31 @@ function drawGraph(id, type) {
         const chart = new Chart(canvas, {
             type: graphType,
             data: {
+                labels: xValues,
                 datasets: [{
                     label: `# of ${type}`,
-                    data: graphd,
+                    data: yValues,
                     backgroundColor: [type === 'jobs' ? 'rgba(127, 127, 255, 1)' : 'rgba(255, 127, 127, 1)']
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
                 plugins:{
                     legend: {
                         display: false
+                    },
+                    zoom: {
+                        pan: {
+                            enabled: true
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            drag: {
+                                enabled: true,
+                            },
+                            mode: 'xy',
+                        }
                     }
                 }
             }
