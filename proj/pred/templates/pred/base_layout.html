@@ -16,9 +16,9 @@
 
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.js" %}" ></script>
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.dataTables.min.js" %}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.2.0/chartjs-plugin-zoom.min.js></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 
 <script>
 
@@ -139,18 +139,15 @@ function drawGraph(id, type) {
                         display: false
                     },
                     zoom: {
-                        pan: {
-                            enabled: true
-                        },
                         zoom: {
                             wheel: {
-                                enabled: true,
+                                enabled: true
                             },
                             drag: {
-                                enabled: true,
+                                enabled: true
                             },
-                            mode: 'xy',
-                        }
+                            mode: 'x',
+                        },
                     }
                 }
             }
