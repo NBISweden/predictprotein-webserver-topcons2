@@ -16,25 +16,6 @@
         </tr>
     </table>
     <div>
-        <h2> Chart testing </h2>
-        {% with 'jobs sequences' as list %}
-            {% for type in list.split %}
-                <div class="visual-statistics-container">
-                    <div class="btn-group">
-                       <span style="margin-right: 5px;"><b> By number of {{type}} </b></span>
-                        {% for item in statistics_timeline %}
-                           <button id="{{item}}" onclick="drawGraph(event.target.id, '{{type}}')">{{ item|capfirst }}</button>
-                        {% endfor %}
-                    </div>
-                    <div id="graph-container-{{type}}">
-                    </div>
-                </div>
-            {% endfor %}
-        {% endwith %}
-        <script>
-            drawGraph('month', 'jobs');
-            drawGraph('month', 'sequences');
-        </script>
     <p class="section">
     <h2>Statistics (since {{startdate}})</h2>
     <table cellspacing=0 cellpadding=5 border=0>
@@ -134,31 +115,24 @@
 
     <p class="section">
      <h3>Frequency of submission over time:</h3>
-
-       <form>
-           <font color="#6633CC"><b>By number of jobs</b></font>
-           <input type="radio" name="numjobsubmit" value="0" onclick="ChangeImgSubmitNumJob(this.value)">day
-           <input type="radio" name="numjobsubmit" value="1" onclick="ChangeImgSubmitNumJob(this.value)">week
-           <input type="radio" name="numjobsubmit" value="2" onclick="ChangeImgSubmitNumJob(this.value)" checked="checked">month
-           <input type="radio" name="numjobsubmit" value="3" onclick="ChangeImgSubmitNumJob(this.value)">year
-       </form>
-        <p>
-            <img id="imgNumJobSubmit"
-            src="{{STATIC_URL}}log/stat/submit_month.stat.txt.numjob.png"
-            alt="" height="400">
-        </p>
-       <form>
-           <font color="#6633CC"><b>By number of sequences</b></font>
-           <input type="radio" name="numseqsubmit" value="0" onclick="ChangeImgSubmitNumSeq(this.value)">day
-           <input type="radio" name="numseqsubmit" value="1" onclick="ChangeImgSubmitNumSeq(this.value)">week
-           <input type="radio" name="numseqsubmit" value="2" onclick="ChangeImgSubmitNumSeq(this.value)" checked='checked'>month
-           <input type="radio" name="numseqsubmit" value="3" onclick="ChangeImgSubmitNumSeq(this.value)">year
-       </form>
-        <p>
-            <img id="imgNumSeqSubmit"
-            src="{{STATIC_URL}}log/stat/submit_month.stat.txt.numseq.png"
-            alt="" height="400">
-        </p>
+        {% with 'jobs sequences' as list %}
+            {% for type in list.split %}
+                <div class="visual-statistics-container">
+                    <div class="btn-group">
+                       <span style="margin-right: 5px;"><b> By number of {{type}} </b></span>
+                        {% for item in statistics_timeline %}
+                           <button id="{{item}}" onclick="drawGraph(event.target.id, '{{type}}')">{{ item|capfirst }}</button>
+                        {% endfor %}
+                    </div>
+                    <div id="graph-container-{{type}}">
+                    </div>
+                </div>
+            {% endfor %}
+        {% endwith %}
+        <script>
+            drawGraph('month', 'jobs');
+            drawGraph('month', 'sequences');
+        </script>
     </p>
 
     <p class="section">
