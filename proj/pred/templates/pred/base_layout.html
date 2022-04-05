@@ -16,6 +16,10 @@
 
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.js" %}" ></script>
 <script type="text/javascript" charset="utf8" src="{% static "js/jquery.dataTables.min.js" %}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.2.0/chartjs-plugin-zoom.min.js></script>
+
 <script>
 
 $(function(){
@@ -52,25 +56,84 @@ function example_fill(){
   document.seq_form.rawseq.value='>sp|O93740|BACR_HALS4 Bacteriorhodopsin Halobacterium sp.\nMCCAALAPPMAATVGPESIWLWIGTIGMTLGTLYFVGRGRGVRDRKMQEFYIITIFITTI\nAAAMYFAMATGFGVTEVMVGDEALTIYWARYADWLFTTPLLLLDLSLLAGANRNTIATLI\nGLDVFMIGTGAIAALSSTPGTRIAWWAISTGALLALLYVLVGTLSENARNRAPEVASLFG\nRLRNLVIALWFLYPVVWILGTEGTFGILPLYWETAAFMVLDLSAKVGFGVILLQSRSVLE\nRVATPTAAPT\n';
 }
 
-var ImgArraySubmitNumJob = [
-    "{% static "log/stat/submit_day.stat.txt.numjob.png" %}" ,
-    "{% static "log/stat/submit_week.stat.txt.numjob.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numjob.png" %}" ,
-    "{% static "log/stat/submit_year.stat.txt.numjob.png" %}",
-];
-function ChangeImgSubmitNumJob(imgPtr) {
-    document.getElementById('imgNumJobSubmit').src = ImgArraySubmitNumJob[imgPtr];
-}
-var ImgArraySubmitNumSeq = [
-    "{% static "log/stat/submit_day.stat.txt.numseq.png" %}" ,
-    "{% static "log/stat/submit_week.stat.txt.numseq.png" %}" ,
-    "{% static "log/stat/submit_month.stat.txt.numseq.png" %}",
-    "{% static "log/stat/submit_year.stat.txt.numseq.png" %}",
-];
-function ChangeImgSubmitNumSeq(imgPtr) {
-    document.getElementById('imgNumSeqSubmit').src = ImgArraySubmitNumSeq[imgPtr];
-}
+const serverStatistics = JSON.parse("{{ statistics_per_timeline|escapejs }}")
 
+function drawGraph(id, type) {
+    const transformDate = (fullDate, id) => {
+        if(id == 'day') {
+            return fullDate
+        } else {
+            const year = fullDate.slice(0,4);
+            if(id == 'week') {
+                Date.prototype.getWeek = function() {
+                    let d = new Date(Date.UTC(this.getFullYear(),
+                            this.getMonth(), this.getDate()));
+                    const dayNum = d.getUTCDay() || 7;
+                    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+                    return `${yearStart.getFullYear()}-W${Math.ceil((((d - yearStart) / 86400000) + 1)/7)}`
+                }
+                return new Date(fullDate).getWeek()
+            } else if (id == 'month') {
+                return `${year}-${new Date(fullDate).toLocaleString('default', { month: 'short' })}`
+            } else {
+                return year
+            }
+        }
+    }
+    const graphdata = (data, numtype) => {
+        const pos = numtype === 'jobs' ? 1 : 2;
+        return data.map(x => {
+            return {x: transformDate(x[0], id), y: x[pos]}
+        })
+    }
+    const data = serverStatistics[id]
+    const graphType = id=='day' ? 'line' : 'bar';
+    const graphd = graphdata(data, type);
+    let xValues = []
+    let yValues = []
+    graphd.forEach(item => {
+        const values = Object.values(item);
+        xValues.push(values[0])
+        yValues.push(values[1])
+        })
+    let container = document.getElementById(`graph-container-${type}`);
+    if (!container.firstElementChild || (container.firstElementChild && container.children[0].id != id)) {
+        container.firstElementChild && container.removeChild(container.children[0]);
+        let canvas = document.createElement('canvas');
+        canvas.setAttribute('id',id);
+        container.appendChild(canvas);
+        const chart = new Chart(canvas, {
+            type: graphType,
+            data: {
+                labels: xValues,
+                datasets: [{
+                    label: `# of ${type}`,
+                    data: yValues,
+                    backgroundColor: [type === 'jobs' ? 'rgba(127, 127, 255, 1)' : 'rgba(255, 127, 127, 1)']
+                }]
+            },
+            options: {
+                plugins:{
+                    legend: {
+                        display: false
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true
+                            },
+                            drag: {
+                                enabled: true
+                            },
+                            mode: 'x',
+                        },
+                    }
+                }
+            }
+        });
+    }
+}
 
 {% block javascript_function %}{% endblock %}
 
