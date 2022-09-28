@@ -531,9 +531,11 @@ def download(request):#{{{
     info['size_wholepackage'] = ""
     info['size_database'] = ""
     size_wholepackage = 0
-    zipfile_wholepackage = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2.0_Linux_x64_with_database.zip")
-    zipfile_database = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2_database.zip")
-    md5file_database = "%s/%s/%s"%(SITE_ROOT, "static/download", "topcons2_database.zip.md5")
+    path_download = os.path.join(path_static, "download")
+    zipfile_wholepackage = os.path.join(path_download, "topcons2.0_Linux_x64_with_database.zip")
+    zipfile_database = os.path.join(path_download, "topcons2_database.zip")
+    md5file_database = os.path.join(path_download, "topcons2_database.zip.md5")
+    infofile_database = os.path.join(path_download, "topcons2_database.info.json")
     if os.path.exists(zipfile_wholepackage):
         info['zipfile_wholepackage'] = os.path.basename(zipfile_wholepackage)
         size_wholepackage = os.path.getsize(os.path.realpath(zipfile_wholepackage))
@@ -545,8 +547,15 @@ def download(request):#{{{
         size_database_str = myfunc.Size_byte2human(size_database)
         info['size_database'] = size_database_str
     if os.path.exists(md5file_database):
-        md5_key = myfunc.ReadFile(md5file_database).strip()
+        md5_key = myfunc.ReadFile(md5file_database).strip().split()[0]
         info['md5_key_zipfile_database'] = md5_key
+    if os.path.exists(infofile_database):
+        text = myfunc.ReadFile(infofile_database)
+        try:
+            dbinfo = json.loads(text)
+        except json.JSONDecodeError:
+            dbinfo = {}
+        info.update(dbinfo)
 
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/download.html', info)
