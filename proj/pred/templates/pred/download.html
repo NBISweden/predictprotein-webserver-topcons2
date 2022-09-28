@@ -72,17 +72,19 @@
         <tr>
             <td>
                 <h3>5. The database for TOPCONS2.0 in one zip file. </h3>
-                <p style="margin-left:15px;">
-                <font color="red">
-                    Please note that the zip file is very large.<br><br>
-                </font>
-                <a href="{{STATIC_URL}}download/{{zipfile_database}}">{{zipfile_database}} </a>({{size_database}})<br><br>
-                {% if md5_key_zipfile_database %}
-                md5_checksum: {{md5_key_zipfile_database}}
-                {% endif %}
-                {#<a href="{{STATIC_URL}}download/README.txt">README for the TOPCONS2.0 package</a>#}
-                    <br><br>
-                </p>
+                <div style="margin-left:15px;">
+                    <p> <font color="red"> Please note that the zip file is very large. </font> </p>
+                    <p><a href="{{STATIC_URL}}download/{{zipfile_database}}">{{zipfile_database}} </a>({{size_database}})
+                    </p>
+                    <p>
+                    {% if md5_key_zipfile_database %}
+                    md5_checksum: {{md5_key_zipfile_database}}
+                    {% endif %}
+                    </p>
+                    {% if Pfam_version and Uniprot_version %}
+                    <p> The database is created based on Pfam {{Pfam_version}} and Uniprot KB database as of {{Uniprot_version}}.</p>
+                    {% endif %}
+                </div>
             </td>
         </tr>
     {%endif%}
