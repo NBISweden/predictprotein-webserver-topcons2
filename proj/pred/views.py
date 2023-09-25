@@ -188,7 +188,7 @@ def GetTMListForView_Topcons(resultdict, topfolder_seq0):# {{{
 def index(request):#{{{
     if not os.path.exists(path_result):
         os.mkdir(path_result, 0o755)
-    if not os.path.exists(path_result):
+    if not os.path.exists(path_tmp):
         os.mkdir(path_tmp, 0o755)
     if not os.path.exists(path_md5):
         os.mkdir(path_md5, 0o755)
