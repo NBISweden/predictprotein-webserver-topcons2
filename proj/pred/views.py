@@ -186,12 +186,10 @@ def GetTMListForView_Topcons(resultdict, topfolder_seq0):# {{{
     return TMlist, topolist
 # }}}
 def index(request):#{{{
-    if not os.path.exists(path_result):
-        os.mkdir(path_result, 0o755)
-    if not os.path.exists(path_result):
-        os.mkdir(path_tmp, 0o755)
-    if not os.path.exists(path_md5):
-        os.mkdir(path_md5, 0o755)
+    """View function of the root URL"""
+    for path in [path_result, path_tmp, path_md5]:
+        if not os.path.exists(path):
+            os.mkdir(path, 0o755)
     base_www_url_file = "%s/static/log/base_www_url.txt"%(SITE_ROOT)
     if not os.path.exists(base_www_url_file):
         base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
