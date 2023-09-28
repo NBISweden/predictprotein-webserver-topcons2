@@ -128,16 +128,7 @@ def main(g_params):  # {{{
                         if node in remotequeueDict:
                             remotequeueDict[node].append(remotejobid)
 
-        cntSubmitJobDict = {}  # format of cntSubmitJobDict {'node_ip': INT, 'node_ip': INT}
-        for node in avail_computenode:
-            queue_method = avail_computenode[node]['queue_method']
-            num_queue_job = len(remotequeueDict[node])
-            if num_queue_job >= 0:
-                cntSubmitJobDict[node] = [num_queue_job,
-                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
-            else:
-                cntSubmitJobDict[node] = [0,
-                        g_params['MAX_SUBMIT_JOB_PER_NODE'], queue_method] #[num_queue_job, max_allowed_job]
+        cntSubmitJobDict = webcom.InitCounterSubmitJobDict(avail_computenode, remotequeueDict, g_params['MAX_SUBMIT_JOB_PER_NODE'])
 
 # entries in runjoblogfile includes jobs in queue or running
         dt_runjoblog = myfunc.ReadRunJobLog(runjoblogfile)
