@@ -140,7 +140,7 @@ def main(g_params):  # {{{
 
         for jobid in reordered_runjobidlist:
             [status_this_job, jobname, ip, email, numseq, method_submission,
-                    submit_date_str, start_date_str, finish_date_str,
+                    submit_date_str, start_date_str, finish_date_str, app_type,
                     total_numseq_of_user, priority] = dt_runjoblog[jobid]
             numseq_this_user = total_numseq_of_user
             rstdir = os.path.join(path_result, jobid)
