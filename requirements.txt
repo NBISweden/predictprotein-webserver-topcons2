@@ -22,5 +22,5 @@ pycountry==18.5.26
 
 tabulate==0.7.7
 
-git+https://github.com/NBISweden/libpredweb.git@master
+git+https://github.com/NBISweden/libpredweb.git@main
 
