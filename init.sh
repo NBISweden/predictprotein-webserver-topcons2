@@ -32,11 +32,16 @@ case $platform_info in
     *)platform=other;;
 esac
 
+# second check
+second_check=$(cat /etc/os-release  | grep NAME | grep -i redhat)
+if [ "$second_check" != "" ] ;then
+    platform=redhat
+fi
 
 case $platform in 
     centos|redhat) user=apache;group=apache;;
     ubuntu) user=www-data;group=www-data;;
-    other)echo Unrecognized plat form $platform_info; exit 1;;
+    other)echo Unrecognized platform $platform_info; exit 1;;
 esac
 
 # change folder permission and add user to the apache group
