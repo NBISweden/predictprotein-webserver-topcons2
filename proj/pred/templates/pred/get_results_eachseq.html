@@ -6,7 +6,11 @@
       {% include "pred/user_header.html" %}
     {% endif %}
     {% if not isResultFolderExist %}
-        <p></p>
+        {% if isInRemoteQueue %}
+            <p> Queuetime in the backend node {{remote_node}}: {{time_in_remote}} </p>
+        {% else %}
+            <p></p>
+        {% endif %}
     {% else %}
         {%if resultfile %}
             <p>
@@ -22,6 +26,6 @@
 
         {% include "pred/show_topoinfo.html"%}
 
-    {%endif%}
+    {% endif %}
 
 {% endblock %}
