@@ -868,20 +868,22 @@ def get_results(request, jobid="1"):#{{{
 
 def ReadRemoteQueueFile(infile):
     dt = {}
-    content = myfunc.ReadFile(remotequeue_idx_file)  
+    content = myfunc.ReadFile(infile)
     lines = content.split('\n')
     for line in lines:
         strs = line.split('\t')
         if len(strs) >= 6:
             seqindex, node, remote_jobid, _ , _, epochtime = strs[:6]
+            seqindex = "seq_" + seqindex
             dt[seqindex] = {}
             dt[seqindex]['node'] = node
             dt[seqindex]['remote_jobid'] = remote_jobid
-            dt[seqindex]['submittime_epoch'] = epochtime
+            dt[seqindex]['submittime_epoch'] = float(epochtime)
     return dt
 
 
 def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
+    # seqindex is of the format seq_N
     resultdict = {}
     webcom.set_basic_config(request, resultdict, g_params)
 
@@ -906,6 +908,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
         'BASEURL': g_params['BASEURL'],
         'status': status,
         'numseq': numseq,
+        'seqindex': seqindex,
         'isAllNonTM': True
     })
 
@@ -936,8 +939,9 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
             submittime_epoch = remoteQueueDict[seqindex]['submittime_epoch']
             current_epoch_time = time.time()
             time_difference = current_epoch_time - submittime_epoch
-            time_difference_timedelta = datetime.utcfromtimestamp(time_difference)
-            resultdict['time_in_remote'] = str(time_difference_timedelta)
+            resultdict['time_in_remote'] = myfunc.second_to_human(time_difference)
+            resultdict['time_difference_in_seconds'] = str(time_difference)
+            resultdict['remote_node'] = remoteQueueDict[seqindex]['node']
         else:
             resultdict['isInRemoteQueue'] = False
 

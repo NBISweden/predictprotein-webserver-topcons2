@@ -7,10 +7,7 @@
     {% endif %}
     {% if not isResultFolderExist %}
         {% if isInRemoteQueue %}
-            <p>
-            Queuetime in the backend node {{remote_node}}: {{time_in_remote}}
-            </p>
-
+            <p> Queuetime in the backend node {{remote_node}}: {{time_in_remote}} </p>
         {% else %}
             <p></p>
         {% endif %}
