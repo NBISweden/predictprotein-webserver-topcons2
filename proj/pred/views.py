@@ -864,23 +864,18 @@ def get_results(request, jobid="1"):#{{{
     resultdict['jobcounter'] = webcom.GetJobCounter(resultdict)
     return render(request, 'pred/get_results.html', resultdict)
 #}}}
-def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
+
+def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
     resultdict = {}
     webcom.set_basic_config(request, resultdict, g_params)
 
+    rstdir = os.path.join(path_result, jobid)
 
-    rstdir = "%s/%s"%(path_result, jobid)
-    outpathname = jobid
-
-    jobinfofile = "%s/jobinfo"%(rstdir)
+    jobinfofile = os.path.join(rstdir, "jobinfo")
     jobinfo = myfunc.ReadFile(jobinfofile).strip()
     jobinfolist = jobinfo.split("\t")
     if len(jobinfolist) >= 8:
-        submit_date_str = jobinfolist[0]
-        numseq = int(jobinfolist[3])
-        jobname = jobinfolist[5]
-        email = jobinfolist[6]
-        method_submission = jobinfolist[7]
+        submit_date_str, _, _, numseq, _, jobname, email, method_submission = jobinfolist[:8]
     else:
         submit_date_str = ""
         numseq = 1
@@ -889,46 +884,39 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
         method_submission = "web"
 
     status = ""
+    resultdict.update({
+        'jobid': jobid,
+        'jobname': jobname,
+        'BASEURL': g_params['BASEURL'],
+        'status': status,
+        'numseq': numseq,
+        'isAllNonTM': True
+    })
 
-    resultdict['jobid'] = jobid
-    resultdict['jobname'] = jobname
-    resultdict['outpathname'] = os.path.basename(outpathname)
-    resultdict['BASEURL'] = g_params['BASEURL']
-    resultdict['status'] = status
-    resultdict['numseq'] = numseq
-    base_www_url = webcom.get_url_scheme(request) + request.META['HTTP_HOST']
-    resultdict['isAllNonTM'] = True
-
-    resultfile = "%s/%s/%s/%s"%(rstdir, outpathname, seqindex, "query.result.txt")
-    if os.path.exists(resultfile):
-        resultdict['resultfile'] = os.path.basename(resultfile)
-    else:
-        resultdict['resultfile'] = ""
-
-
-    # get topology for the first seq
-    topfolder_seq0 = "%s/%s/%s"%(rstdir, jobid, seqindex)
-    subdirname = seqindex
-    resultdict['subdirname'] = subdirname
-    nicetopfile = "%s/nicetop.html"%(topfolder_seq0)
-    if os.path.exists(nicetopfile):
-        resultdict['nicetopfile'] = "%s/%s/%s/%s/%s"%(
-                "result", jobid, jobid, subdirname,
-                os.path.basename(nicetopfile))
-    else:
-        resultdict['nicetopfile'] = ""
-    resultdict['isResultFolderExist'] = False
+    topfolder_seq0 = os.path.join(rstdir, jobid, seqindex)
     if os.path.exists(topfolder_seq0):
-        resultdict['isResultFolderExist'] = True
+        resultdict.update({
+            'isResultFolderExist': True,
+            'subdirname': seqindex
+        })
+        resultfile = os.path.join(topfolder_seq0, "query.result.txt")
+        resultdict['resultfile'] = os.path.basename(resultfile) if os.path.exists(resultfile) else ""
+        nicetopfile = os.path.join(topfolder_seq0, "nicetop.html")
+        resultdict['nicetopfile'] = os.path.join(
+            "result", jobid, jobid, seqindex, os.path.basename(nicetopfile)
+        ) if os.path.exists(nicetopfile) else ""
 
         TMlist, topolist = GetTMListForView_Topcons(resultdict, topfolder_seq0)
-
-        resultdict['topolist'] = topolist
-        resultdict['TMlist'] = TMlist
+        resultdict.update({
+            'topolist': topolist,
+            'TMlist': TMlist
+        })
+    else:
+        resultdict['isResultFolderExist'] = False
 
     resultdict['jobcounter'] = webcom.GetJobCounter(resultdict)
     return render(request, 'pred/get_results_eachseq.html', resultdict)
-#}}}
+# }}}
 
 # enabling wsdl service
 #{{{ The actual wsdl api
