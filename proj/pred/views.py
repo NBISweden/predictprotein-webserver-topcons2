@@ -865,6 +865,22 @@ def get_results(request, jobid="1"):#{{{
     return render(request, 'pred/get_results.html', resultdict)
 #}}}
 
+
+def ReadRemoteQueueFile(infile):
+    dt = {}
+    content = myfunc.ReadFile(remotequeue_idx_file)  
+    lines = content.split('\n')
+    for line in lines:
+        strs = line.split('\t')
+        if len(strs) >= 6:
+            seqindex, node, remote_jobid, _ , _, epochtime = strs[:6]
+            dt[seqindex] = {}
+            dt[seqindex]['node'] = node
+            dt[seqindex]['remote_jobid'] = remote_jobid
+            dt[seqindex]['submittime_epoch'] = epochtime
+    return dt
+
+
 def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
     resultdict = {}
     webcom.set_basic_config(request, resultdict, g_params)
@@ -913,6 +929,17 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):# {{{
         })
     else:
         resultdict['isResultFolderExist'] = False
+        remotequeue_idx_file = os.path.join(rstdir, "remotequeue_seqindex.txt")
+        remoteQueueDict = ReadRemoteQueueFile(remotequeue_idx_file)
+        if seqindex in remoteQueueDict:
+            resultdict['isInRemoteQueue'] = True
+            submittime_epoch = remoteQueueDict[seqindex]['submittime_epoch']
+            current_epoch_time = time.time()
+            time_difference = current_epoch_time - submittime_epoch
+            time_difference_timedelta = datetime.utcfromtimestamp(time_difference)
+            resultdict['time_in_remote'] = str(time_difference_timedelta)
+        else:
+            resultdict['isInRemoteQueue'] = False
 
     resultdict['jobcounter'] = webcom.GetJobCounter(resultdict)
     return render(request, 'pred/get_results_eachseq.html', resultdict)
