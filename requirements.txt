@@ -1,5 +1,5 @@
 spyne==2.13.2-alpha
-requests==2.25.1
+requests==2.31.0
 mod-wsgi==4.6.8
 django==2.2.13
 
